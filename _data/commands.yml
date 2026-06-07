@@ -2,20 +2,20 @@
 
 - name: help
   usage: "/help"
-  description: "사용 가능한 모든 명령어를 보여줍니다."
-  man_page: "/help 명령어는 터미널에서 사용할 수 있는 모든 명령어 목록을 제공합니다."
+  description: "List available commands."
+  man_page: "Lists every command available in this terminal."
 
 - name: search
-  usage: "/search [키워드]"
-  description: "키워드로 포스트를 검색합니다."
-  man_page: "/search 명령어는 제목, 태그 또는 내용에서 특정 키워드를 포함하는 포스트를 찾을 수 있습니다."
+  usage: "/search [keyword]"
+  description: "Find posts by keyword."
+  man_page: "Searches post titles, tags, and content for the keyword you provide."
 
 - name: map
   usage: "/map"
-  description: "포스트와 연결 관계를 지식 그래프로 시각화합니다."
-  man_page: "/map 명령어는 모든 포스트를 노드로, 공유 태그를 연결선으로 보여주는 인터랙티브한 지식 그래프를 엽니다. 다양한 주제 간의 관계를 탐색할 수 있습니다."
+  description: "Open the knowledge graph."
+  man_page: "Opens an interactive knowledge graph — posts as nodes, shared tags as edges."
 
 - name: clear
   usage: "/clear"
-  description: "터미널 화면을 지웁니다."
-  man_page: "/clear 명령어는 터미널 화면의 모든 출력을 지워 깨끗한 상태로 만듭니다."
+  description: "Wipe the terminal."
+  man_page: "Wipes all output from the terminal screen."

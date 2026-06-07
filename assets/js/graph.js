@@ -26,10 +26,10 @@ export async function drawGraph(containerId) {
   const nodeColorPalette = {
     'default': {
       background: 'radial-gradient(circle at 30% 30%, #fff, ' + accentCyan + ')',
-      border: 'rgba(0,240,255,0.35)',
+      border: 'rgba(144, 108, 190,0.35)',
       highlight: {
         background: 'radial-gradient(circle at 30% 30%, #fff, ' + accentCyan + ')',
-        border: 'rgba(0,240,255,0.45)'
+        border: 'rgba(144, 108, 190,0.45)'
       }
     },
     'security': { // Example category
@@ -50,10 +50,10 @@ export async function drawGraph(containerId) {
     },
     'general': { // Example category
       background: 'radial-gradient(circle at 30% 30%, #fff, ' + accentViolet + ')',
-      border: 'rgba(143,99,255,0.35)',
+      border: 'rgba(144, 108, 190,0.35)',
       highlight: {
         background: 'radial-gradient(circle at 30% 30%, #fff, ' + accentViolet + ')',
-        border: 'rgba(143,99,255,0.45)'
+        border: 'rgba(144, 108, 190,0.45)'
       }
     }
     // Add more categories as needed
@@ -73,7 +73,7 @@ export async function drawGraph(containerId) {
       // Removed default color object, colors will be set per node
       shadow: {
         enabled: true,
-        color: 'rgba(0,240,255,0.35)', // Adapted from .dot box-shadow
+        color: 'rgba(144, 108, 190,0.35)', // Adapted from .dot box-shadow
         size: 10,
         x: 0,
         y: 0
@@ -83,15 +83,15 @@ export async function drawGraph(containerId) {
     edges: {
       width: 0.6, // Adapted from .link stroke-width
       color: { 
-        color: 'rgba(0,240,255,0.18)', // Adapted from .link stroke
-        highlight: 'rgba(0,240,255,0.4)' // Brighter highlight
+        color: 'rgba(144, 108, 190,0.18)', // Adapted from .link stroke
+        highlight: 'rgba(144, 108, 190,0.4)' // Brighter highlight
       },
       smooth: {
         type: 'continuous'
       },
       shadow: {
         enabled: true,
-        color: 'rgba(0,240,255,0.08)', // Adapted from .link filter drop-shadow
+        color: 'rgba(144, 108, 190,0.08)', // Adapted from .link filter drop-shadow
         size: 6,
         x: 0,
         y: 0
@@ -119,7 +119,27 @@ export async function drawGraph(containerId) {
   const data = { nodes: nodes, edges: edges };
 
   let network = new vis.Network(container, data, options);
-  network.setSize(container.offsetWidth, container.offsetHeight); // Explicitly set network size
+  network.setSize(container.offsetWidth, container.offsetHeight);
+
+  const loader = document.getElementById('graph-loader');
+  const showLoader = () => loader && loader.classList.add('is-loading');
+  const hideLoader = () => loader && loader.classList.remove('is-loading');
+
+  // Focus effect — hovered node and its connections highlighted, others fade
+  network.on('hoverNode', function (params) {
+    const connected = new Set(network.getConnectedNodes(params.node));
+    connected.add(params.node);
+    const updates = nodes.get().map(n => ({
+      id: n.id,
+      opacity: connected.has(n.id) ? 1 : 0.18,
+    }));
+    nodes.update(updates);
+  });
+
+  network.on('blurNode', function () {
+    const updates = nodes.get().map(n => ({ id: n.id, opacity: 1 }));
+    nodes.update(updates);
+  });
 
   window.addEventListener('resize', () => {
     network.fit();
@@ -162,23 +182,28 @@ export async function drawGraph(containerId) {
 
   function startTimelapse() {
     resetGraph();
-    interval = setInterval(addNextNode, 500); // Add a node every 500ms
+    showLoader();
+    interval = setInterval(() => {
+      addNextNode();
+      if (nodeIndex >= sortedNodes.length) hideLoader();
+    }, 500);
   }
 
   function resetGraph() {
     clearInterval(interval);
+    showLoader();
     nodes.clear();
     edges.clear();
     nodeIndex = 0;
     edgeIndex = 0;
-    // Add all nodes and edges for initial full display
     graphData.nodes.forEach(node => {
       const nodeColor = nodeColorPalette[node.group] || nodeColorPalette['default'];
       nodes.add({ ...node, color: nodeColor });
     });
     graphData.links.forEach(link => edges.add(link));
-    network.fit(); // Fit the graph to the view
-    network.redraw(); // Explicitly redraw the network
+    network.fit();
+    network.redraw();
+    setTimeout(hideLoader, 350);
   }
 
   const startTimelapseButton = document.getElementById('start-timelapse');

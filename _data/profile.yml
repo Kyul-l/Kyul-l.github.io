@@ -1,6 +1,5 @@
 # Sidebar profile information
-name: Veru
-bio: My Security Record
-avatar: /assets/images/veru.png # Make sure to add this image file
-github: https://github.com/ver-uu
-instagram: https://www.instagram.com/ver_uu_?igsh=d2szYW13bjh3bjM3&utm_source=qr
+name: Kyul
+bio: Cloud Red Team · Security Research
+avatar: # leave blank to hide, or set to /assets/images/<file>.png
+github: https://github.com/Kyul-l

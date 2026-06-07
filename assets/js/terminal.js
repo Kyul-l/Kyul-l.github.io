@@ -28,7 +28,7 @@ class Terminal {
   async init() {
     this.addEventListeners();
     await this.showWelcomeMessage();
-    this.input.focus();
+    this.input.focus({ preventScroll: true });
     this.fetchSearchIndex();
     this.updateStatus('OPERATIONAL');
   }
@@ -51,7 +51,7 @@ class Terminal {
 
   async showWelcomeMessage() {
     const welcomeLines = [
-      { text: 'Welcome to Veru\'s Log!', classes: ['line-welcome'] },
+      { text: 'Welcome to Kyul\'s Log!', classes: ['line-welcome'] },
       { text: ' ', classes: [] },
       { text: 'Type `/help` to see a list of available commands.', classes: ['line-system'] },
       { text: ' ', classes: [] },
@@ -245,6 +245,10 @@ class Terminal {
         this.handleClear();
         this.updateStatus('SCREEN CLEARED');
         break;
+      case 'seal':
+        this.handleSeal();
+        this.updateStatus('SEAL: 𝕵');
+        break;
       default:
         this.printLine(`-bash: /${command}: command not found`, false, ['line-system']);
         this.updateStatus('ERROR');
@@ -296,6 +300,18 @@ class Terminal {
 
   handleClear() {
     this.output.innerHTML = '';
+  }
+
+  handleSeal() {
+    const lines = [
+      ' ',
+      '            ⊹',
+      '       ❮  𝕵  ❯',
+      '            ⊹',
+      '   ─── the seal holds ───',
+      ' ',
+    ];
+    lines.forEach(l => this.printLine(l, false, ['output-hidden']));
   }
 
   printLine(text, isHTML = false, classes = []) {

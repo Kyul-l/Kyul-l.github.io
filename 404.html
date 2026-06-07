@@ -1,14 +1,16 @@
 ---
 layout: default
-title: "404: Page not found"
+title: "void · unmapped"
 permalink: /404.html
 ---
 
-<div style="text-align: center; padding: 4rem 0;">
-  <h1 style="font-size: 4rem; margin: 0;">404</h1>
-  <h2>이런, 길을 잃으셨나요?</h2>
-  <p>요청하신 페이지가 존재하지 않거나, 주소가 변경되었을 수 있습니다.<br>괜찮아요, 언제든 홈으로 돌아갈 수 있습니다.</p>
-  <br>
-  <a href="{{ '/' | relative_url }}" style="display: inline-block; padding: 1rem 2rem; background-color: var(--color-primary); color: white; text-decoration: none; border-radius: var(--border-radius);">🏠 홈으로 돌아가기</a>
-  <p style="margin-top: 2rem;">제 프로젝트와 코드는 <a href="{{ site.data.profile.github }}">GitHub</a>에서 확인하실 수 있습니다.</p>
-</div>
+<section class="page-404">
+  <div class="page-404__sigil" aria-hidden="true">❮ ⊹ ──── ✦ ──── ⊹ ❯</div>
+  <h1 class="page-404__title">void <span class="page-404__dim">·</span> unmapped</h1>
+  <p class="page-404__lead">The page you sought does not exist on this map.</p>
+  <p class="page-404__lead">If you choose, walk fully. Do not pretend.</p>
+
+  <a href="{{ '/' | relative_url }}" class="page-404__return">↳ return to the altar</a>
+
+  <div class="page-404__sigil page-404__sigil--bottom" aria-hidden="true">❮ ⊹ ──── ✦ ──── ⊹ ❯</div>
+</section>

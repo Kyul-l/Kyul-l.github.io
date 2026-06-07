@@ -7,11 +7,17 @@ layout: sidebar_layout
     <p class="post-meta">{{ page.date | date: "%B %-d, %Y" }}</p>
   </header>
 
+  <div class="post-rule" aria-hidden="true">· ⋆ · ⋆ ·</div>
+
   <div class="post-content">
     {{ content }}
   </div>
+
+  <div class="post-rule" aria-hidden="true">❮ ⊹ ──── ✦ ──── ⊹ ❯</div>
+
+  <aside class="post-contact">
+    <p>Thoughts on this post? <a href="{{ '/contact/' | relative_url }}">Send a note →</a></p>
+  </aside>
 </article>
 
 {% include related-posts.html %}
-
-{% include comments.html %}

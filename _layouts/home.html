@@ -5,28 +5,29 @@ layout: default
   <div class="mac-terminal-glow-container">
     <div class="mac-terminal">
       <div class="bloom"></div>
-    <div class="header">
-      <div class="header__op">
-        <span class="header__op-icon header__op-icon--red"></span>
-        <span class="header__op-icon header__op-icon--yellow"></span>
-        <span class="header__op-icon header__op-icon--green"></span>
+      <div class="header">
+        <div class="header__op">
+          <span class="header__op-icon header__op-icon--red"></span>
+          <span class="header__op-icon header__op-icon--yellow"></span>
+          <span class="header__op-icon header__op-icon--green"></span>
+        </div>
+        <div class="header__title">kyul@log:~</div>
+        <div class="header__empty"></div>
       </div>
-      <div class="header__title">veru@log:~</div>
-      <div class="header__empty"></div>
-    </div>
-    <div class="body" id="terminal-window" role="region" aria-live="polite">
-      <div id="terminal-output">
-        <!-- Dynamic output will be rendered here by JavaScript -->
+      <div class="body" id="terminal-window" role="region" aria-live="polite">
+        <div id="terminal-output">
+          <!-- Dynamic output will be rendered here by JavaScript -->
+        </div>
       </div>
-    </div>
-    <div class="prompt-wrapper">
-      <div id="autocomplete-suggestions" class="autocomplete-suggestions"></div>
-      <div class="terminal-input-line">
-        <span class="prompt">>&nbsp;</span>
-        <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Command input">
+      <div class="prompt-wrapper">
+        <div id="autocomplete-suggestions" class="autocomplete-suggestions"></div>
+        <div class="terminal-input-line">
+          <span class="prompt">>&nbsp;</span>
+          <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Command input">
+        </div>
       </div>
+      <div class="footer-line" id="terminal-status">STATUS: OPERATIONAL</div>
     </div>
-    <div class="footer-line" id="terminal-status">STATUS: OPERATIONAL</div>
   </div>
 </div>
 
