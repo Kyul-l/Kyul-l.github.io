@@ -1,12 +1,13 @@
 // _sass/components/_callout.scss
+// Tier 3 — still content container (callout)
 
 .callout {
   margin: var(--space) 0;
-  padding: 12px 14px;
+  padding: var(--s4);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  background: linear-gradient(180deg, rgba(143, 99, 255, .1), transparent);
-  box-shadow: inset 0 0 20px rgba(143, 99, 255, .1);
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: var(--shadow);
 
   p {
     margin: 0;

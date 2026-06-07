@@ -17,35 +17,89 @@
 }
 
 .site-title {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font: 700 1.4rem/1 var(--serif);
   text-decoration: none;
-  color: var(--fg);
+  color: var(--fg-main);
+  letter-spacing: .02em;
+  transition: color .2s ease, text-shadow .25s ease;
+
+  &:hover {
+    color: var(--accent);
+    text-shadow: var(--glow-weak);
+  }
 }
 
 .site-header-right {
   display: flex;
   align-items: center;
+  gap: .5rem;
 }
 
 .site-nav a {
-  margin-left: 1rem;
+  margin-left: 1.1rem;
   text-decoration: none;
-  color: var(--accent-cyan);
-  transition: text-shadow 0.3s ease;
+  color: var(--fg-main);
+  font: 500 .92rem/1 var(--sans);
+  letter-spacing: .02em;
+  position: relative;
+  padding: .3rem 0;
+  transition: color .2s ease;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .25s ease;
+  }
 
   &:hover {
-    text-shadow: 0 0 8px var(--accent-cyan);
+    color: var(--accent);
+    &::after { transform: scaleX(1); }
   }
+}
 
-  &:active {
-    color: inherit; // Prevent color change on click
+// ── Theme toggle ─────────────────────────────────────────────
+.theme-toggle {
+  margin-left: 1rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--fg-main);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+  position: relative;
+  overflow: hidden;
+
+  svg { display: block; transition: opacity .25s ease, transform .35s ease; position: absolute; }
+
+  .icon-sun  { opacity: 0; transform: rotate(-90deg); }
+  .icon-moon { opacity: 1; transform: rotate(0); }
+
+  &:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--panel-accent);
+    transform: translateY(-1px);
   }
+}
+
+[data-theme="light"] .theme-toggle {
+  .icon-sun  { opacity: 1; transform: rotate(0); }
+  .icon-moon { opacity: 0; transform: rotate(90deg); }
 }
 
 .site-main {
   padding: calc(var(--space) * 2) 0;
-  min-height: calc(100vh - 60px - 50px); // header/footer height
+  min-height: calc(100vh - 60px - 50px);
 }
 
 // For pages with a sidebar
@@ -75,20 +129,25 @@
     width: auto; /* 유연하게 공간 차지 */
   }
 
+}
+
+// Mobile-only body min-height (true small screens)
+@media (max-width: 768px) {
   .mac-terminal .body {
-    min-height: 550px; // Increase vertical length for terminal body on smaller screens
+    min-height: 420px;
   }
 }
 
-/* 사이드바 토글 버튼 항상 표시 */
 .sidebar-toggle {
   display: block;
   background: none;
   border: none;
-  color: var(--accent-cyan);
-  font-size: 1.5rem;
+  color: var(--fg-main);
+  font-size: 1.25rem;
   cursor: pointer;
-  margin-left: 1rem;
+  margin-left: .5rem;
+  transition: color .2s ease;
+  &:hover { color: var(--accent); }
 }
 
 /* 사이드바 숨김/표시 로직 */

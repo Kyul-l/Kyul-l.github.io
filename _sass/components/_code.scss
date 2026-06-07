@@ -4,8 +4,10 @@ code, pre {
 }
 
 pre {
-  @extend .panel;
   padding: var(--s3) var(--s4);
-  background: var(--panel-strong);
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: var(--radius);
   overflow: auto;
+  color: var(--code-fg);
 }

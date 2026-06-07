@@ -1,9 +1,10 @@
 html, body {
   height: 100%;
   margin: 0;
-  font-family: var(--mono);
+  font-family: var(--sans);
   background: var(--bg-1);
-  color: #cfd8e3;
+  color: var(--fg-main);
+  transition: background-color .35s ease, color .35s ease;
 }
 
 body {
@@ -11,31 +12,34 @@ body {
   line-height: var(--lh);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  position: relative; // Needed for pseudo-elements
+  position: relative;
 }
 
-// Grid effect with increased visibility
+::selection {
+  background: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
 body::after {
   content: "";
-  position: absolute;
+  position: fixed;
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px);
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: 50px 50px;
-  opacity: 0.4;
   z-index: -1;
+  transition: opacity .35s ease;
 }
 
-// Kept the noise effect from the previous version
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
   background: url("/assets/images/noise.jpg");
-  opacity: 0.06;
+  opacity: var(--noise-opacity);
   mix-blend-mode: overlay;
   z-index: -1;
 }
@@ -45,10 +49,13 @@ body::before {
   display: block;
   height: 1px;
   margin-top: 6px;
-  background: linear-gradient(to right, rgba(143, 99, 255, .25), transparent);
+  background: linear-gradient(to right, rgba(144, 108, 190, .35), transparent);
 }
 
 a {
-  color: var(--accent-cyan);
+  color: var(--link);
   text-decoration: none;
+  transition: color .2s ease;
+
+  &:hover { color: var(--link-hover); }
 }
