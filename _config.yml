@@ -14,17 +14,16 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: "Veru's Log"
+title: "Kyul's Log"
 author:
-  name: Veru
-  bio: "My Security Record"
-  email: your-email@example.com
+  name: Kyul
+  bio: "Cloud Red Team · Security Research"
+  email: kyull.kr@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
-  A blog about security, technology, and everything in between.
+  Notes from a quiet observer. Cloud red teaming, security research, and the systems behind them.
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://ver-uu.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-github_username:  ver-uu
-instagram_username:  your_instagram
+url: "https://kyul-l.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+github_username:  Kyul-l
 
 # Build settings
 markdown: kramdown
@@ -39,26 +38,8 @@ paginate_path: "/blog/page:num/"
 # Permalinks
 permalink: /blog/:year/:month/:day/:title/
 
-# Comments
-# Configure comments to be used on post pages
-comments:
-  provider: "giscus" # or "utterances"
-
-  giscus:
-    repo: "ver-uu/ver-uu.github.io" # Replace with your repo
-    repo_id: "" # Find this in the Giscus setup, e.g., R_kgDOMfA1_w
-    category: "" # e.g., "Announcements"
-    category_id: "" # e.g., DIC_kwDOMfA1_84Cf2s-
-    mapping: "pathname" # Or "url", "title", etc.
-    reactions_enabled: "1"
-    emit_metadata: "0"
-    theme: "preferred_color_scheme" # or "light", "dark"
-
-  utterances:
-    repo: "ver-uu/ver-uu.github.io" # Replace with your repo
-    theme: "github-light" # or "github-dark"
-    issue_term: "pathname"
-
+# Comments disabled — DM-only contact routing
+# Reach out via Discord (@Kyul_l) or GitHub (@Kyul-l)
 
 # Exclude from processing.
 # The following items will not be processed, by default.
