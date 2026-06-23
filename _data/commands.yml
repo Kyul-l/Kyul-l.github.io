@@ -19,3 +19,8 @@
   usage: "/clear"
   description: "Wipe the terminal."
   man_page: "Wipes all output from the terminal screen."
+
+- name: about
+  usage: "/about"
+  description: "Who runs this & what's here."
+  man_page: "Shows a short note about the site and its sections."

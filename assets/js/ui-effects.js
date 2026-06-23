@@ -42,22 +42,10 @@ document.addEventListener('DOMContentLoaded', () => {
     input.addEventListener('blur',  () => terminal.classList.remove('active'));
   }
 
-  // ── STATUS line live cycle ──
-  if (status && !reducedMotion) {
-    const states = [
-      'STATUS: OPERATIONAL',
-      'LINK: SECURE',
-      'CHANNEL: 906CBE',
-      'UPLINK: STABLE',
-      'PHASE: NIGHTWATCH',
-      'SEAL: 𝕵',
-      'STATUS: OPERATIONAL'
-    ];
-    let i = 0;
-    setInterval(() => {
-      i = (i + 1) % states.length;
-      status.textContent = states[i];
-    }, 4200);
+  // ── STATUS line ──
+  // Single quiet signal — no flicker, no rotation.
+  if (status) {
+    status.textContent = 'LINK: SECURE';
   }
 
   // ── Autocomplete visible-class bridge ──

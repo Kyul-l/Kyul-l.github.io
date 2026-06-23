@@ -20,29 +20,7 @@ body {
   color: var(--selection-fg);
 }
 
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 50px 50px;
-  z-index: -1;
-  transition: opacity .35s ease;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background: url("/assets/images/noise.jpg");
-  opacity: var(--noise-opacity);
-  mix-blend-mode: overlay;
-  z-index: -1;
-}
+/* Background grid + noise overlays removed for a cleaner canvas */
 
 .post-content h1::after {
   content: "";

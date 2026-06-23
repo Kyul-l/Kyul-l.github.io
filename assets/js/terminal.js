@@ -51,9 +51,13 @@ class Terminal {
 
   async showWelcomeMessage() {
     const welcomeLines = [
-      { text: 'Welcome to Kyul\'s Log!', classes: ['line-welcome'] },
+      { text: '·  ✦  ·', classes: ['line-art'] },
       { text: ' ', classes: [] },
-      { text: 'Type `/help` to see a list of available commands.', classes: ['line-system'] },
+      { text: 'Kyul\'s Archive', classes: ['line-welcome'] },
+      { text: 'welcome to kyul archive', classes: ['line-system'] },
+      { text: ' ', classes: [] },
+      { text: 'Notes examined. Research recorded. Thoughts preserved.', classes: ['line-system'] },
+      { text: 'Type /help to see available commands.', classes: ['line-system'] },
       { text: ' ', classes: [] },
     ];
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -245,6 +249,10 @@ class Terminal {
         this.handleClear();
         this.updateStatus('SCREEN CLEARED');
         break;
+      case 'about':
+        this.handleAbout();
+        this.updateStatus('ABOUT DISPLAYED');
+        break;
       case 'seal':
         this.handleSeal();
         this.updateStatus('SEAL: 𝕵');
@@ -300,6 +308,19 @@ class Terminal {
 
   handleClear() {
     this.output.innerHTML = '';
+  }
+
+  handleAbout() {
+    const lines = [
+      ' ',
+      '  ✦ Wiki    — living notes; what something is and how it works',
+      '  ✦ Studies — research & reports; what I worked on and concluded',
+      '  ✦ Log     — short entries; days, photos, thoughts',
+      ' ',
+      '  ~ a fuller note is on the way ~',
+      ' ',
+    ];
+    lines.forEach(l => this.printLine(l, false, ['line-system']));
   }
 
   handleSeal() {

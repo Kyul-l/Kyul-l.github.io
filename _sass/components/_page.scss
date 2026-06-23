@@ -46,60 +46,48 @@
   user-select: none;
 }
 
-// ── 404 page ─────────────────────────────────────────────────
+// ── 404 page (담백 · constellation glyph) ────────────────────
 .page-404 {
   max-width: 560px;
   margin: 6rem auto;
   padding: 0 1rem;
   text-align: center;
 
-  &__sigil {
+  &__ascii {
     color: var(--accent-soft);
-    font: 400 1rem/1 var(--mono);
-    letter-spacing: .25em;
-    opacity: .6;
+    font: 500 1rem/1.5 var(--mono);
+    letter-spacing: .3em;
+    opacity: .75;
     margin: 0 0 2rem;
-
-    &--bottom { margin: 3rem 0 0; opacity: .35; }
+    white-space: pre;
   }
 
   &__title {
-    font: 700 clamp(2.4rem, 6vw, 3.2rem)/1.1 var(--serif);
+    font: 700 clamp(3rem, 8vw, 4.5rem)/1 var(--serif);
     color: var(--fg-main);
-    margin: 0 0 1.5rem;
-    letter-spacing: -.01em;
-  }
-
-  &__dim {
-    color: var(--accent-soft);
-    opacity: .55;
-    margin: 0 .25em;
+    margin: 0;
+    letter-spacing: -.02em;
   }
 
   &__lead {
-    font: 400 1rem/1.7 var(--sans);
+    font: 400 1.05rem/1.6 var(--sans);
     color: var(--fg-muted);
-    margin: 0 0 .65rem;
-
-    &:last-of-type {
-      font-style: italic;
-      color: var(--accent-soft);
-      margin-bottom: 2.5rem;
-    }
+    margin: .55rem 0 2.5rem;
+    letter-spacing: .02em;
   }
 
   &__return {
-    font: 600 .92rem/1 var(--mono);
+    font: 500 .9rem/1 var(--mono);
     letter-spacing: .08em;
-    text-transform: lowercase;
     color: var(--accent);
-    border-bottom: 1px solid transparent;
     text-decoration: none;
-    transition: border-color .2s ease, color .2s ease;
+    border-bottom: 1px dashed var(--border);
+    padding-bottom: 2px;
+    transition: color .2s ease, border-color .2s ease;
 
     &:hover {
       color: var(--link-hover);
-      border-bottom-color: var(--accent);
+      border-bottom-color: var(--link-hover);
     }
   }
 }

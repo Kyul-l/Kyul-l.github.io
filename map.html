@@ -1,17 +1,18 @@
 ---
-layout: sidebar_layout
+layout: page
 permalink: /map/
+title: Knowledge Graph
 ---
 
-<div class="main-content-with-sidebar panel">
+<section class="map-page panel">
   <h1 class="page-title">Knowledge Graph</h1>
   <div id="knowledge-graph-container" style="width: 100%; height: 600px;">
-    <div style="text-align: center; margin-top: 20px;">
+    <div class="map-page__controls">
       <button id="start-timelapse" class="button-glass">Start Timelapse</button>
       <button id="reset-graph" class="button-glass">Reset Graph</button>
-      <button id="go-home" class="button-glass" onclick="window.location.href='/'">Home으로 돌아가기</button>
+      <button id="go-home" class="button-glass" onclick="window.location.href='/'">Home</button>
     </div>
   </div>
-</div>
+</section>
 
 <script type="module" src="{{ '/assets/js/graph.js' | relative_url }}"></script>

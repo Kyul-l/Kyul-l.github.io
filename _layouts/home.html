@@ -1,47 +1,62 @@
 ---
 layout: default
 ---
-<div class="mac-terminal-wrapper scene">
-  <div class="mac-terminal-glow-container">
-    <div class="mac-terminal">
-      <div class="bloom"></div>
-      <div class="header">
-        <div class="header__op">
-          <span class="header__op-icon header__op-icon--red"></span>
-          <span class="header__op-icon header__op-icon--yellow"></span>
-          <span class="header__op-icon header__op-icon--green"></span>
+<div class="home-stage">
+
+  <!-- ── Main terminal ─────────────────────────── -->
+  <div class="mac-terminal-wrapper scene">
+    <div class="mac-terminal-glow-container">
+      <div class="mac-terminal">
+        <div class="bloom"></div>
+        <div class="header">
+          <div class="header__op">
+            <span class="header__op-icon header__op-icon--red"></span>
+            <span class="header__op-icon header__op-icon--yellow"></span>
+            <span class="header__op-icon header__op-icon--green"></span>
+          </div>
+          <div class="header__title">kyul@archive:~</div>
+          <div class="header__empty"></div>
         </div>
-        <div class="header__title">kyul@log:~</div>
-        <div class="header__empty"></div>
-      </div>
-      <div class="body" id="terminal-window" role="region" aria-live="polite">
-        <div id="terminal-output">
-          <!-- Dynamic output will be rendered here by JavaScript -->
+        <div class="body" id="terminal-window" role="region" aria-live="polite">
+          <div id="terminal-output"></div>
+        </div>
+        <div class="prompt-wrapper">
+          <div id="autocomplete-suggestions" class="autocomplete-suggestions"></div>
+          <div class="terminal-input-line">
+            <span class="prompt">>&nbsp;</span>
+            <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Command input">
+            <div class="footer-line" id="terminal-status">STATUS: OPERATIONAL</div>
+          </div>
         </div>
       </div>
-      <div class="prompt-wrapper">
-        <div id="autocomplete-suggestions" class="autocomplete-suggestions"></div>
-        <div class="terminal-input-line">
-          <span class="prompt">>&nbsp;</span>
-          <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Command input">
-        </div>
-      </div>
-      <div class="footer-line" id="terminal-status">STATUS: OPERATIONAL</div>
     </div>
   </div>
+
+  <!-- ── Signal feed panel ─────────────────────── -->
+  <aside class="feed-panel" aria-label="Signal feed" aria-hidden="true">
+    <div class="feed-panel__head">
+      <span class="feed-panel__title">// signal feed</span>
+      <span class="feed-panel__dot"></span>
+    </div>
+    <div class="feed-panel__body" id="feed-body"></div>
+  </aside>
+
 </div>
 
 <noscript>
   <div class="noscript-warning">
     <p>This website's terminal interface requires JavaScript to function. Please enable it to use the terminal.</p>
-    <p>You can still navigate the site using the links in the header.</p>
   </div>
 </noscript>
 
-<!-- Embed command data as JSON for terminal.js -->
 <script>
   window.__TERMINAL_COMMANDS__ = {{ site.data.commands | jsonify }};
+  window.__FEED_POSTS__ = [
+    {% for doc in site.wiki %}{ "title": {{ doc.title | jsonify }}, "section": "wiki" },{% endfor %}
+    {% for doc in site.studies %}{ "title": {{ doc.title | jsonify }}, "section": "studies" },{% endfor %}
+    {% for post in site.posts limit:8 %}{ "title": {{ post.title | jsonify }}, "section": "log" },{% endfor %}
+  ];
 </script>
 
-<!-- UI Effects Script -->
 <script src="{{ '/assets/js/ui-effects.js' | relative_url }}"></script>
+<script type="module" src="{{ '/assets/js/feed.js' | relative_url }}"></script>

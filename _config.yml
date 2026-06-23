@@ -31,15 +31,44 @@ theme: null # We are building our own theme
 plugins:
   - jekyll-paginate
 
-# Pagination
+# Pagination (Log = posts)
 paginate: 5
-paginate_path: "/blog/page:num/"
+paginate_path: "/log/page:num/"
 
 # Permalinks
-permalink: /blog/:year/:month/:day/:title/
+permalink: /log/:title/
 
-# Comments disabled — DM-only contact routing
-# Reach out via Discord (@Kyul_l) or GitHub (@Kyul-l)
+# Collections — three sections
+collections:
+  wiki:
+    output: true
+    permalink: /wiki/:name/
+  studies:
+    output: true
+    permalink: /studies/:name/
+
+defaults:
+  - scope:
+      path: ""
+      type: wiki
+    values:
+      layout: post
+      section: wiki
+  - scope:
+      path: ""
+      type: studies
+    values:
+      layout: post
+      section: studies
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+      section: log
+
+# Comments disabled — email-only contact routing
+# Reach out via cityll.kr@gmail.com
 
 # Exclude from processing.
 # The following items will not be processed, by default.

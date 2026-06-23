@@ -2,23 +2,21 @@
 # This front matter tells Jekyll to process the file
 ---
 
-// Import base styles and variables
+// Kyul's Log — main stylesheet
+// Imports grouped by concern; order matters (variables first).
+
+// ── Base: variables, resets, accessibility ────────────────────
 @import "base/variables";
 @import "base/base";
 @import "base/accessibility";
 
-// Import layout styles
+// ── Layout: page structure (header, footer, nav, dividers) ────
 @import "layout/structure";
 
-// Import component styles
-@import "components/panel";
-@import "components/new_terminal";
-@import "components/sidebar";
-@import "components/post";
-@import "components/callout";
-@import "components/page";
-@import "components/graph";
-@import "components/modal";
-@import "components/contact";
-
-// You can add more specific or general styles here if needed
+// ── Components ────────────────────────────────────────────────
+@import "components/terminal";   // home: macOS-style terminal
+@import "components/panel";      // generic surface card
+@import "components/post";       // post list cards + single post body
+@import "components/page";       // misc page elements + 404
+@import "components/graph";      // /map knowledge graph overlay
+@import "components/modal";      // /map modal wrapper

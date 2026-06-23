@@ -10,9 +10,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space) 0;
-  border-bottom: 1px solid var(--border);
-  height: 60px;
+  padding: 1.75rem 0;
+  border-bottom: 1px solid var(--border-soft);
   background-color: transparent;
 }
 
@@ -32,17 +31,33 @@
 .site-header-right {
   display: flex;
   align-items: center;
-  gap: .5rem;
+  gap: 0.9rem;
+}
+
+/* Divider — independent flex item; participates in site-header-right gap */
+.nav-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
 }
 
 .site-nav a {
-  margin-left: 1.1rem;
   text-decoration: none;
   color: var(--fg-main);
   font: 500 .92rem/1 var(--sans);
   letter-spacing: .02em;
   position: relative;
   padding: .3rem 0;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
   transition: color .2s ease;
 
   &::after {
@@ -64,13 +79,12 @@
 
 // ── Theme toggle ─────────────────────────────────────────────
 .theme-toggle {
-  margin-left: 1rem;
   background: transparent;
   border: 1px solid var(--border);
   color: var(--fg-main);
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: var(--radius);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -98,70 +112,51 @@
 }
 
 .site-main {
-  padding: calc(var(--space) * 2) 0;
-  min-height: calc(100vh - 60px - 50px);
+  padding: 2rem 0 1rem;
+  min-height: calc(100vh - 130px);
 }
 
-// For pages with a sidebar
-.page-with-sidebar {
-  // The sidebar is now a fixed overlay, so no special grid layout is needed here.
+/* Home — main hugs the terminal so footer border sits exactly 1.5rem below panel */
+body.layout-home .site-main {
+  padding: 1.75rem 0;
+  min-height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.main-content-with-sidebar > *:first-child {
+body.layout-home .site-footer {
+  margin-top: 0;
+  padding: 1.75rem 0;
+}
+
+// Single-column page wrapper (used by `_layouts/page.html`)
+.main-single > *:first-child {
   margin-top: 0;
 }
 
-// Responsive layout
+// ── Responsive layout ────────────────────────────────────────
 @media (max-width: 1200px) {
   .site-header {
-    height: auto;
-    flex-direction: row; /* site-title, site-nav, sidebar-toggle을 한 줄에 배치 */
-    justify-content: space-between; /* 양 끝 정렬 */
-    align-items: center; /* 세로 중앙 정렬 */
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
     gap: var(--space);
-    padding-bottom: var(--space);
+    /* padding stays 1.1rem 0 — keep border centered between text and panel */
   }
 
   .site-nav {
     flex-direction: row;
     align-items: center;
-    /* justify-content: space-between; */ /* site-header에서 처리 */
-    width: auto; /* 유연하게 공간 차지 */
+    width: auto;
   }
-
 }
 
-// Mobile-only body min-height (true small screens)
+// Mobile-only terminal body min-height (small screens)
 @media (max-width: 768px) {
   .mac-terminal .body {
     min-height: 420px;
   }
-}
-
-.sidebar-toggle {
-  display: block;
-  background: none;
-  border: none;
-  color: var(--fg-main);
-  font-size: 1.25rem;
-  cursor: pointer;
-  margin-left: .5rem;
-  transition: color .2s ease;
-  &:hover { color: var(--accent); }
-}
-
-/* 사이드바 숨김/표시 로직 */
-.sidebar {
-  transform: translateX(-100%); /* 기본적으로 숨김 */
-  opacity: 0;
-  pointer-events: none; /* 클릭 이벤트 방지 */
-  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-}
-
-.sidebar.is-open {
-  transform: translateX(0); /* 열렸을 때 보이도록 */
-  opacity: 1;
-  pointer-events: auto;
 }
 
 // Accessibility: Skip to content link
@@ -187,4 +182,164 @@
     text-decoration: none;
     border-radius: var(--radius);
   }
+}
+
+/* ─────────────────────────────────────────────
+   Section sigils — ✦ shared shape, color split
+   Wiki = lavender · Studies = purple · Log = muted
+   ───────────────────────────────────────────── */
+.nav-sigil {
+  display: inline-block;
+  font-size: 0.9em;
+  line-height: 1;
+  transform: translateY(-0.05em);
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.site-nav .nav-wiki    .nav-sigil { color: var(--kp-lavender); }
+.site-nav .nav-studies .nav-sigil { color: var(--kp-purple); }
+.site-nav .nav-log     .nav-sigil { color: var(--kp-muted); }
+
+.site-nav a:hover .nav-sigil {
+  text-shadow: 0 0 8px currentColor;
+}
+
+[data-theme="light"] {
+  .site-nav .nav-wiki    .nav-sigil { color: var(--kp-purple-d); opacity: 0.7; }
+  .site-nav .nav-studies .nav-sigil { color: var(--kp-purple-d); }
+  .site-nav .nav-log     .nav-sigil { color: var(--kp-muted); }
+}
+
+/* ─────────────────────────────────────────────
+   Language toggle (UI only — EN coming soon)
+   Rounded square 36x36, matches theme-toggle for shape parity
+   ───────────────────────────────────────────── */
+.lang-toggle {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  cursor: pointer;
+  color: var(--fg-muted);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  .lang-label { display: inline-block; }
+
+  &:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--panel-accent);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Divider sigil — unified line + ✦
+   used in posts, blog index, page transitions
+   ───────────────────────────────────────────── */
+.divider-sigil {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  max-width: var(--read-width);
+  margin: 2.5rem auto;
+  padding: 0 1.5rem;
+  color: var(--accent-soft);
+  user-select: none;
+
+  &__line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  &__star {
+    font-size: 1rem;
+    line-height: 1;
+    opacity: 0.85;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Site footer — single quiet line
+   ───────────────────────────────────────────── */
+.site-footer {
+  margin-top: 1.5rem;
+  padding: 1.75rem 0;
+  border-top: 1px solid var(--border-soft);
+  text-align: center;
+
+  .footer-contact {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    letter-spacing: 0.01em;
+    font-family: var(--serif);
+    font-style: italic;
+    line-height: 1.6;
+
+    a {
+      color: var(--link);
+      text-decoration: none;
+      margin-left: 0.5em;
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 1px;
+      transition: color 0.2s ease, border-color 0.2s ease;
+      font-style: normal;
+      font-family: var(--mono);
+      font-size: 0.9em;
+
+      &:hover {
+        color: var(--link-hover);
+        border-bottom-color: var(--link-hover);
+      }
+    }
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Section index (Wiki / Studies / Log landing)
+   ───────────────────────────────────────────── */
+.section-index {
+  max-width: var(--read-width);
+  margin: 1.5rem auto 2rem;
+  padding: 0 1.5rem;
+
+  &__header {
+    margin-bottom: 2.5rem;
+    text-align: center;
+  }
+
+  &__title {
+    font-family: var(--serif);
+    font-size: 2rem;
+    margin: 0 0 0.4rem;
+    color: var(--fg-main);
+  }
+
+  &__lead {
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+    margin: 0;
+    font-style: italic;
+  }
+
+  &__empty {
+    color: var(--fg-muted);
+    text-align: center;
+    font-style: italic;
+    margin: 3rem 0;
+    letter-spacing: 0.05em;
+  }
+
+  &--wiki    .section-index__title .nav-sigil { color: var(--kp-lavender); }
+  &--studies .section-index__title .nav-sigil { color: var(--kp-purple); }
 }
