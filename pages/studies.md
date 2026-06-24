@@ -67,7 +67,7 @@ section: studies
         {% endfor %}
 
         <!-- Singles -->
-        {% assign singles = all_studies | where_exp: 'item', 'item.series == nil or item.series == ""' %}
+        {% assign singles = all_studies | where_exp: 'item', 'item.series == blank' %}
         {% if singles.size > 0 %}
           <li>
             <p class="studies-singles__heading">Singles</p>
@@ -182,7 +182,7 @@ window.__STUDIES_SERIES__ = [
     }{% unless forloop.last %},{% endunless %}
   {% endfor %}
 
-  {% assign singles_js = all_studies_js | where_exp: 'item', 'item.series == nil or item.series == ""' %}
+  {% assign singles_js = all_studies_js | where_exp: 'item', 'item.series == blank' %}
   {% if singles_js.size > 0 %}
     {% if series_names_js.size > 0 %},{% endif %}
     {% for entry in singles_js %}
