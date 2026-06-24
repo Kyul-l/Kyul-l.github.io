@@ -1,0 +1,744 @@
+// ─────────────────────────────────────────────────────────────
+// Log · Card Collection (Pokémon-inspired deck)
+// T3 base card chrome + dynamic interaction layer
+// ─────────────────────────────────────────────────────────────
+
+// ── Keyframes ─────────────────────────────────────────────────
+
+@keyframes log-card-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes log-fan-in {
+  0%   { opacity: 0; transform: translateY(-60px) rotate(var(--fan-rot, 0deg)) scale(0.88); }
+  60%  { opacity: 1; transform: translateY(4px) rotate(var(--fan-rot, 0deg)) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+}
+
+@keyframes log-fly-off {
+  to {
+    opacity: 0;
+    transform: translateY(-800px) rotate(15deg) scale(0.8);
+  }
+}
+
+@keyframes log-pack-open {
+  0%   { opacity: 0; transform: translateY(-120px) scale(0.72) rotate(-6deg); }
+  55%  { opacity: 1; transform: translateY(12px) scale(1.04) rotate(1deg); }
+  80%  { transform: translateY(-4px) scale(0.98) rotate(0deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+}
+
+@keyframes log-sigil-pulse {
+  0%, 100% { text-shadow: none; opacity: 1; }
+  50%       { text-shadow: 0 0 8px var(--kp-purple), 0 0 18px rgba(144, 108, 190, .45); opacity: .82; }
+}
+
+@keyframes log-shine-pass {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes log-reshuffle-out {
+  to { opacity: 0; transform: scale(0.88) rotate(var(--shuffle-rot, 3deg)); }
+}
+
+@keyframes log-reshuffle-in {
+  from { opacity: 0; transform: scale(0.88) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+// ── Page wrapper ──────────────────────────────────────────────
+.log-page {
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 0 1rem 5rem;
+  position: relative;
+}
+
+// ── Header ────────────────────────────────────────────────────
+.log-header {
+  margin: 0 0 2rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem;
+}
+
+.log-header__left {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+}
+
+.log-header__title {
+  margin: 0;
+  font: 700 clamp(1.75rem, 3.5vw, 2.15rem)/1.2 var(--serif);
+  color: var(--kp-parchment);
+  letter-spacing: -.005em;
+
+  [data-theme="light"] & {
+    color: var(--fg-main);
+  }
+}
+
+.log-header__lead {
+  margin: 0;
+  font: 400 .95rem/1.5 var(--sans);
+  color: var(--kp-lavender);
+  letter-spacing: .01em;
+
+  [data-theme="light"] & {
+    color: var(--fg-muted);
+  }
+}
+
+// ── Toolbar ───────────────────────────────────────────────────
+.log-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin-bottom: 2.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.log-toolbar__filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .4rem;
+  flex: 1;
+}
+
+.log-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-shrink: 0;
+}
+
+// ── Filter chip ───────────────────────────────────────────────
+.log-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: .28rem .7rem;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: transparent;
+  font: 500 .78rem/1 var(--mono);
+  color: var(--fg-muted);
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: border-color .15s ease, color .15s ease, background .15s ease;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: rgba(144, 108, 190, .35);
+    color: var(--kp-lavender);
+  }
+
+  &.is-active {
+    border-color: var(--kp-purple);
+    background: rgba(144, 108, 190, .12);
+    color: var(--kp-lavender);
+  }
+}
+
+// ── Shuffle button ────────────────────────────────────────────
+.log-shuffle {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .3rem .7rem;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: transparent;
+  font: 500 .78rem/1 var(--mono);
+  color: var(--fg-muted);
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: border-color .15s ease, color .15s ease, transform .2s ease;
+
+  &:hover {
+    border-color: rgba(144, 108, 190, .35);
+    color: var(--kp-lavender);
+    transform: rotate(30deg);
+  }
+}
+
+// ── View toggle ───────────────────────────────────────────────
+.log-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .3rem .7rem;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: transparent;
+  font: 500 .78rem/1 var(--mono);
+  color: var(--fg-muted);
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: border-color .15s ease, color .15s ease;
+
+  &:hover {
+    border-color: rgba(144, 108, 190, .35);
+    color: var(--kp-lavender);
+  }
+
+  &.is-grid-active {
+    border-color: var(--kp-purple);
+    background: rgba(144, 108, 190, .12);
+    color: var(--kp-lavender);
+  }
+}
+
+// ── Spotlight container ───────────────────────────────────────
+.log-spotlight {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  min-height: 580px;
+}
+
+.log-spotlight__stage {
+  position: relative;
+  width: 360px;
+  max-width: 100%;
+  user-select: none;
+  touch-action: pan-y;
+
+  // prevent stage from collapsing when empty
+  min-height: 520px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.log-spotlight__hint {
+  font: 400 .75rem/1 var(--mono);
+  color: var(--fg-dim);
+  letter-spacing: .06em;
+  text-align: center;
+  margin: 0;
+  opacity: .7;
+}
+
+// ── Stack indicator dots ──────────────────────────────────────
+.log-stack-indicator {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+}
+
+.log-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kp-muted);
+  opacity: .4;
+  transition: background .2s ease, opacity .2s ease, width .2s ease, height .2s ease;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &.is-current {
+    background: var(--kp-purple);
+    opacity: 1;
+    width: 9px;
+    height: 9px;
+  }
+}
+
+// ── No-JS notice ──────────────────────────────────────────────
+.log-nojs-notice {
+  font: 400 .9rem/1.5 var(--sans);
+  color: var(--fg-muted);
+  text-align: center;
+}
+
+.log-nojs-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+
+  li {
+    display: flex;
+    align-items: baseline;
+    gap: .75rem;
+  }
+
+  a {
+    font: 500 .95rem/1.4 var(--sans);
+    color: var(--fg-main);
+    text-decoration: none;
+
+    &:hover { color: var(--accent); }
+  }
+}
+
+.log-nojs-meta {
+  font: 400 .8rem/1 var(--mono);
+  color: var(--fg-dim);
+  letter-spacing: .03em;
+}
+
+// ── Empty state ───────────────────────────────────────────────
+.log-empty {
+  text-align: center;
+  padding: 4rem 0;
+  font: 400 .9rem/1.6 var(--mono);
+  color: var(--fg-dim);
+  letter-spacing: .04em;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CARD
+// ═══════════════════════════════════════════════════════════════
+
+// ── Card base ─────────────────────────────────────────────────
+.log-card {
+  position: absolute;
+  width: 360px;
+  max-width: 100%;
+  border-radius: 16px;
+  background: var(--kp-surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow), 0 0 0 1px rgba(144, 108, 190, .07);
+  overflow: hidden;
+  cursor: grab;
+  transition:
+    box-shadow .25s ease,
+    border-color .25s ease;
+
+  // 3D perspective context for tilt + flip
+  transform-style: preserve-3d;
+  perspective: 900px;
+
+  // Subtle holographic top gradient (always present, faint)
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgba(231, 213, 249, .04) 0%,
+      transparent 40%,
+      rgba(144, 108, 190, .04) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  // Holographic shine overlay (hidden by default, shown on hover via JS class)
+  &__shine {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      105deg,
+      transparent 20%,
+      rgba(231, 213, 249, .18) 35%,
+      rgba(144, 108, 190, .22) 50%,
+      rgba(231, 213, 249, .18) 65%,
+      transparent 80%
+    );
+    background-size: 200% 100%;
+    mix-blend-mode: screen;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 2;
+    transition: opacity .3s ease;
+    animation: none;
+  }
+
+  &:hover &__shine,
+  &.is-hovered &__shine {
+    opacity: 1;
+    animation: log-shine-pass .9s ease-in-out forwards;
+  }
+
+  &:hover {
+    border-color: rgba(144, 108, 190, .30);
+    box-shadow:
+      var(--shadow),
+      0 0 0 1px rgba(144, 108, 190, .15),
+      0 0 28px rgba(144, 108, 190, .12);
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  // Dragging state
+  &.is-dragging {
+    cursor: grabbing;
+    box-shadow:
+      0 20px 60px rgba(0,0,0,.65),
+      0 0 0 1px rgba(144, 108, 190, .25),
+      0 0 36px rgba(144, 108, 190, .18);
+    z-index: 10;
+  }
+
+  // Fly-off animation
+  &.is-flying-off {
+    animation: log-fly-off .38s cubic-bezier(.4, 0, .6, 1) forwards;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  // Pack-opening (first visit first card)
+  &.is-pack-open {
+    animation: log-pack-open .7s cubic-bezier(.16, 1, .3, 1) forwards;
+  }
+
+  // Fan-in (deck settle)
+  &.is-fan-in {
+    animation: log-fan-in .6s cubic-bezier(.16, 1, .3, 1) both;
+  }
+
+  // Reshuffle out/in
+  &.is-reshuffle-out {
+    animation: log-reshuffle-out .22s ease forwards;
+  }
+  &.is-reshuffle-in {
+    animation: log-reshuffle-in .28s ease both;
+  }
+}
+
+// ── Card flip (3D) ────────────────────────────────────────────
+.log-card__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform .5s cubic-bezier(.4, 0, .2, 1);
+
+  .log-card.is-flipped & {
+    transform: rotateY(180deg);
+  }
+}
+
+.log-card__front,
+.log-card__back {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.log-card__front {
+  position: relative;
+}
+
+.log-card__back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  background: var(--kp-surface);
+  border-radius: inherit;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.log-card__back-body {
+  font: 400 .9rem/1.65 var(--sans);
+  color: var(--fg-muted);
+  flex: 1;
+  overflow: hidden;
+}
+
+.log-card__back-footer {
+  margin-top: 1rem;
+  padding-top: .75rem;
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.log-card__back-hint {
+  font: 400 .72rem/1 var(--mono);
+  color: var(--fg-dim);
+  letter-spacing: .04em;
+}
+
+.log-card__back-link {
+  font: 500 .78rem/1 var(--mono);
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: .04em;
+
+  &:hover { color: var(--accent-soft); }
+}
+
+// ── Card sections ─────────────────────────────────────────────
+.log-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: .85rem 1rem .6rem;
+  gap: .5rem;
+  position: relative;
+  z-index: 3;
+}
+
+.log-card__title {
+  font: 700 1.05rem/1.2 var(--mono);
+  color: var(--kp-parchment);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.log-card__badge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.log-card__sigil {
+  font: 400 1.15rem/1 var(--sans);
+  color: var(--kp-purple);
+  animation: log-sigil-pulse 3.2s ease-in-out infinite;
+  display: block;
+}
+
+.log-card__number {
+  font: 700 .65rem/1 var(--mono);
+  color: var(--fg-dim);
+  letter-spacing: .06em;
+  margin-top: .1rem;
+  display: block;
+}
+
+// ── Photo slot ────────────────────────────────────────────────
+.log-card__photo {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(
+    145deg,
+    rgba(55, 67, 123, .55) 0%,
+    rgba(35, 38, 51, .9) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: opacity .3s ease;
+
+    &.is-error {
+      opacity: 0;
+    }
+  }
+}
+
+.log-card__photo-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 400 2rem/1 var(--sans);
+  color: rgba(144, 108, 190, .3);
+  pointer-events: none;
+}
+
+// ── Card body ─────────────────────────────────────────────────
+.log-card__body {
+  padding: .75rem 1rem .65rem;
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  position: relative;
+  z-index: 3;
+}
+
+.log-card__location {
+  font: 400 .78rem/1.3 var(--mono);
+  color: var(--fg-dim);
+  letter-spacing: .03em;
+}
+
+.log-card__flavor {
+  font: 400 italic .875rem/1.55 var(--serif);
+  color: var(--kp-lavender);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  [data-theme="light"] & {
+    color: var(--kp-muted);
+  }
+}
+
+// ── Card footer ───────────────────────────────────────────────
+.log-card__footer {
+  padding: .55rem 1rem .7rem;
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  position: relative;
+  z-index: 3;
+}
+
+.log-card__type-label {
+  font: 500 .72rem/1 var(--mono);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+}
+
+.log-card__date {
+  font: 400 .72rem/1 var(--mono);
+  color: var(--fg-dim);
+  letter-spacing: .03em;
+}
+
+// ── Type color accents ────────────────────────────────────────
+.log-card--food {
+  border-bottom: 2px solid rgba(190, 130, 108, .35);
+  .log-card__sigil { color: #c98b6a; }
+  .log-card__photo {
+    background: linear-gradient(145deg, rgba(100, 60, 40, .55) 0%, rgba(35, 38, 51, .9) 100%);
+  }
+}
+
+.log-card--art {
+  border-bottom: 2px solid rgba(144, 108, 190, .45);
+  .log-card__sigil { color: var(--kp-purple); }
+  .log-card__photo {
+    background: linear-gradient(145deg, rgba(55, 35, 90, .65) 0%, rgba(35, 38, 51, .9) 100%);
+  }
+}
+
+.log-card--travel {
+  border-bottom: 2px solid rgba(108, 140, 190, .35);
+  .log-card__sigil { color: #7ea8d4; }
+  .log-card__photo {
+    background: linear-gradient(145deg, rgba(30, 55, 100, .55) 0%, rgba(35, 38, 51, .9) 100%);
+  }
+}
+
+.log-card--daily {
+  border-bottom: 2px solid var(--border);
+  .log-card__sigil { color: var(--kp-muted); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MINI CARD (grid view)
+// ═══════════════════════════════════════════════════════════════
+
+.log-card--mini {
+  position: relative;   // override absolute in spotlight
+  width: 100%;
+  cursor: pointer;
+  border-radius: 12px;
+  min-height: unset;
+
+  .log-card__photo { height: 110px; }
+  .log-card__header { padding: .6rem .75rem .4rem; }
+  .log-card__title { font-size: .8rem; }
+  .log-card__sigil { font-size: .9rem; }
+  .log-card__number { font-size: .58rem; }
+  .log-card__body { padding: .5rem .75rem .4rem; }
+  .log-card__flavor { font-size: .78rem; -webkit-line-clamp: 2; }
+  .log-card__location { font-size: .7rem; }
+  .log-card__footer { padding: .4rem .75rem .5rem; }
+  .log-card__type-label { font-size: .65rem; }
+  .log-card__date { font-size: .65rem; }
+
+  // No position:absolute on inner in grid
+  .log-card__inner {
+    position: relative;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: rgba(144, 108, 190, .32);
+  }
+
+  // Mini cards fade in with stagger
+  opacity: 0;
+  animation: log-card-in .32s ease both;
+
+  &.is-visible { opacity: 1; }
+}
+
+// ── Grid layout ───────────────────────────────────────────────
+.log-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+
+  @media (max-width: 680px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 420px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Responsive spotlight ──────────────────────────────────────
+@media (max-width: 420px) {
+  .log-spotlight__stage {
+    width: 100%;
+  }
+
+  .log-card {
+    width: 100%;
+    border-radius: 12px;
+  }
+}
+
+// ── Reduced motion ────────────────────────────────────────────
+@media (prefers-reduced-motion: reduce) {
+  .log-card {
+    animation: none !important;
+    transition: none !important;
+
+    &__shine { display: none; }
+    &__inner { transition: none !important; }
+    &.is-flipped .log-card__inner { transform: none; }
+  }
+
+  .log-card--mini {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+
+  .log-card__sigil {
+    animation: none;
+  }
+
+  .log-shuffle:hover {
+    transform: none;
+  }
+}

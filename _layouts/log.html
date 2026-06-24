@@ -1,39 +1,82 @@
 ---
 layout: page
 ---
-<section class="section-index section-index--log">
-  <header class="section-index__header">
-    <h1 class="section-index__title"><span class="nav-sigil">✦</span> Log</h1>
-    <p class="section-index__lead">Reflections and notes, thoughts preserved.</p>
+<div class="log-page">
+
+  <header class="log-header">
+    <div class="log-header__left">
+      <h1 class="log-header__title"><span aria-hidden="true">✺</span> Log</h1>
+      <p class="log-header__lead">Reflections and notes, thoughts preserved.</p>
+    </div>
   </header>
 
-  {% include divider.html %}
-
-  {% if paginator.posts.size > 0 %}
-    <div class="post-list">
-      {% for post in paginator.posts %}
-        {% include post-card.html post=post %}
-      {% endfor %}
+  <!-- Toolbar: filter chips + shuffle + view toggle -->
+  <div class="log-toolbar" role="toolbar" aria-label="Log filters and view controls">
+    <div class="log-toolbar__filters" role="group" aria-label="Filter by type">
+      <button class="log-filter-chip is-active" data-filter="all" type="button">all</button>
+      <!-- dynamic chips injected by JS; static fallbacks below for no-JS -->
+      <noscript>
+        <button class="log-filter-chip" type="button">food</button>
+        <button class="log-filter-chip" type="button">art</button>
+        <button class="log-filter-chip" type="button">travel</button>
+        <button class="log-filter-chip" type="button">daily</button>
+      </noscript>
     </div>
+    <div class="log-toolbar__actions">
+      <button class="log-shuffle" type="button" aria-label="Shuffle cards" title="Shuffle">↻ shuffle</button>
+      <button class="log-view-toggle" type="button" aria-label="Toggle grid view" data-view="spotlight">
+        <span class="log-view-toggle__label">▦ grid</span>
+      </button>
+    </div>
+  </div>
 
-    {% if paginator.total_pages > 1 %}
-    <nav class="pagination">
-      {% if paginator.previous_page %}
-        <a href="{{ paginator.previous_page_path | relative_url }}" class="previous">Newer</a>
-      {% else %}
-        <span class="previous disabled">Newer</span>
-      {% endif %}
+  <!-- Spotlight view -->
+  <div class="log-spotlight" id="log-spotlight" role="region" aria-label="Card spotlight" aria-live="polite">
+    <div class="log-spotlight__stage" id="log-stage">
+      <!-- card rendered by JS -->
+      <noscript>
+        <p class="log-nojs-notice">JavaScript를 활성화하면 카드 덱을 볼 수 있습니다.</p>
+      </noscript>
+    </div>
+    <p class="log-spotlight__hint" aria-hidden="true">← drag · swipe · arrow keys →</p>
+    <div class="log-stack-indicator" id="log-dots" aria-hidden="true"></div>
+  </div>
 
-      <span class="page-number">Page {{ paginator.page }} of {{ paginator.total_pages }}</span>
+  <!-- Grid view (initially hidden) -->
+  <div class="log-grid" id="log-grid" hidden aria-label="All cards grid">
+    <!-- cards rendered by JS -->
+  </div>
 
-      {% if paginator.next_page %}
-        <a href="{{ paginator.next_page_path | relative_url }}" class="next">Older</a>
-      {% else %}
-        <span class="next disabled">Older</span>
-      {% endif %}
-    </nav>
-    {% endif %}
-  {% else %}
-    <p class="section-index__empty">~ no entries yet ~</p>
-  {% endif %}
-</section>
+  <!-- No-JS fallback: simple post list -->
+  <noscript>
+    <ul class="log-nojs-list">
+      {% for post in site.posts %}
+        <li>
+          <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+          <span class="log-nojs-meta">{{ post.type | default: "daily" }} · {{ post.date | date: '%Y-%m-%d' }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  </noscript>
+
+</div>
+
+<!-- Seed card data for JS -->
+<script>
+window.__LOG_CARDS__ = [
+  {% for post in site.posts %}
+  {
+    number: "{{ forloop.index | prepend: '000' | slice: -3, 3 }}",
+    title: {{ post.title | jsonify }},
+    type: {{ post.type | default: "daily" | jsonify }},
+    photo: {{ post.photo | jsonify }},
+    location: {{ post.location | jsonify }},
+    flavor: {{ post.flavor | jsonify }},
+    body: {{ post.content | strip_html | truncate: 220 | jsonify }},
+    date: "{{ post.date | date: '%Y-%m-%d' }}",
+    url: "{{ post.url | relative_url }}"
+  }{% unless forloop.last %},{% endunless %}
+  {% endfor %}
+];
+</script>
+<script src="{{ '/assets/js/log-deck.js' | relative_url }}" defer></script>

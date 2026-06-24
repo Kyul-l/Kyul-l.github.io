@@ -116,46 +116,11 @@
   animation: bloom-shift 11s ease-in-out infinite alternate;
 }
 
-// Header — Mac OS chrome
-.header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(to bottom, rgba(255, 255, 255, .03), rgba(255, 255, 255, 0));
-  flex-shrink: 0;
-  position: relative;
+// Header — minimal panel chrome (// terminal label)
+// mac ●●● chrome removed; .panel-chrome / .panel-label defined in _signal.scss
+// .panel-chrome sits inside .mac-terminal at z-index 3 (same stack as old .header)
+.mac-terminal > .panel-chrome {
   z-index: 3;
-
-  &__op {
-    display: flex;
-    gap: 7px;
-    align-items: center;
-  }
-
-  &__op-icon {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    transition: filter .2s ease, transform .2s ease;
-    &--red    { background: #e95f5f; box-shadow: 0 0 6px rgba(233, 95, 95, .4); }
-    &--yellow { background: #e6c15f; box-shadow: 0 0 6px rgba(230, 193, 95, .35); }
-    &--green  { background: #60c66b; box-shadow: 0 0 6px rgba(96, 198, 107, .4); }
-  }
-
-  &:hover &__op-icon { transform: translateY(-0.5px); }
-
-  &__title {
-    margin-left: 6px;
-    color: var(--fg-muted);
-    font: 13px/1 var(--mono);
-    letter-spacing: .04em;
-    flex: 1;
-    text-align: center;
-  }
-
-  &__empty { width: 50px; }
 }
 
 // Body — output area
@@ -447,16 +412,10 @@
   }
 }
 
-// ── Home stage — terminal + feed panel side by side ──────────
+// ── Home stage terminal overrides (layout in _signal.scss) ───
+// Within .home-stage the terminal wrapper + glow container are
+// driven by the flex columns defined in _signal.scss.
 .home-stage {
-  display: flex;
-  align-items: stretch;
-  gap: 1.25rem;
-  width: 100%;
-  height: calc(100vh - 220px);
-  min-height: 440px;
-
-  // Terminal wrapper fills remaining width and full height
   .mac-terminal-wrapper {
     flex: 1;
     min-width: 0;
@@ -470,167 +429,12 @@
     min-height: 0;
   }
 
-  // Override fixed size — let the flex height drive terminal size
+  // Let flex height drive terminal size; drop fixed aspect-ratio
   .mac-terminal {
     width: 100%;
     max-width: none;
     height: 100%;
     aspect-ratio: unset;
     max-height: none;
-  }
-}
-
-// ── Feed panel ────────────────────────────────────────────────
-.feed-panel {
-  width: 270px;
-  flex-shrink: 0;
-  background:
-    radial-gradient(140% 90% at 50% 0%, rgba(144, 108, 190, .06), transparent 55%),
-    rgba(35, 38, 51, .22);
-  backdrop-filter: blur(10px) saturate(120%);
-  -webkit-backdrop-filter: blur(10px) saturate(120%);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-
-  &__head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 11px 14px;
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-    background: linear-gradient(to bottom, rgba(255, 255, 255, .03), transparent);
-  }
-
-  &__title {
-    font: 11px/1 var(--mono);
-    color: var(--fg-muted);
-    letter-spacing: .08em;
-    opacity: .6;
-  }
-
-  &__dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #60c66b;
-    box-shadow: 0 0 8px rgba(96, 198, 107, .75);
-    animation: dot-pulse 2s ease-in-out infinite;
-    flex-shrink: 0;
-  }
-
-  &__body {
-    flex: 1;
-    overflow: hidden;
-    padding: 8px 0 6px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    position: relative;
-    min-height: 0;
-    gap: 1px;
-
-    // Top fade — entries disappear as they scroll off
-    &::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 64px;
-      background: linear-gradient(to bottom, rgba(23, 25, 35, .92), transparent);
-      pointer-events: none;
-      z-index: 2;
-    }
-  }
-}
-
-// ── Feed entries (two-line card style) ────────────────────────
-.feed-entry {
-  padding: 7px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-
-  &--in  { animation: feed-in  .35s ease forwards; }
-  &--out { animation: feed-out .32s ease forwards; }
-
-  &__top {
-    display: flex;
-    align-items: baseline;
-    gap: .45rem;
-  }
-
-  &__sigil {
-    font-size: .82em;
-    line-height: 1;
-    flex-shrink: 0;
-    opacity: .9;
-  }
-
-  &__title {
-    font: 500 11.5px/1.4 var(--mono);
-    color: var(--fg-main);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    opacity: .85;
-  }
-
-  &__meta {
-    font: 10px/1 var(--mono);
-    color: var(--fg-dim);
-    letter-spacing: .03em;
-    padding-left: 1.35em; // indent under sigil
-    opacity: .5;
-  }
-
-  // Separator between entries
-  & + & {
-    border-top: 1px solid rgba(144, 108, 190, .06);
-  }
-}
-
-.feed-sigil--wiki    { color: var(--kp-lavender); }
-.feed-sigil--studies { color: var(--kp-purple); }
-.feed-sigil--log     { color: var(--kp-muted); }
-.feed-sigil--system  { color: var(--fg-dim); }
-
-@keyframes feed-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes feed-out {
-  to { opacity: 0; transform: translateY(-6px); }
-}
-
-// Light theme
-[data-theme="light"] .feed-panel {
-  background: rgba(253, 251, 246, .85);
-  backdrop-filter: blur(10px) saturate(110%);
-
-  .feed-panel__body::before {
-    background: linear-gradient(to bottom, rgba(253, 251, 246, .94), transparent);
-  }
-}
-
-// Reduced motion
-@media (prefers-reduced-motion: reduce) {
-  .feed-panel__dot { animation: none; }
-  .feed-entry--in, .feed-entry--out { animation: none !important; opacity: 1; }
-}
-
-// Hide feed panel on narrow viewports
-@media (max-width: 960px) {
-  .home-stage {
-    flex-direction: column;
-    height: auto;
-  }
-  .feed-panel { display: none; }
-  .home-stage .mac-terminal {
-    height: auto;
-    aspect-ratio: 16 / 10;
   }
 }

@@ -1,0 +1,411 @@
+// ─────────────────────────────────────────────────────────────
+// Wiki · Cloud Focus + Live Signals (T3 — still containers)
+// No glow. Subtle motion only. Constellation backdrop static.
+// ─────────────────────────────────────────────────────────────
+
+// ── Pulse keyframe (livedot + weeklystat) ─────────────────────
+@keyframes wiki-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .35; }
+}
+
+// ── Card fade-in stagger ──────────────────────────────────────
+@keyframes wiki-card-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Page wrapper ──────────────────────────────────────────────
+.wiki-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1rem 4rem;
+  position: relative;
+}
+
+// ── Constellation backdrop ────────────────────────────────────
+// Static scattered dots via radial-gradient; no JS required.
+.wiki-constellation {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .28;
+  background-image:
+    radial-gradient(circle, var(--kp-lavender) 1px, transparent 1px),
+    radial-gradient(circle, var(--kp-muted)    1px, transparent 1px),
+    radial-gradient(circle, var(--kp-lavender) 1px, transparent 1px),
+    radial-gradient(circle, var(--kp-muted)    1px, transparent 1px),
+    radial-gradient(circle, var(--kp-lavender) 1px, transparent 1px),
+    radial-gradient(circle, var(--kp-muted)    1px, transparent 1px),
+    radial-gradient(circle, var(--kp-lavender) 1px, transparent 1px),
+    radial-gradient(circle, var(--kp-muted)    1px, transparent 1px);
+  background-size:
+    320px 320px,
+    240px 240px,
+    400px 400px,
+    180px 180px,
+    280px 280px,
+    360px 360px,
+    200px 200px,
+    300px 300px;
+  background-position:
+     47px  83px,
+    193px 211px,
+     29px 317px,
+    270px  67px,
+    140px 180px,
+     80px 240px,
+    330px 150px,
+    210px  40px;
+  background-repeat: repeat;
+}
+
+// ── Page header ───────────────────────────────────────────────
+.wiki-header {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 2.5rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem;
+}
+
+.wiki-header__left {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+}
+
+.wiki-header__title {
+  margin: 0;
+  font: 700 clamp(1.75rem, 3.5vw, 2.15rem)/1.2 var(--serif);
+  color: var(--kp-parchment);
+  letter-spacing: -.005em;
+}
+
+[data-theme="light"] .wiki-header__title {
+  color: var(--fg-main);
+}
+
+.wiki-header__lead {
+  margin: 0;
+  font: 400 .95rem/1.5 var(--sans);
+  color: var(--kp-lavender);
+  letter-spacing: .01em;
+}
+
+[data-theme="light"] .wiki-header__lead {
+  color: var(--fg-muted);
+}
+
+// ── Weekly stat (top-right) ───────────────────────────────────
+.wiki-weeklystat {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  font: 500 .82rem/1 var(--mono);
+  color: var(--fg-muted);
+  letter-spacing: .04em;
+  padding: .38rem .75rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 100px;
+  background: var(--panel-accent);
+  align-self: flex-start;
+  margin-top: .2rem;
+  min-height: 1.8rem; // prevent layout shift before JS populates
+}
+
+.wiki-weeklystat__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--kp-purple);
+  flex-shrink: 0;
+  animation: wiki-pulse 2.4s ease-in-out infinite;
+}
+
+// ── Section header ────────────────────────────────────────────
+.wiki-section {
+  position: relative;
+  z-index: 1;
+  margin: 2.75rem 0 1.25rem;
+}
+
+.wiki-section__header {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  margin-bottom: 1.1rem;
+}
+
+.wiki-section__sigil {
+  font: 400 .9rem/1 var(--mono);
+  color: var(--accent);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.wiki-section__label {
+  font: 600 1rem/1.2 var(--mono);
+  color: var(--fg-main);
+  letter-spacing: .04em;
+  flex-shrink: 0;
+}
+
+.wiki-section__meta {
+  font: 400 .82rem/1.2 var(--mono);
+  color: var(--fg-muted);
+  letter-spacing: .02em;
+  flex-shrink: 0;
+}
+
+.wiki-section__rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border), transparent);
+  border: 0;
+  margin: 0;
+}
+
+// ── Grid (Cloud: 3-col; sub: 1-col) ──────────────────────────
+.wiki-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 701px) and (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.wiki-grid--sub {
+  grid-template-columns: 1fr;
+}
+
+// ── Wiki card (T3 base — flat, no glow) ──────────────────────
+.wiki-card {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  overflow: hidden;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+
+  // Initial stagger animation — JS adds .wiki-card--visible
+  opacity: 0;
+  transform: translateY(6px);
+
+  &.wiki-card--visible {
+    animation: wiki-card-in .35s ease forwards;
+  }
+
+  // T3 subtle top gradient (matches .panel::before treatment)
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgba(144, 108, 190, .06), transparent 60%);
+    mix-blend-mode: screen;
+    opacity: .5;
+    pointer-events: none;
+  }
+
+  // Hover: lift + accent ring (no glow — T3 constraint)
+  &:hover {
+    transform: translateY(-2px);
+    border-color: rgba(144, 108, 190, .40);
+    box-shadow: var(--shadow), inset 0 0 0 1px rgba(144, 108, 190, .12);
+  }
+}
+
+// ── Card head ─────────────────────────────────────────────────
+.wiki-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
+.wiki-card__sigil {
+  font: 400 .78rem/1 var(--mono);
+  color: var(--accent);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.wiki-card__label {
+  font: 700 .95rem/1.2 var(--mono);
+  color: var(--fg-main);
+  letter-spacing: .04em;
+  flex: 1;
+}
+
+// ── Live dot (top-right, updated < 7d) ───────────────────────
+.wiki-card__livedot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--kp-purple);
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity .3s ease;
+  animation: wiki-pulse 2.8s ease-in-out infinite;
+
+  .wiki-card.is-fresh & {
+    opacity: 1;
+  }
+}
+
+// ── Updated line ─────────────────────────────────────────────
+.wiki-card__updated {
+  font: 400 .76rem/1 var(--mono);
+  color: var(--fg-dim);
+  letter-spacing: .03em;
+}
+
+// ── Sub-divider ───────────────────────────────────────────────
+.wiki-card__divider {
+  height: 1px;
+  background: var(--border-soft);
+  border: 0;
+  margin: .2rem 0;
+}
+
+// ── Entry list ────────────────────────────────────────────────
+.wiki-card__entries {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  flex: 1;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.wiki-card__entry {
+  display: flex;
+  align-items: baseline;
+  gap: .4rem;
+  font: 400 .85rem/1.45 var(--sans);
+  color: var(--fg-muted);
+
+  &--first {
+    color: var(--fg-main);
+    font-weight: 500;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color .15s ease, border-color .15s ease;
+
+    &:hover {
+      color: var(--accent-soft);
+      border-bottom-color: rgba(144, 108, 190, .3);
+    }
+  }
+}
+
+.wiki-card__bullet {
+  color: var(--fg-dim);
+  font: 400 .75rem/1 var(--mono);
+  flex-shrink: 0;
+  margin-top: .15em;
+  user-select: none;
+}
+
+// ── NEW badge ─────────────────────────────────────────────────
+.wiki-card__new {
+  display: inline-block;
+  font: 700 .65rem/1 var(--mono);
+  letter-spacing: .06em;
+  color: var(--kp-void);
+  background: var(--kp-purple);
+  padding: .15em .4em;
+  border-radius: 3px;
+  vertical-align: middle;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+// ── View all link ─────────────────────────────────────────────
+.wiki-card__viewall {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  font: 500 .8rem/1 var(--mono);
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: .04em;
+  margin-top: .35rem;
+  padding-top: .5rem;
+  border-top: 1px solid var(--border-soft);
+  transition: color .15s ease, gap .15s ease;
+
+  &:hover {
+    color: var(--accent-soft);
+    gap: .5rem;
+  }
+}
+
+// ── Sub card (single-column Web card) ────────────────────────
+.wiki-card--sub {
+  .wiki-card__label {
+    font-size: .9rem;
+  }
+}
+
+// ── Placeholder footer ────────────────────────────────────────
+.wiki-placeholder {
+  position: relative;
+  z-index: 1;
+  margin-top: 2.5rem;
+  font: 400 .88rem/1.5 var(--mono);
+  color: var(--fg-dim);
+  letter-spacing: .04em;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+
+  &::before {
+    content: '';
+    display: block;
+    height: 1px;
+    width: 2rem;
+    background: var(--border);
+  }
+}
+
+// ── Reduced motion ────────────────────────────────────────────
+@media (prefers-reduced-motion: reduce) {
+  .wiki-card {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+
+    &.wiki-card--visible {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .wiki-weeklystat__dot,
+  .wiki-card__livedot {
+    animation: none;
+  }
+}

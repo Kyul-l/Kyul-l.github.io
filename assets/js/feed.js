@@ -1,93 +1,147 @@
-// assets/js/feed.js
+// assets/js/feed.js — Refactored for split // recent + // now panels
 
-const SYSTEM_ENTRIES = [
-  { text: 'signal: SECURE',      section: 'system' },
-  { text: 'observer: active',    section: 'system' },
-  { text: 'index: synchronized', section: 'system' },
-  { text: 'uplink: stable',      section: 'system' },
-  { text: 'cache: warm',         section: 'system' },
-  { text: '⋆  standby  ⋆',      section: 'system' },
-  { text: 'archive: live',       section: 'system' },
-  { text: 'memory: intact',      section: 'system' },
-  { text: 'seal: 𝕵',            section: 'system' },
-];
+const SIGILS = { wiki: '✦', studies: '⌖', log: '✺', system: '·' };
+const LABELS = { wiki: 'wiki', studies: 'studies', log: 'log', system: 'sys' };
 
-const SIGILS   = { wiki: '✦', studies: '⌖', log: '✺', system: '·' };
-const LABELS   = { wiki: 'wiki', studies: 'studies', log: 'log', system: 'sys' };
-
-class FeedPanel {
+// ── // recent panel ───────────────────────────────────────────
+class RecentPanel {
   constructor(containerId) {
     this.el = document.getElementById(containerId);
     if (!this.el) return;
-
-    this.posts  = (window.__FEED_POSTS__ || []).slice().reverse();
-    this.queue  = this.#buildQueue();
-    this.cursor = 0;
-    this.MAX    = 14;
-
-    this.#seed();
-
-    const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 7000 : 3200;
-    setInterval(() => this.#tick(), delay);
+    this.#render();
   }
 
-  #buildQueue() {
-    const q  = [];
-    let pi = 0, si = 0;
-    // interleave: 2 sys, 1 post
-    while (pi < this.posts.length || si < SYSTEM_ENTRIES.length) {
-      if (si < SYSTEM_ENTRIES.length) q.push(SYSTEM_ENTRIES[si++]);
-      if (si < SYSTEM_ENTRIES.length) q.push(SYSTEM_ENTRIES[si++]);
-      if (pi < this.posts.length)     q.push(this.posts[pi++]);
+  #render() {
+    const entries = window.__FEED_RECENT__ || [];
+    if (!entries.length) {
+      this.el.innerHTML =
+        '<div class="feed-entry"><div class="feed-entry__top">' +
+        '<span class="feed-entry__sigil feed-sigil--system">·</span>' +
+        '<span class="feed-entry__title">no entries yet</span>' +
+        '</div></div>';
+      return;
     }
-    return q.length ? q : [...SYSTEM_ENTRIES];
-  }
 
-  #seed() {
-    const n = Math.min(9, this.queue.length);
-    for (let i = 0; i < n; i++) this.#addEntry(this.queue[i], false);
-    this.cursor = n % this.queue.length;
-  }
+    entries.forEach((entry, i) => {
+      const el = document.createElement('div');
+      el.className = 'feed-entry feed-entry--in';
+      el.style.animationDelay = `${i * 60}ms`;
 
-  #tick() {
-    this.#addEntry(this.queue[this.cursor], true);
-    this.cursor = (this.cursor + 1) % this.queue.length;
-  }
+      const section = entry.section || 'system';
+      const sigil   = SIGILS[section] || '·';
+      const label   = LABELS[section] || 'sys';
+      const sigilCls = `feed-sigil--${section}`;
+      const time    = entry.date || '';
 
-  #addEntry(entry, animate) {
-    const el     = document.createElement('div');
-    el.className = 'feed-entry' + (animate ? ' feed-entry--in' : '');
+      const titleHtml = entry.url
+        ? `<a href="${this.#esc(entry.url)}" class="feed-entry__title-link">${this.#esc(entry.title)}</a>`
+        : `<span>${this.#esc(entry.title)}</span>`;
 
-    const section = entry.section || 'system';
-    const sigil   = SIGILS[section]  || '·';
-    const label   = LABELS[section]  || 'sys';
-    const sigilCls = `feed-sigil--${section}`;
-    const time    = this.#ts();
+      el.innerHTML =
+        `<div class="feed-entry__top">` +
+          `<span class="feed-entry__sigil ${sigilCls}">${sigil}</span>` +
+          `<span class="feed-entry__title">${titleHtml}</span>` +
+        `</div>` +
+        `<div class="feed-entry__meta">${label}${time ? ' · ' + time : ''}</div>`;
 
-    el.innerHTML =
-      `<div class="feed-entry__top">` +
-        `<span class="feed-entry__sigil ${sigilCls}">${sigil}</span>` +
-        `<span class="feed-entry__title">${this.#esc(entry.text)}</span>` +
-      `</div>` +
-      `<div class="feed-entry__meta">${label} · ${time}</div>`;
-
-    this.el.appendChild(el);
-
-    const all = this.el.querySelectorAll('.feed-entry');
-    if (all.length > this.MAX) {
-      const old = all[0];
-      old.classList.add('feed-entry--out');
-      setTimeout(() => old.remove(), 360);
-    }
-  }
-
-  #ts() {
-    return new Date().toTimeString().slice(0, 8);
+      this.el.appendChild(el);
+    });
   }
 
   #esc(s) {
-    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 }
 
-new FeedPanel('feed-body');
+// ── // now panel ──────────────────────────────────────────────
+class NowPanel {
+  constructor({ stateId, glossaryId }) {
+    this.stateEl    = document.getElementById(stateId);
+    this.glossaryEl = document.getElementById(glossaryId);
+    this.entries    = window.__WIKI_ENTRIES__ || [];
+    this.current    = 0;
+
+    if (this.stateEl)    this.#renderState();
+    if (this.glossaryEl) this.#renderGlossary();
+
+    if (this.entries.length > 1) {
+      const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 60000 : 30000;
+      setInterval(() => this.#rotateGlossary(), delay);
+    }
+  }
+
+  #renderState() {
+    // Hardcoded placeholders — replace with site.data.now or JS when available
+    const rows = [
+      { key: 'current', val: 'ARCANA' },
+      { key: 'zone',    val: 'cloud · offensive' },
+      { key: 'uptime',  val: this.#uptime() },
+    ];
+
+    this.stateEl.innerHTML = rows.map(r =>
+      `<div class="feed-state-row">` +
+        `<span class="feed-state-row__key">${this.#esc(r.key)}</span>` +
+        `<span class="feed-state-row__val">${this.#esc(r.val)}</span>` +
+      `</div>`
+    ).join('');
+  }
+
+  #renderGlossary() {
+    if (!this.entries.length) {
+      this.glossaryEl.innerHTML =
+        '<span class="feed-glossary__eyebrow">✦ random · Wiki</span>' +
+        '<span class="feed-glossary__title">no wiki entries yet</span>';
+      return;
+    }
+
+    const entry = this.entries[this.current];
+    const excerpt = (entry.excerpt || '').slice(0, 100).trim();
+    const ellipsis = (entry.excerpt || '').length > 100 ? '…' : '';
+
+    this.glossaryEl.innerHTML =
+      `<span class="feed-glossary__eyebrow">✦ random · Wiki</span>` +
+      `<span class="feed-glossary__title">${this.#esc(entry.title)}</span>` +
+      (excerpt
+        ? `<span class="feed-glossary__excerpt">${this.#esc(excerpt)}${ellipsis}</span>`
+        : '') +
+      (entry.url
+        ? `<a href="${this.#esc(entry.url)}" class="feed-glossary__link">read more →</a>`
+        : '');
+  }
+
+  #rotateGlossary() {
+    if (!this.glossaryEl || !this.entries.length) return;
+
+    this.glossaryEl.classList.add('is-fading');
+    setTimeout(() => {
+      this.current = (this.current + 1) % this.entries.length;
+      this.#renderGlossary();
+      this.glossaryEl.classList.remove('is-fading');
+    }, 400);
+  }
+
+  #uptime() {
+    // Simple uptime display — days since 2026-06-11 launch
+    const launch = new Date('2026-06-11T00:00:00Z');
+    const now    = new Date();
+    const days   = Math.floor((now - launch) / 86400000);
+    const hours  = Math.floor(((now - launch) % 86400000) / 3600000);
+    return `${days}d · ${hours}h`;
+  }
+
+  #esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+}
+
+// ── Boot ──────────────────────────────────────────────────────
+new RecentPanel('feed-recent');
+new NowPanel({ stateId: 'feed-state', glossaryId: 'feed-glossary' });

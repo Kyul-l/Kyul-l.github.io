@@ -15,8 +15,12 @@
 
 // ── Components ────────────────────────────────────────────────
 @import "components/terminal";   // home: macOS-style terminal
+@import "components/signal";     // home: feed panels + panel chrome
 @import "components/panel";      // generic surface card
 @import "components/post";       // post list cards + single post body
 @import "components/page";       // misc page elements + 404
 @import "components/graph";      // /map knowledge graph overlay
 @import "components/modal";      // /map modal wrapper
+@import "components/wiki";       // /wiki Cloud Focus + Live Signals
+@import "components/studies";   // /studies Codex Spread + Dynamic 강
+@import "components/log-cards"; // /log Card Collection (Pokémon-inspired)

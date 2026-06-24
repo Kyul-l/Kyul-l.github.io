@@ -1,7 +1,10 @@
 ---
 title: "OWASP Top 10"
+category: web
 date: 2026-06-21
+updated: 2026-06-21
 tags: [security, owasp, web, appsec]
+excerpt: "웹 애플리케이션 10대 보안 위협 — 2017·2021·2025 비교와 각 항목 개요"
 description: "웹 애플리케이션 10대 보안 위협 — 2017·2021·2025 비교와 각 항목 개요"
 ---
 
