@@ -49,6 +49,19 @@
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+@keyframes log-holo-drift {
+  0%   { filter: hue-rotate(0deg) brightness(1); }
+  50%  { filter: hue-rotate(24deg) brightness(1.08); }
+  100% { filter: hue-rotate(0deg) brightness(1); }
+}
+
+@keyframes log-sparkle-drift {
+  0%   { opacity: .55; transform: translateY(0) scale(1); }
+  33%  { opacity: .75; transform: translateY(-2px) scale(1.03); }
+  66%  { opacity: .45; transform: translateY(1px) scale(.97); }
+  100% { opacity: .55; transform: translateY(0) scale(1); }
+}
+
 // ── Page wrapper ──────────────────────────────────────────────
 .log-page {
   max-width: 840px;
@@ -203,7 +216,8 @@
   flex-direction: column;
   align-items: center;
   gap: 1.5rem;
-  min-height: 580px;
+  // min-height now driven by stage aspect-ratio, not fixed
+  min-height: 400px;
 }
 
 .log-spotlight__stage {
@@ -213,8 +227,9 @@
   user-select: none;
   touch-action: pan-y;
 
-  // prevent stage from collapsing when empty
-  min-height: 520px;
+  // 5:8 ratio — stage height matches card
+  aspect-ratio: 5 / 8;
+  min-height: unset;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -307,6 +322,8 @@
 .log-card {
   position: absolute;
   width: 360px;
+  // Tarot 5:8 ratio — height derived from width
+  aspect-ratio: 5 / 8;
   max-width: 100%;
   border-radius: 16px;
   background: var(--kp-surface);
@@ -314,31 +331,146 @@
   box-shadow: var(--shadow), 0 0 0 1px rgba(144, 108, 190, .07);
   overflow: hidden;
   cursor: grab;
+  // CSS custom properties for holo + tilt (set by JS pointermove)
+  --cursor-x: 50%;
+  --cursor-y: 50%;
+  --cursor-rx: 0deg;
+  --cursor-ry: 0deg;
+  --holo-tx: 0;
+  --holo-ty: 0;
+  // 3D tilt driven by JS via CSS custom properties
+  transform-style: preserve-3d;
   transition:
+    transform 0.4s cubic-bezier(0.23, 1, 0.32, 1),
     box-shadow .25s ease,
     border-color .25s ease;
 
-  // 3D perspective context for tilt + flip
-  transform-style: preserve-3d;
-  perspective: 900px;
-
-  // Subtle holographic top gradient (always present, faint)
+  // Holo foil layer — driven by cursor position (common = opacity 0)
   &::before {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: linear-gradient(
-      135deg,
-      rgba(231, 213, 249, .04) 0%,
-      transparent 40%,
-      rgba(144, 108, 190, .04) 100%
-    );
     pointer-events: none;
-    z-index: 1;
+    z-index: 4;
+    opacity: 0;
+    // Multi-stop prismatic gradient; position shifts with cursor
+    background:
+      linear-gradient(
+        calc(110deg + var(--cursor-ry) * 2),
+        rgba(231, 213, 249, 0)    0%,
+        rgba(144, 108, 190, .55)  20%,
+        rgba(231, 213, 249, .65)  35%,
+        rgba(144, 108, 190, .45)  50%,
+        rgba(234, 224, 200, .55)  65%,
+        rgba(144, 108, 190, .45)  80%,
+        rgba(231, 213, 249, 0)   100%
+      );
+    background-size: 200% 200%;
+    background-position: calc(50% + var(--holo-tx) * 1%) calc(50% + var(--holo-ty) * 1%);
+    mix-blend-mode: color-dodge;
+    transition: opacity .35s ease, background-position .1s linear;
   }
 
-  // Holographic shine overlay (hidden by default, shown on hover via JS class)
+  // Sparkle / shimmer dots layer
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0;
+    background:
+      radial-gradient(circle at calc(25% + var(--cursor-x) * .3) calc(30% + var(--cursor-y) * .3), rgba(231, 213, 249, .9) 0%, transparent 2%),
+      radial-gradient(circle at calc(75% - var(--cursor-x) * .2) calc(20% + var(--cursor-y) * .4), rgba(234, 224, 200, .8) 0%, transparent 1.5%),
+      radial-gradient(circle at calc(50% + var(--cursor-x) * .25) calc(70% - var(--cursor-y) * .2), rgba(144, 108, 190, .85) 0%, transparent 1.8%),
+      radial-gradient(circle at calc(20% + var(--cursor-x) * .15) calc(60% + var(--cursor-y) * .1), rgba(231, 213, 249, .7) 0%, transparent 1.2%),
+      radial-gradient(circle at calc(80% - var(--cursor-x) * .1) calc(80% - var(--cursor-y) * .15), rgba(234, 224, 200, .75) 0%, transparent 1.5%),
+      radial-gradient(circle at calc(40% + var(--cursor-x) * .2) calc(45% + var(--cursor-y) * .2), rgba(231, 213, 249, .6) 0%, transparent 1%);
+    background-size: 100% 100%;
+    mix-blend-mode: screen;
+    transition: opacity .35s ease;
+  }
+
+  // ── Rarity holo tiers ─────────────────────────────────────────
+
+  // common: no foil (default opacity 0)
+
+  // uncommon: warm shimmer — subtle
+  &.log-card--holo-uncommon {
+    &::before {
+      opacity: 0;
+      background:
+        linear-gradient(
+          calc(110deg + var(--cursor-ry) * 2),
+          rgba(234, 224, 200, 0)    0%,
+          rgba(234, 224, 200, .28)  30%,
+          rgba(144, 108, 190, .22)  55%,
+          rgba(234, 224, 200, .28)  75%,
+          rgba(234, 224, 200, 0)   100%
+        );
+      background-size: 200% 200%;
+      background-position: calc(50% + var(--holo-tx) * 1%) calc(50% + var(--holo-ty) * 1%);
+    }
+    &::after { opacity: 0; }
+    &:hover::before,
+    &.is-holo-active::before { opacity: .3; }
+    &:hover::after,
+    &.is-holo-active::after  { opacity: .25; }
+  }
+
+  // rare: full prismatic
+  &.log-card--holo-rare {
+    &::before { opacity: 0; }
+    &::after  { opacity: 0; }
+    &:hover::before,
+    &.is-holo-active::before { opacity: .6; }
+    &:hover::after,
+    &.is-holo-active::after  { opacity: .5; }
+  }
+
+  // legendary: cosmic — strong + animated hue drift
+  &.log-card--holo-legendary {
+    &::before {
+      opacity: 0;
+      background:
+        linear-gradient(
+          calc(110deg + var(--cursor-ry) * 3),
+          rgba(18, 19, 24, 0)       0%,
+          rgba(144, 108, 190, .75)  15%,
+          rgba(231, 213, 249, .85)  30%,
+          rgba(234, 224, 200, .70)  45%,
+          rgba(144, 108, 190, .65)  60%,
+          rgba(231, 213, 249, .75)  75%,
+          rgba(18, 19, 24, 0)      100%
+        );
+      background-size: 300% 300%;
+      background-position: calc(50% + var(--holo-tx) * 1%) calc(50% + var(--holo-ty) * 1%);
+    }
+    &::after { opacity: 0; }
+    &:hover::before,
+    &.is-holo-active::before {
+      opacity: .8;
+      animation: log-holo-drift 4s ease-in-out infinite;
+    }
+    &:hover::after,
+    &.is-holo-active::after {
+      opacity: .65;
+      animation: log-sparkle-drift 3s ease-in-out infinite;
+    }
+    // Extra border glow for legendary
+    &:hover,
+    &.is-holo-active {
+      box-shadow:
+        var(--shadow),
+        0 0 0 1px rgba(144, 108, 190, .4),
+        0 0 40px rgba(144, 108, 190, .22),
+        0 0 80px rgba(144, 108, 190, .08);
+    }
+  }
+
+  // Holographic shine overlay (legacy — kept for non-holo fallback glow)
   &__shine {
     position: absolute;
     inset: 0;
@@ -360,7 +492,9 @@
     animation: none;
   }
 
-  &:hover &__shine,
+  // Only show legacy shine on common cards (no rarity class)
+  &:not([class*="log-card--holo-"]):hover &__shine,
+  &.log-card--holo-common:hover &__shine,
   &.is-hovered &__shine {
     opacity: 1;
     animation: log-shine-pass .9s ease-in-out forwards;
@@ -412,6 +546,43 @@
   &.is-reshuffle-in {
     animation: log-reshuffle-in .28s ease both;
   }
+}
+
+// ── Corner ornaments ──────────────────────────────────────────
+// Injected by JS as first child of .log-card
+.log-card__ornament {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+  border-radius: inherit;
+  // Tarot corner border overlay
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(144, 108, 190, .18);
+    border-radius: 10px;
+    pointer-events: none;
+  }
+}
+
+.log-card__corner {
+  position: absolute;
+  font: 400 11px/1 var(--sans);
+  color: rgba(144, 108, 190, .45);
+  line-height: 1;
+  user-select: none;
+  transition: color .3s ease, opacity .3s ease;
+
+  .log-card:hover & {
+    color: rgba(231, 213, 249, .65);
+  }
+
+  &--tl { top: 10px;    left: 10px;    }
+  &--tr { top: 10px;    right: 10px;   }
+  &--bl { bottom: 10px; left: 10px;    }
+  &--br { bottom: 10px; right: 10px;   }
 }
 
 // ── Card flip (3D) ────────────────────────────────────────────
@@ -527,7 +698,9 @@
 // ── Photo slot ────────────────────────────────────────────────
 .log-card__photo {
   width: 100%;
-  height: 200px;
+  // ~57% of card height in 5:8 ratio ≈ 57% × 576px ≈ 328px at 360px wide
+  // Use a fixed height that works well at the base 360px width
+  height: 220px;
   overflow: hidden;
   position: relative;
   background: linear-gradient(
@@ -661,8 +834,10 @@
   cursor: pointer;
   border-radius: 12px;
   min-height: unset;
+  // Tarot ratio for mini cards too (proportional)
+  aspect-ratio: 5 / 8;
 
-  .log-card__photo { height: 110px; }
+  .log-card__photo { height: 90px; }
   .log-card__header { padding: .6rem .75rem .4rem; }
   .log-card__title { font-size: .8rem; }
   .log-card__sigil { font-size: .9rem; }
@@ -727,6 +902,16 @@
     &__shine { display: none; }
     &__inner { transition: none !important; }
     &.is-flipped .log-card__inner { transform: none; }
+
+    // Disable all holo animations + tilt
+    &::before,
+    &::after {
+      animation: none !important;
+      opacity: 0 !important;
+    }
+
+    // Disable cursor-driven tilt (JS will check this media query too)
+    transform: none !important;
   }
 
   .log-card--mini {

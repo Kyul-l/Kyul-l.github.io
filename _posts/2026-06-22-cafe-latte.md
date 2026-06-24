@@ -2,6 +2,7 @@
 title: "CAFÉ LATTE"
 date: 2026-06-22
 type: food
+rarity: uncommon
 location: "성수동 · 카페"
 flavor: "조용한 오후. 우유 거품 아래 라떼아트가 별처럼 보였다."
 photo: /assets/images/log/placeholder-1.jpg

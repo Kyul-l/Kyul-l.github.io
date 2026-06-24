@@ -69,14 +69,18 @@ window.__LOG_CARDS__ = [
     number: "{{ forloop.index | prepend: '000' | slice: -3, 3 }}",
     title: {{ post.title | jsonify }},
     type: {{ post.type | default: "daily" | jsonify }},
+    rarity: {{ post.rarity | default: "" | jsonify }},
     photo: {{ post.photo | jsonify }},
     location: {{ post.location | jsonify }},
     flavor: {{ post.flavor | jsonify }},
-    body: {{ post.content | strip_html | truncate: 220 | jsonify }},
+    body: {{ post.content | jsonify }},
     date: "{{ post.date | date: '%Y-%m-%d' }}",
     url: "{{ post.url | relative_url }}"
   }{% unless forloop.last %},{% endunless %}
   {% endfor %}
 ];
 </script>
+<!-- Detail view overlay (mounted by JS) -->
+<div id="log-detail-overlay" class="log-detail-overlay" role="dialog" aria-modal="true" aria-label="Card detail" hidden></div>
+
 <script src="{{ '/assets/js/log-deck.js' | relative_url }}" defer></script>
