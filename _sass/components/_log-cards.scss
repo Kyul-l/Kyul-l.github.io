@@ -64,7 +64,7 @@
 
 // ── Page wrapper ──────────────────────────────────────────────
 .log-page {
-  max-width: 840px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 0 1rem 5rem;
   position: relative;
@@ -210,64 +210,7 @@
   }
 }
 
-// ── Spotlight container ───────────────────────────────────────
-.log-spotlight {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  // min-height now driven by stage aspect-ratio, not fixed
-  min-height: 400px;
-}
-
-.log-spotlight__stage {
-  position: relative;
-  width: 360px;
-  max-width: 100%;
-  user-select: none;
-  touch-action: pan-y;
-
-  // 5:8 ratio — stage height matches card
-  aspect-ratio: 5 / 8;
-  min-height: unset;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.log-spotlight__hint {
-  font: 400 .75rem/1 var(--mono);
-  color: var(--fg-dim);
-  letter-spacing: .06em;
-  text-align: center;
-  margin: 0;
-  opacity: .7;
-}
-
-// ── Stack indicator dots ──────────────────────────────────────
-.log-stack-indicator {
-  display: flex;
-  align-items: center;
-  gap: .45rem;
-}
-
-.log-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--kp-muted);
-  opacity: .4;
-  transition: background .2s ease, opacity .2s ease, width .2s ease, height .2s ease;
-  cursor: pointer;
-  flex-shrink: 0;
-
-  &.is-current {
-    background: var(--kp-purple);
-    opacity: 1;
-    width: 9px;
-    height: 9px;
-  }
-}
+// (spotlight + stack indicator removed — Cabinet Drawer layout)
 
 // ── No-JS notice ──────────────────────────────────────────────
 .log-nojs-notice {
@@ -320,11 +263,10 @@
 
 // ── Card base ─────────────────────────────────────────────────
 .log-card {
-  position: absolute;
-  width: 360px;
+  position: relative;  // drawer cards are in-flow; detail uses absolute overlay
+  width: 100%;
   // Tarot 5:8 ratio — height derived from width
   aspect-ratio: 5 / 8;
-  max-width: 100%;
   border-radius: 16px;
   background: var(--kp-surface);
   border: 1px solid var(--border);
@@ -663,14 +605,18 @@
 }
 
 .log-card__title {
-  font: 700 1.05rem/1.2 var(--mono);
+  font: 600 .88rem/1.3 var(--sans);
   color: var(--kp-parchment);
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  flex: 1;
+  letter-spacing: .01em;
+  margin: 0;
   overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+
+  [data-theme="light"] & {
+    color: var(--fg-main);
+  }
 }
 
 .log-card__badge {
@@ -794,104 +740,68 @@
   letter-spacing: .03em;
 }
 
-// ── Type color accents ────────────────────────────────────────
+// ── Type color accents (5 artifact types) ────────────────────
+
+.log-card--moment {
+  border-bottom: 2px solid rgba(144, 108, 190, .4);
+  .log-card__sigil { color: var(--kp-purple); }
+  .log-card__photo {
+    background: linear-gradient(145deg, rgba(55, 35, 90, .6) 0%, rgba(35, 38, 51, .9) 100%);
+  }
+}
+
 .log-card--food {
-  border-bottom: 2px solid rgba(190, 130, 108, .35);
+  border-bottom: 2px solid rgba(190, 140, 108, .38);
   .log-card__sigil { color: #c98b6a; }
   .log-card__photo {
     background: linear-gradient(145deg, rgba(100, 60, 40, .55) 0%, rgba(35, 38, 51, .9) 100%);
   }
 }
 
-.log-card--art {
-  border-bottom: 2px solid rgba(144, 108, 190, .45);
-  .log-card__sigil { color: var(--kp-purple); }
+.log-card--thought {
+  border-bottom: 2px solid rgba(108, 130, 190, .38);
+  .log-card__sigil { color: #8ea4d4; }
   .log-card__photo {
-    background: linear-gradient(145deg, rgba(55, 35, 90, .65) 0%, rgba(35, 38, 51, .9) 100%);
+    background: linear-gradient(145deg, rgba(30, 50, 100, .5) 0%, rgba(35, 38, 51, .9) 100%);
   }
 }
 
-.log-card--travel {
-  border-bottom: 2px solid rgba(108, 140, 190, .35);
-  .log-card__sigil { color: #7ea8d4; }
+.log-card--object {
+  border-bottom: 2px solid rgba(155, 145, 120, .35);
+  .log-card__sigil { color: #b0a882; }
   .log-card__photo {
-    background: linear-gradient(145deg, rgba(30, 55, 100, .55) 0%, rgba(35, 38, 51, .9) 100%);
+    background: linear-gradient(145deg, rgba(70, 60, 35, .5) 0%, rgba(35, 38, 51, .9) 100%);
   }
 }
 
-.log-card--daily {
-  border-bottom: 2px solid var(--border);
-  .log-card__sigil { color: var(--kp-muted); }
+.log-card--signal {
+  border-bottom: 2px solid rgba(108, 190, 170, .32);
+  .log-card__sigil { color: #6ec8b8; }
+  .log-card__photo {
+    background: linear-gradient(145deg, rgba(20, 70, 65, .5) 0%, rgba(35, 38, 51, .9) 100%);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
-// MINI CARD (grid view)
+// MINI CARD (drawer variant)
 // ═══════════════════════════════════════════════════════════════
 
 .log-card--mini {
-  position: relative;   // override absolute in spotlight
-  width: 100%;
+  // Base card is already position:relative + width:100% + aspect-ratio:5/8
   cursor: pointer;
   border-radius: 12px;
-  min-height: unset;
-  // Tarot ratio for mini cards too (proportional)
-  aspect-ratio: 5 / 8;
 
-  .log-card__photo { height: 90px; }
-  .log-card__header { padding: .6rem .75rem .4rem; }
-  .log-card__title { font-size: .8rem; }
-  .log-card__sigil { font-size: .9rem; }
-  .log-card__number { font-size: .58rem; }
-  .log-card__body { padding: .5rem .75rem .4rem; }
-  .log-card__flavor { font-size: .78rem; -webkit-line-clamp: 2; }
-  .log-card__location { font-size: .7rem; }
-  .log-card__footer { padding: .4rem .75rem .5rem; }
-  .log-card__type-label { font-size: .65rem; }
-  .log-card__date { font-size: .65rem; }
-
-  // No position:absolute on inner in grid
-  .log-card__inner {
-    position: relative;
-  }
+  .log-card__inner { position: relative; }
 
   &:hover {
     transform: translateY(-3px);
     border-color: rgba(144, 108, 190, .32);
   }
 
-  // Mini cards fade in with stagger
-  opacity: 0;
-  animation: log-card-in .32s ease both;
-
-  &.is-visible { opacity: 1; }
+  // Fade-in stagger driven by _log-drawer.scss .log-drawer__body .log-card--mini
 }
 
-// ── Grid layout ───────────────────────────────────────────────
-.log-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(3, 1fr);
-
-  @media (max-width: 680px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (max-width: 420px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-// ── Responsive spotlight ──────────────────────────────────────
-@media (max-width: 420px) {
-  .log-spotlight__stage {
-    width: 100%;
-  }
-
-  .log-card {
-    width: 100%;
-    border-radius: 12px;
-  }
-}
+// (spotlight + grid layout sections removed — Cabinet Drawer handles layout)
 
 // ── Reduced motion ────────────────────────────────────────────
 @media (prefers-reduced-motion: reduce) {

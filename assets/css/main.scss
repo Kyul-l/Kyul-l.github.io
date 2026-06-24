@@ -23,5 +23,6 @@
 @import "components/modal";      // /map modal wrapper
 @import "components/wiki";       // /wiki Cloud Focus + Live Signals
 @import "components/studies";   // /studies Codex Spread + Dynamic 강
-@import "components/log-cards";  // /log Card Collection (Pokémon-inspired)
-@import "components/log-detail"; // /log Detail view modal
+@import "components/log-drawer";  // /log Cabinet Drawer layout + artifact schema
+@import "components/log-cards";   // /log Card Collection chrome (holo, tilt, rarity)
+@import "components/log-detail";  // /log Detail view modal

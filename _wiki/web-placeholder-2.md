@@ -1,7 +1,6 @@
 ---
 title: "Placeholder 2"
-series: "OWASP 2025"
-part: 2
+category: web
 ---
 
 _Coming soon._

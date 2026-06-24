@@ -92,7 +92,6 @@ section: studies
 
       </ul>
 
-      <p class="studies-spread__footnote" aria-hidden="true">— Contents —</p>
     </div><!-- /.studies-spread__left -->
 
     <!-- ── SPINE ───────────────────────────────────────────── -->
@@ -146,7 +145,6 @@ section: studies
         {% endif %}
       </div><!-- /.studies-preview -->
 
-      <p class="studies-spread__footnote" aria-hidden="true">— Latest · click to open full entry —</p>
     </div><!-- /.studies-spread__right -->
 
   </div><!-- /.studies-spread -->

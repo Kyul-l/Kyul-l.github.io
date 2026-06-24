@@ -41,17 +41,13 @@ layout: default
       <div class="feed-panel__body" id="feed-recent"></div>
     </aside>
 
-    <!-- // now ──────────────────────────────────────────────── -->
-    <aside class="feed-panel feed-panel--now" aria-label="Now status" aria-hidden="true">
+    <!-- // constellation ────────────────────────────────────── -->
+    <aside class="feed-panel feed-panel--now" aria-label="Wiki constellation" aria-hidden="true">
       <div class="panel-chrome">
-        <span class="panel-label">// now</span>
+        <span class="panel-label">// constellation</span>
         <span class="panel-dot panel-dot--pulse"></span>
       </div>
-      <div class="feed-panel__body">
-        <div class="feed-state-rows" id="feed-state"></div>
-        <div class="feed-divider"></div>
-        <div class="feed-glossary" id="feed-glossary"></div>
-      </div>
+      <div class="feed-panel__body" id="constellation-body"></div>
     </aside>
 
   </div>
@@ -80,14 +76,11 @@ layout: default
     {% endfor %}
   ];
 
-  window.__WIKI_ENTRIES__ = [
-    {% for doc in site.wiki %}
-    {
-      "title": {{ doc.title | jsonify }},
-      "excerpt": {{ doc.excerpt | strip_html | truncate: 120 | jsonify }},
-      "url": {{ doc.url | relative_url | jsonify }}
-    }{% unless forloop.last %},{% endunless %}
-    {% endfor %}
+  window.__WIKI_DOMAINS__ = [
+    { "sigil": "✦", "label": "AWS",   "href": "/wiki/#aws" },
+    { "sigil": "✺", "label": "GCP",   "href": "/wiki/#gcp" },
+    { "sigil": "⊹", "label": "Azure", "href": "/wiki/#azure" },
+    { "sigil": "⌖", "label": "Web",   "href": "/wiki/#web" }
   ];
 </script>
 

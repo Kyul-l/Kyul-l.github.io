@@ -57,80 +57,62 @@ class RecentPanel {
   }
 }
 
-// ── // now panel ──────────────────────────────────────────────
-class NowPanel {
-  constructor({ stateId, glossaryId }) {
-    this.stateEl    = document.getElementById(stateId);
-    this.glossaryEl = document.getElementById(glossaryId);
-    this.entries    = window.__WIKI_ENTRIES__ || [];
-    this.current    = 0;
+// ── // constellation panel ────────────────────────────────────
+class ConstellationPanel {
+  // Asymmetric positions (left%, top%) — observatory scatter feel
+  static #POSITIONS = [
+    [18, 22],
+    [58, 14],
+    [38, 48],
+    [72, 38],
+    [22, 68],
+    [62, 70],
+    [80, 55],
+    [10, 82],
+  ];
 
-    if (this.stateEl)    this.#renderState();
-    if (this.glossaryEl) this.#renderGlossary();
+  constructor(containerId) {
+    this.el      = document.getElementById(containerId);
+    this.domains = window.__WIKI_DOMAINS__ || [];
+    if (!this.el || !this.domains.length) return;
 
-    if (this.entries.length > 1) {
-      const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 60000 : 30000;
-      setInterval(() => this.#rotateGlossary(), delay);
-    }
+    this.#render();
+    this.#startTwinkle();
   }
 
-  #renderState() {
-    // Hardcoded placeholders — replace with site.data.now or JS when available
-    const rows = [
-      { key: 'current', val: 'ARCANA' },
-      { key: 'zone',    val: 'cloud · offensive' },
-      { key: 'uptime',  val: this.#uptime() },
-    ];
+  #render() {
+    const wrap = document.createElement('div');
+    wrap.className = 'feed-constellation';
 
-    this.stateEl.innerHTML = rows.map(r =>
-      `<div class="feed-state-row">` +
-        `<span class="feed-state-row__key">${this.#esc(r.key)}</span>` +
-        `<span class="feed-state-row__val">${this.#esc(r.val)}</span>` +
-      `</div>`
-    ).join('');
+    this.domains.forEach((domain, i) => {
+      const pos = ConstellationPanel.#POSITIONS[i] || [50, 50];
+      const a   = document.createElement('a');
+      a.className  = 'feed-constellation__star';
+      a.href       = domain.href;
+      a.style.left = `${pos[0]}%`;
+      a.style.top  = `${pos[1]}%`;
+      a.setAttribute('aria-label', domain.label);
+
+      a.innerHTML =
+        `<span class="feed-constellation__sigil">${domain.sigil}</span>` +
+        `<span class="feed-constellation__label">${this.#esc(domain.label)}</span>`;
+
+      wrap.appendChild(a);
+    });
+
+    this.el.appendChild(wrap);
+    this.stars = Array.from(wrap.querySelectorAll('.feed-constellation__star'));
   }
 
-  #renderGlossary() {
-    if (!this.entries.length) {
-      this.glossaryEl.innerHTML =
-        '<span class="feed-glossary__eyebrow">✦ random · Wiki</span>' +
-        '<span class="feed-glossary__title">no wiki entries yet</span>';
-      return;
-    }
+  #startTwinkle() {
+    if (!this.stars || !this.stars.length) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const entry = this.entries[this.current];
-    const excerpt = (entry.excerpt || '').slice(0, 100).trim();
-    const ellipsis = (entry.excerpt || '').length > 100 ? '…' : '';
-
-    this.glossaryEl.innerHTML =
-      `<span class="feed-glossary__eyebrow">✦ random · Wiki</span>` +
-      `<span class="feed-glossary__title">${this.#esc(entry.title)}</span>` +
-      (excerpt
-        ? `<span class="feed-glossary__excerpt">${this.#esc(excerpt)}${ellipsis}</span>`
-        : '') +
-      (entry.url
-        ? `<a href="${this.#esc(entry.url)}" class="feed-glossary__link">read more →</a>`
-        : '');
-  }
-
-  #rotateGlossary() {
-    if (!this.glossaryEl || !this.entries.length) return;
-
-    this.glossaryEl.classList.add('is-fading');
-    setTimeout(() => {
-      this.current = (this.current + 1) % this.entries.length;
-      this.#renderGlossary();
-      this.glossaryEl.classList.remove('is-fading');
-    }, 400);
-  }
-
-  #uptime() {
-    // Simple uptime display — days since 2026-06-11 launch
-    const launch = new Date('2026-06-11T00:00:00Z');
-    const now    = new Date();
-    const days   = Math.floor((now - launch) / 86400000);
-    const hours  = Math.floor(((now - launch) % 86400000) / 3600000);
-    return `${days}d · ${hours}h`;
+    setInterval(() => {
+      const star = this.stars[Math.floor(Math.random() * this.stars.length)];
+      star.classList.add('is-twinkling');
+      setTimeout(() => star.classList.remove('is-twinkling'), 800);
+    }, 60000);
   }
 
   #esc(s) {
@@ -144,4 +126,4 @@ class NowPanel {
 
 // ── Boot ──────────────────────────────────────────────────────
 new RecentPanel('feed-recent');
-new NowPanel({ stateId: 'feed-state', glossaryId: 'feed-glossary' });
+new ConstellationPanel('constellation-body');

@@ -1,7 +1,6 @@
 ---
 title: "Placeholder 1"
-series: "OWASP 2025"
-part: 1
+category: gcp
 ---
 
 _Coming soon._

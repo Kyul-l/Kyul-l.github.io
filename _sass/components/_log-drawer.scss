@@ -1,0 +1,250 @@
+// ─────────────────────────────────────────────────────────────
+// Log · Cabinet Drawer layout
+// Collections as collapsible drawers containing mini artifact cards
+// ─────────────────────────────────────────────────────────────
+
+// ── Keyframes ─────────────────────────────────────────────────
+
+@keyframes log-drawer-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// ── Drawer list container ─────────────────────────────────────
+.log-drawers {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+// ── Single drawer ─────────────────────────────────────────────
+.log-drawer {
+  border-bottom: 1px solid var(--border-soft);
+  position: relative;
+
+  // Left accent bar
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: transparent;
+    transition: background .2s ease;
+    border-radius: 0 1px 1px 0;
+  }
+
+  &.is-open::before {
+    background: rgba(144, 108, 190, .45);
+  }
+
+  &:first-child {
+    border-top: 1px solid var(--border-soft);
+  }
+}
+
+// ── Drawer header (clickable) ─────────────────────────────────
+.log-drawer__header {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .9rem 1rem .9rem 1.25rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background .15s ease;
+
+  &:hover {
+    background: rgba(144, 108, 190, .04);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--kp-purple);
+    outline-offset: -2px;
+  }
+}
+
+// Arrow indicator (▸ / ▾)
+.log-drawer__arrow {
+  font: 400 .7rem/1 var(--mono);
+  color: var(--kp-muted);
+  flex-shrink: 0;
+  transition: transform .22s cubic-bezier(.4, 0, .2, 1), color .15s ease;
+  display: inline-block;
+  width: .9rem;
+  text-align: center;
+
+  .log-drawer.is-open & {
+    transform: rotate(90deg);
+    color: var(--kp-purple);
+  }
+}
+
+// Collection name
+.log-drawer__name {
+  font: 600 .88rem/1.2 var(--mono);
+  color: var(--kp-parchment);
+  letter-spacing: .03em;
+  flex: 1;
+
+  [data-theme="light"] & {
+    color: var(--fg-main);
+  }
+}
+
+// Dot count strip + number
+.log-drawer__meta {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  flex-shrink: 0;
+}
+
+.log-drawer__dots {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.log-drawer__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--kp-muted);
+  opacity: .35;
+  flex-shrink: 0;
+
+  // Fill dots proportionally — first N dots lit based on CSS custom prop (set by JS)
+  // We use a simpler approach: always 6 dots, opacity varies by position
+  &:nth-child(-n+3) {
+    opacity: .55;
+  }
+}
+
+.log-drawer__count {
+  font: 400 .72rem/1 var(--mono);
+  color: var(--fg-dim);
+  letter-spacing: .03em;
+  white-space: nowrap;
+}
+
+// ── Drawer body (collapsible) ─────────────────────────────────
+.log-drawer__body {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition:
+    max-height .35s cubic-bezier(.4, 0, .2, 1),
+    opacity .25s ease;
+  padding: 0 1rem;
+
+  .log-drawer.is-open & {
+    max-height: 2000px; // generous upper bound
+    opacity: 1;
+    padding: 0 1rem 1.25rem;
+    transition:
+      max-height .4s cubic-bezier(.4, 0, .2, 1),
+      opacity .3s ease .05s;
+  }
+}
+
+// ── Card grid inside drawer ───────────────────────────────────
+.log-drawer__grid {
+  display: grid;
+  gap: .85rem;
+  grid-template-columns: repeat(4, 1fr);
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 380px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Empty drawer state ────────────────────────────────────────
+.log-drawer__empty {
+  padding: 1.5rem 0 .5rem;
+  font: 400 .8rem/1.5 var(--mono);
+  color: var(--fg-dim);
+  letter-spacing: .05em;
+  opacity: .6;
+}
+
+// ── Drawer card stagger fade-in ───────────────────────────────
+// Cards inside a drawer body stagger in when drawer opens.
+// JS sets --stagger-i on each card; we use animation-delay.
+.log-drawer__body .log-card--mini {
+  opacity: 0;
+  animation: log-drawer-card-in .28s ease both;
+  animation-delay: calc(var(--stagger-i, 0) * 60ms);
+
+  &.is-drawer-visible {
+    // animation runs automatically via delay; class added by JS to trigger
+  }
+}
+
+// ── Artifact card content adaptations ────────────────────────
+// Mini cards inside drawers show artifact schema fields:
+// type label (top-left), index (top-right), period, fragment, tags
+
+.log-card__period {
+  font: 400 .72rem/1.3 var(--mono);
+  color: var(--fg-dim);
+  letter-spacing: .03em;
+}
+
+.log-card__tags {
+  font: 400 .7rem/1.3 var(--mono);
+  color: var(--fg-dim);
+  letter-spacing: .04em;
+  opacity: .7;
+  margin-top: .1rem;
+}
+
+// Mini card overrides for drawer size
+.log-drawer__body .log-card--mini {
+  // Slightly smaller than original mini
+  .log-card__header     { padding: .55rem .65rem .35rem; }
+  .log-card__title      { font-size: .75rem; }
+  .log-card__sigil      { font-size: .85rem; }
+  .log-card__number     { font-size: .55rem; }
+  .log-card__photo      { height: 80px; }
+  .log-card__body       { padding: .45rem .65rem .35rem; gap: .3rem; }
+  .log-card__flavor     { font-size: .74rem; -webkit-line-clamp: 2; }
+  .log-card__period     { font-size: .65rem; }
+  .log-card__tags       { font-size: .62rem; }
+  .log-card__footer     { padding: .35rem .65rem .45rem; }
+  .log-card__type-label { font-size: .62rem; }
+}
+
+// ── Reduced motion ────────────────────────────────────────────
+@media (prefers-reduced-motion: reduce) {
+  .log-drawer__arrow {
+    transition: none;
+  }
+
+  .log-drawer__body {
+    transition: none;
+
+    .log-drawer.is-open & {
+      transition: none;
+    }
+  }
+
+  .log-drawer__body .log-card--mini {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+}

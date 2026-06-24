@@ -1,7 +1,6 @@
 ---
 title: "Placeholder 2"
-series: "OWASP 2025"
-part: 2
+category: azure
 ---
 
 _Coming soon._

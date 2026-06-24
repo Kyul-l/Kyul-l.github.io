@@ -10,76 +10,83 @@ layout: page
     </div>
   </header>
 
-  <!-- Toolbar: filter chips + shuffle + view toggle -->
-  <div class="log-toolbar" role="toolbar" aria-label="Log filters and view controls">
+  <!-- Toolbar: type filter chips + shuffle -->
+  <div class="log-toolbar" role="toolbar" aria-label="Log filters and controls">
     <div class="log-toolbar__filters" role="group" aria-label="Filter by type">
       <button class="log-filter-chip is-active" data-filter="all" type="button">all</button>
-      <!-- dynamic chips injected by JS; static fallbacks below for no-JS -->
-      <noscript>
-        <button class="log-filter-chip" type="button">food</button>
-        <button class="log-filter-chip" type="button">art</button>
-        <button class="log-filter-chip" type="button">travel</button>
-        <button class="log-filter-chip" type="button">daily</button>
-      </noscript>
+      <button class="log-filter-chip" data-filter="moment" type="button">moment</button>
+      <button class="log-filter-chip" data-filter="food" type="button">food</button>
+      <button class="log-filter-chip" data-filter="thought" type="button">thought</button>
+      <button class="log-filter-chip" data-filter="object" type="button">object</button>
+      <button class="log-filter-chip" data-filter="signal" type="button">signal</button>
     </div>
     <div class="log-toolbar__actions">
       <button class="log-shuffle" type="button" aria-label="Shuffle cards" title="Shuffle">↻ shuffle</button>
-      <button class="log-view-toggle" type="button" aria-label="Toggle grid view" data-view="spotlight">
-        <span class="log-view-toggle__label">▦ grid</span>
-      </button>
     </div>
   </div>
 
-  <!-- Spotlight view -->
-  <div class="log-spotlight" id="log-spotlight" role="region" aria-label="Card spotlight" aria-live="polite">
-    <div class="log-spotlight__stage" id="log-stage">
-      <!-- card rendered by JS -->
-      <noscript>
-        <p class="log-nojs-notice">JavaScript를 활성화하면 카드 덱을 볼 수 있습니다.</p>
-      </noscript>
-    </div>
-    <p class="log-spotlight__hint" aria-hidden="true">← drag · swipe · arrow keys →</p>
-    <div class="log-stack-indicator" id="log-dots" aria-hidden="true"></div>
+  <!-- Cabinet Drawer list -->
+  <div class="log-drawers" id="log-drawers" role="region" aria-label="Log collections">
+    <!-- drawers rendered by JS from window.__LOG_DRAWERS__ -->
+    <noscript>
+      <ul class="log-nojs-list">
+        {% for post in site.posts %}
+          <li>
+            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+            <span class="log-nojs-meta">{{ post.type | default: "moment" }} · {{ post.collection | default: "Uncollected" }} · {{ post.period }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </noscript>
   </div>
-
-  <!-- Grid view (initially hidden) -->
-  <div class="log-grid" id="log-grid" hidden aria-label="All cards grid">
-    <!-- cards rendered by JS -->
-  </div>
-
-  <!-- No-JS fallback: simple post list -->
-  <noscript>
-    <ul class="log-nojs-list">
-      {% for post in site.posts %}
-        <li>
-          <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-          <span class="log-nojs-meta">{{ post.type | default: "daily" }} · {{ post.date | date: '%Y-%m-%d' }}</span>
-        </li>
-      {% endfor %}
-    </ul>
-  </noscript>
 
 </div>
 
-<!-- Seed card data for JS -->
+<!-- Seed drawer data for JS -->
 <script>
-window.__LOG_CARDS__ = [
-  {% for post in site.posts %}
-  {
-    number: "{{ forloop.index | prepend: '000' | slice: -3, 3 }}",
-    title: {{ post.title | jsonify }},
-    type: {{ post.type | default: "daily" | jsonify }},
-    rarity: {{ post.rarity | default: "" | jsonify }},
-    photo: {{ post.photo | jsonify }},
-    location: {{ post.location | jsonify }},
-    flavor: {{ post.flavor | jsonify }},
-    body: {{ post.content | jsonify }},
-    date: "{{ post.date | date: '%Y-%m-%d' }}",
-    url: "{{ post.url | relative_url }}"
-  }{% unless forloop.last %},{% endunless %}
+(function () {
+  var collections = {};
+  var allCards = [];
+
+  {% assign sorted_posts = site.posts | sort: 'date' | reverse %}
+  {% for post in sorted_posts %}
+  (function () {
+    var col = {{ post.collection | default: "Uncollected" | jsonify }};
+    var card = {
+      number: "{{ forloop.index | prepend: '000' | slice: -3, 3 }}",
+      title: {{ post.title | jsonify }},
+      type: {{ post.type | default: "moment" | jsonify }},
+      collection: col,
+      period: {{ post.period | default: "" | jsonify }},
+      fragment: {{ post.fragment | default: "" | jsonify }},
+      tags: {{ post.tags | jsonify }},
+      rarity: {{ post.rarity | default: "" | jsonify }},
+      body: {{ post.content | jsonify }},
+      url: "{{ post.url | relative_url }}"
+    };
+    allCards.push(card);
+    if (!collections[col]) collections[col] = [];
+    collections[col].push(card);
+  })();
   {% endfor %}
-];
+
+  // Build ordered collections array (preserve insertion order = newest-first per Jekyll sort)
+  var collectionNames = [];
+  for (var k in collections) {
+    if (Object.prototype.hasOwnProperty.call(collections, k)) {
+      collectionNames.push(k);
+    }
+  }
+
+  window.__LOG_DRAWERS__ = {
+    collections: collectionNames.map(function (name) {
+      return { name: name, cards: collections[name] };
+    }),
+    allCards: allCards
+  };
+})();
 </script>
+
 <!-- Detail view overlay (mounted by JS) -->
 <div id="log-detail-overlay" class="log-detail-overlay" role="dialog" aria-modal="true" aria-label="Card detail" hidden></div>
 

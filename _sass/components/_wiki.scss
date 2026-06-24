@@ -1,13 +1,7 @@
 // ─────────────────────────────────────────────────────────────
-// Wiki · Cloud Focus + Live Signals (T3 — still containers)
+// Wiki · Cloud Focus (T3 — still containers)
 // No glow. Subtle motion only. Constellation backdrop static.
 // ─────────────────────────────────────────────────────────────
-
-// ── Pulse keyframe (livedot + weeklystat) ─────────────────────
-@keyframes wiki-pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: .35; }
-}
 
 // ── Card fade-in stagger ──────────────────────────────────────
 @keyframes wiki-card-in {
@@ -15,11 +9,17 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+// ── Pulse keyframe (livedot only — kept for future use) ───────
+@keyframes wiki-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .35; }
+}
+
 // ── Page wrapper ──────────────────────────────────────────────
 .wiki-page {
   max-width: 960px;
   margin: 0 auto;
-  padding: 0 1rem 4rem;
+  padding: 0 1rem 2rem;
   position: relative;
 }
 
@@ -65,18 +65,13 @@
 .wiki-header {
   position: relative;
   z-index: 1;
-  margin: 0 0 2.5rem;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: .75rem;
+  margin: 0 0 1.5rem;
 }
 
 .wiki-header__left {
   display: flex;
   flex-direction: column;
-  gap: .35rem;
+  gap: .25rem;
 }
 
 .wiki-header__title {
@@ -101,44 +96,18 @@
   color: var(--fg-muted);
 }
 
-// ── Weekly stat (top-right) ───────────────────────────────────
-.wiki-weeklystat {
-  display: inline-flex;
-  align-items: center;
-  gap: .45rem;
-  font: 500 .82rem/1 var(--mono);
-  color: var(--fg-muted);
-  letter-spacing: .04em;
-  padding: .38rem .75rem;
-  border: 1px solid var(--border-soft);
-  border-radius: 100px;
-  background: var(--panel-accent);
-  align-self: flex-start;
-  margin-top: .2rem;
-  min-height: 1.8rem; // prevent layout shift before JS populates
-}
-
-.wiki-weeklystat__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--kp-purple);
-  flex-shrink: 0;
-  animation: wiki-pulse 2.4s ease-in-out infinite;
-}
-
 // ── Section header ────────────────────────────────────────────
 .wiki-section {
   position: relative;
   z-index: 1;
-  margin: 2.75rem 0 1.25rem;
+  margin: 1.5rem 0 .75rem;
 }
 
 .wiki-section__header {
   display: flex;
   align-items: center;
   gap: .65rem;
-  margin-bottom: 1.1rem;
+  margin-bottom: .75rem;
 }
 
 .wiki-section__sigil {
@@ -155,13 +124,6 @@
   flex-shrink: 0;
 }
 
-.wiki-section__meta {
-  font: 400 .82rem/1.2 var(--mono);
-  color: var(--fg-muted);
-  letter-spacing: .02em;
-  flex-shrink: 0;
-}
-
 .wiki-section__rule {
   flex: 1;
   height: 1px;
@@ -173,7 +135,7 @@
 // ── Grid (Cloud: 3-col; sub: 1-col) ──────────────────────────
 .wiki-grid {
   display: grid;
-  gap: 1rem;
+  gap: .75rem;
   grid-template-columns: repeat(3, 1fr);
 
   @media (max-width: 700px) {
@@ -196,10 +158,10 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 1.25rem 1.25rem 1rem;
+  padding: .9rem 1rem .75rem;
   display: flex;
   flex-direction: column;
-  gap: .5rem;
+  gap: .4rem;
   overflow: hidden;
   transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
 
@@ -235,7 +197,6 @@
 .wiki-card__head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: .5rem;
 }
 
@@ -253,42 +214,19 @@
   flex: 1;
 }
 
-// ── Live dot (top-right, updated < 7d) ───────────────────────
-.wiki-card__livedot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--kp-purple);
-  flex-shrink: 0;
-  opacity: 0;
-  transition: opacity .3s ease;
-  animation: wiki-pulse 2.8s ease-in-out infinite;
-
-  .wiki-card.is-fresh & {
-    opacity: 1;
-  }
-}
-
-// ── Updated line ─────────────────────────────────────────────
-.wiki-card__updated {
-  font: 400 .76rem/1 var(--mono);
-  color: var(--fg-dim);
-  letter-spacing: .03em;
-}
-
 // ── Sub-divider ───────────────────────────────────────────────
 .wiki-card__divider {
   height: 1px;
   background: var(--border-soft);
   border: 0;
-  margin: .2rem 0;
+  margin: .1rem 0;
 }
 
 // ── Entry list ────────────────────────────────────────────────
 .wiki-card__entries {
   display: flex;
   flex-direction: column;
-  gap: .3rem;
+  gap: .25rem;
   flex: 1;
   list-style: none;
   margin: 0;
@@ -299,7 +237,7 @@
   display: flex;
   align-items: baseline;
   gap: .4rem;
-  font: 400 .85rem/1.45 var(--sans);
+  font: 400 .85rem/1.4 var(--sans);
   color: var(--fg-muted);
 
   &--first {
@@ -328,20 +266,6 @@
   user-select: none;
 }
 
-// ── NEW badge ─────────────────────────────────────────────────
-.wiki-card__new {
-  display: inline-block;
-  font: 700 .65rem/1 var(--mono);
-  letter-spacing: .06em;
-  color: var(--kp-void);
-  background: var(--kp-purple);
-  padding: .15em .4em;
-  border-radius: 3px;
-  vertical-align: middle;
-  flex-shrink: 0;
-  text-transform: uppercase;
-}
-
 // ── View all link ─────────────────────────────────────────────
 .wiki-card__viewall {
   display: inline-flex;
@@ -351,8 +275,8 @@
   color: var(--accent);
   text-decoration: none;
   letter-spacing: .04em;
-  margin-top: .35rem;
-  padding-top: .5rem;
+  margin-top: .25rem;
+  padding-top: .4rem;
   border-top: 1px solid var(--border-soft);
   transition: color .15s ease, gap .15s ease;
 
@@ -369,27 +293,6 @@
   }
 }
 
-// ── Placeholder footer ────────────────────────────────────────
-.wiki-placeholder {
-  position: relative;
-  z-index: 1;
-  margin-top: 2.5rem;
-  font: 400 .88rem/1.5 var(--mono);
-  color: var(--fg-dim);
-  letter-spacing: .04em;
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-
-  &::before {
-    content: '';
-    display: block;
-    height: 1px;
-    width: 2rem;
-    background: var(--border);
-  }
-}
-
 // ── Reduced motion ────────────────────────────────────────────
 @media (prefers-reduced-motion: reduce) {
   .wiki-card {
@@ -402,10 +305,5 @@
       opacity: 1;
       transform: none;
     }
-  }
-
-  .wiki-weeklystat__dot,
-  .wiki-card__livedot {
-    animation: none;
   }
 }

@@ -1,378 +1,253 @@
 // ─────────────────────────────────────────────────────────────
-// log-deck.js  ·  Card Collection deck engine
-// Pokémon-inspired deck interaction for ✺ Log
-// Phase 1: holographic foil + tarot ratio + detail view modal
+// log-deck.js  ·  Cabinet Drawer deck engine
+// Phase 1 chrome preserved: holo foil, 3D tilt, detail view modal
 // ─────────────────────────────────────────────────────────────
 
 (function () {
   'use strict';
 
-  // ── Constants ───────────────────────────────────────────────
+  // ── Sigil + rarity maps ──────────────────────────────────────
   const SIGIL_MAP = {
-    food:    '✺',
-    art:     '⊹',
-    travel:  '✦',
-    daily:   '⌖',
+    moment:  '✺',
+    food:    '✦',
+    thought: '⊹',
+    object:  '⌖',
+    signal:  '◈',
   };
 
   // Rarity derived from type when frontmatter rarity is absent
   const TYPE_RARITY_MAP = {
-    daily:  'common',
-    food:   'uncommon',
-    art:    'rare',
-    travel: 'legendary',
+    moment:  'rare',
+    food:    'uncommon',
+    thought: 'rare',
+    object:  'uncommon',
+    signal:  'legendary',
   };
 
   const CORNER_SIGILS = ['✦', '⊹', '⌖', '✺'];
 
-  const DRAG_THRESHOLD   = 80;   // px before advancing card
-  const SWIPE_UP_THRESH  = -100; // py before fly-off
-  const DOUBLETAP_MS     = 300;  // double-tap window
-  const TILT_MAX_DEG     = 12;   // max 3D tilt degrees (Phase 1: 12°)
-  const PACK_OPEN_KEY    = 'log_pack_opened';
+  const TILT_MAX_DEG = 12;
 
-  // Detect reduced-motion preference (checked once; respect at runtime)
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ── State ────────────────────────────────────────────────────
   const state = {
-    allCards:      [],
-    filteredCards: [],
-    currentIndex:  0,
-    activeFilter:  'all',
-    viewMode:      'spotlight', // 'spotlight' | 'grid'
-    isDragging:    false,
-    dragStartX:    0,
-    dragStartY:    0,
-    dragCurrentX:  0,
-    lastTapTime:   0,
-    // Detail view
-    detailOpen:    false,
-    detailCard:    null, // DOM element of the detail card
-    holoRafId:     null, // rAF handle for spotlight tilt
-    detailRafId:   null, // rAF handle for detail tilt
-    detailPendingX: 0,
-    detailPendingY: 0,
-    spotPendingX:   0,
-    spotPendingY:   0,
+    activeFilter: 'all',
+    detailOpen:   false,
+    detailCard:   null,
   };
 
   // ── DOM refs ─────────────────────────────────────────────────
-  let stageEl, dotsEl, gridEl, filterRow, toggleBtn, shuffleBtn, overlayEl;
+  let drawersEl, filterRow, shuffleBtn, overlayEl;
 
   // ── Init ─────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function () {
-    const cards = window.__LOG_CARDS__;
-    if (!cards || !cards.length) return;
+    const data = window.__LOG_DRAWERS__;
+    if (!data || !data.collections || !data.collections.length) return;
 
-    stageEl    = document.getElementById('log-stage');
-    dotsEl     = document.getElementById('log-dots');
-    gridEl     = document.getElementById('log-grid');
+    drawersEl  = document.getElementById('log-drawers');
     filterRow  = document.querySelector('.log-toolbar__filters');
-    toggleBtn  = document.querySelector('.log-view-toggle');
     shuffleBtn = document.querySelector('.log-shuffle');
     overlayEl  = document.getElementById('log-detail-overlay');
 
-    if (!stageEl) return;
+    if (!drawersEl) return;
 
-    state.allCards      = cards;
-    state.filteredCards = cards.slice();
+    bindFilterChips();
+    if (shuffleBtn) shuffleBtn.addEventListener('click', shuffleAllCards);
 
-    buildFilterChips();
-    bindToolbar();
-    renderSpotlight();
-    bindKeyboard();
+    renderDrawers();
   });
 
-  // ── Rarity resolver ─────────────────────────────────────────
+  // ── Rarity resolver ──────────────────────────────────────────
   function resolveRarity(cardData) {
     const r = (cardData.rarity || '').trim().toLowerCase();
     if (r === 'common' || r === 'uncommon' || r === 'rare' || r === 'legendary') return r;
-    // Derive from type
-    return TYPE_RARITY_MAP[cardData.type] || 'common';
+    return TYPE_RARITY_MAP[cardData.type] || 'uncommon';
   }
 
-  // ── Build dynamic filter chips ───────────────────────────────
-  function buildFilterChips() {
-    const types = ['all'];
-    state.allCards.forEach(function (c) {
-      if (c.type && !types.includes(c.type)) types.push(c.type);
-    });
+  // ─────────────────────────────────────────────────────────────
+  // DRAWER RENDER
+  // ─────────────────────────────────────────────────────────────
 
-    Array.from(filterRow.querySelectorAll('.log-filter-chip:not([data-filter="all"])')).forEach(function (el) {
-      el.remove();
-    });
+  function renderDrawers() {
+    drawersEl.innerHTML = '';
+    const data = window.__LOG_DRAWERS__;
 
-    types.slice(1).forEach(function (type) {
-      const btn = document.createElement('button');
-      btn.className      = 'log-filter-chip';
-      btn.dataset.filter = type;
-      btn.type           = 'button';
-      btn.textContent    = type;
-      filterRow.appendChild(btn);
-    });
-
-    filterRow.querySelectorAll('.log-filter-chip').forEach(function (btn) {
-      btn.addEventListener('click', function () { applyFilter(btn.dataset.filter); });
+    data.collections.forEach(function (col, colIdx) {
+      const drawer = buildDrawer(col, colIdx === 0);
+      drawersEl.appendChild(drawer);
     });
   }
 
-  // ── Filter ───────────────────────────────────────────────────
-  function applyFilter(filter) {
-    if (filter === state.activeFilter) return;
-    state.activeFilter = filter;
+  function buildDrawer(col, openByDefault) {
+    const drawer = document.createElement('div');
+    drawer.className = 'log-drawer' + (openByDefault ? ' is-open' : '');
+    drawer.dataset.collection = col.name;
 
-    filterRow.querySelectorAll('.log-filter-chip').forEach(function (btn) {
-      btn.classList.toggle('is-active', btn.dataset.filter === filter);
-    });
+    // ── Header ───────────────────────────────────────────────
+    const header = document.createElement('div');
+    header.className = 'log-drawer__header';
+    header.setAttribute('role', 'button');
+    header.setAttribute('tabindex', '0');
+    header.setAttribute('aria-expanded', openByDefault ? 'true' : 'false');
+    header.setAttribute('aria-controls', 'drawer-body-' + sanitizeId(col.name));
 
-    const prev = state.filteredCards.slice();
+    const arrow = document.createElement('span');
+    arrow.className = 'log-drawer__arrow';
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.textContent = '▸';
 
-    if (filter === 'all') {
-      state.filteredCards = state.allCards.slice();
+    const name = document.createElement('span');
+    name.className = 'log-drawer__name';
+    name.textContent = col.name;
+
+    const meta = document.createElement('span');
+    meta.className = 'log-drawer__meta';
+
+    const dots = document.createElement('span');
+    dots.className = 'log-drawer__dots';
+    const dotCount = Math.min(col.cards.length, 8);
+    for (let d = 0; d < dotCount; d++) {
+      const dot = document.createElement('span');
+      dot.className = 'log-drawer__dot';
+      dots.appendChild(dot);
+    }
+
+    const count = document.createElement('span');
+    count.className = 'log-drawer__count';
+    count.textContent = col.cards.length + ' card' + (col.cards.length !== 1 ? 's' : '');
+
+    meta.appendChild(dots);
+    meta.appendChild(count);
+
+    header.appendChild(arrow);
+    header.appendChild(name);
+    header.appendChild(meta);
+
+    // ── Body ─────────────────────────────────────────────────
+    const body = document.createElement('div');
+    body.className = 'log-drawer__body';
+    body.id = 'drawer-body-' + sanitizeId(col.name);
+
+    const grid = document.createElement('div');
+    grid.className = 'log-drawer__grid';
+    grid.dataset.collection = col.name;
+
+    if (col.cards.length === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'log-drawer__empty';
+      empty.textContent = '~ no cards yet ~';
+      grid.appendChild(empty);
     } else {
-      state.filteredCards = state.allCards.filter(function (c) { return c.type === filter; });
-    }
-
-    state.currentIndex = 0;
-
-    if (state.viewMode === 'spotlight') {
-      reshuffleSpotlight(prev);
-    } else {
-      reshuffleGrid();
-    }
-  }
-
-  // ── Shuffle ──────────────────────────────────────────────────
-  function shuffleArray(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
-
-  function doShuffle() {
-    const prevFilter = state.filteredCards.slice();
-    shuffleArray(state.filteredCards);
-    state.currentIndex = 0;
-
-    if (state.viewMode === 'spotlight') {
-      reshuffleSpotlight(prevFilter);
-    } else {
-      reshuffleGrid();
-    }
-  }
-
-  // ── Toolbar bindings ─────────────────────────────────────────
-  function bindToolbar() {
-    if (shuffleBtn) shuffleBtn.addEventListener('click', doShuffle);
-    if (toggleBtn) {
-      toggleBtn.addEventListener('click', function () {
-        if (state.viewMode === 'spotlight') {
-          switchToGrid();
-        } else {
-          switchToSpotlight();
-        }
+      col.cards.forEach(function (card, i) {
+        const el = buildCard(card, i);
+        grid.appendChild(el);
       });
     }
-  }
 
-  function switchToGrid() {
-    state.viewMode = 'grid';
-    document.getElementById('log-spotlight').style.display = 'none';
-    gridEl.removeAttribute('hidden');
-    toggleBtn.querySelector('.log-view-toggle__label').textContent = '◇ spotlight';
-    toggleBtn.classList.add('is-grid-active');
-    renderGrid();
-  }
+    body.appendChild(grid);
 
-  function switchToSpotlight() {
-    state.viewMode = 'spotlight';
-    document.getElementById('log-spotlight').style.display = '';
-    gridEl.setAttribute('hidden', '');
-    toggleBtn.querySelector('.log-view-toggle__label').textContent = '▦ grid';
-    toggleBtn.classList.remove('is-grid-active');
-    renderSpotlight();
-  }
+    drawer.appendChild(header);
+    drawer.appendChild(body);
 
-  // ─────────────────────────────────────────────────────────────
-  // SPOTLIGHT RENDER
-  // ─────────────────────────────────────────────────────────────
-
-  function renderSpotlight() {
-    stageEl.innerHTML = '';
-    const cards = state.filteredCards;
-
-    if (!cards.length) {
-      stageEl.innerHTML = '<p class="log-empty">~ no entries ~</p>';
-      dotsEl.innerHTML  = '';
-      return;
+    // ── Toggle interaction ────────────────────────────────────
+    function toggleDrawer() {
+      const isOpen = drawer.classList.contains('is-open');
+      if (isOpen) {
+        drawer.classList.remove('is-open');
+        header.setAttribute('aria-expanded', 'false');
+      } else {
+        drawer.classList.add('is-open');
+        header.setAttribute('aria-expanded', 'true');
+        // Stagger-in cards when opening
+        staggerCards(grid);
+      }
     }
 
-    const idx  = state.currentIndex;
-    const card = cards[idx];
-
-    const isFirstVisit = !sessionStorage.getItem(PACK_OPEN_KEY);
-    if (isFirstVisit && idx === 0) {
-      sessionStorage.setItem(PACK_OPEN_KEY, '1');
-    }
-
-    const el = buildCard(card, false, isFirstVisit && idx === 0);
-    el.style.position  = 'absolute';
-    el.style.top       = '0';
-    el.style.left      = '50%';
-    el.style.transform = 'translateX(-50%)';
-    stageEl.appendChild(el);
-
-    bindCardPointer(el);
-    bindCardHolo(el);
-    bindCardClick(el, card);
-    renderDots();
-  }
-
-  function reshuffleSpotlight() {
-    const existing = stageEl.querySelector('.log-card');
-    if (existing) {
-      const rot = (Math.random() * 10 - 5).toFixed(1) + 'deg';
-      existing.style.setProperty('--shuffle-rot', rot);
-      existing.classList.add('is-reshuffle-out');
-      setTimeout(function () { renderSpotlight(); }, 220);
-    } else {
-      renderSpotlight();
-    }
-  }
-
-  // ── Dots ────────────────────────────────────────────────────
-  function renderDots() {
-    const cards   = state.filteredCards;
-    const total   = cards.length;
-    const current = state.currentIndex;
-
-    if (total <= 1) { dotsEl.innerHTML = ''; return; }
-
-    const WINDOW = 7;
-    let start = Math.max(0, current - Math.floor(WINDOW / 2));
-    const end = Math.min(total, start + WINDOW);
-    start = Math.max(0, end - WINDOW);
-
-    dotsEl.innerHTML = '';
-    for (let i = start; i < end; i++) {
-      const dot = document.createElement('button');
-      dot.className = 'log-dot' + (i === current ? ' is-current' : '');
-      dot.type = 'button';
-      dot.setAttribute('aria-label', 'Go to card ' + (i + 1));
-      (function (idx) {
-        dot.addEventListener('click', function () { goTo(idx); });
-      })(i);
-      dotsEl.appendChild(dot);
-    }
-  }
-
-  function goTo(idx) {
-    idx = Math.max(0, Math.min(state.filteredCards.length - 1, idx));
-    state.currentIndex = idx;
-    renderSpotlight();
-  }
-
-  function advance(delta) {
-    const len = state.filteredCards.length;
-    if (!len) return;
-    state.currentIndex = (state.currentIndex + delta + len) % len;
-    renderSpotlight();
-  }
-
-  // ─────────────────────────────────────────────────────────────
-  // GRID RENDER
-  // ─────────────────────────────────────────────────────────────
-
-  function renderGrid() {
-    gridEl.innerHTML = '';
-    const cards = state.filteredCards;
-
-    if (!cards.length) {
-      gridEl.innerHTML = '<p class="log-empty">~ no entries ~</p>';
-      return;
-    }
-
-    cards.forEach(function (card, i) {
-      const el = buildCard(card, true, false);
-      el.style.animationDelay = (i * 45) + 'ms';
-      el.classList.add('log-card--mini');
-      el.addEventListener('click', function () {
-        state.currentIndex = i;
-        switchToSpotlight();
-      });
-      gridEl.appendChild(el);
+    header.addEventListener('click', toggleDrawer);
+    header.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleDrawer();
+      }
     });
 
-    requestAnimationFrame(function () {
-      gridEl.querySelectorAll('.log-card--mini').forEach(function (el) {
-        el.classList.add('is-visible');
-      });
+    // Stagger cards on first open (default open drawer)
+    if (openByDefault) {
+      requestAnimationFrame(function () { staggerCards(grid); });
+    }
+
+    return drawer;
+  }
+
+  function staggerCards(grid) {
+    const cards = grid.querySelectorAll('.log-card--mini');
+    cards.forEach(function (el, i) {
+      el.style.setProperty('--stagger-i', i);
+      // Reset animation so it re-runs on re-open
+      el.style.animation = 'none';
+      el.offsetHeight; // reflow
+      el.style.animation = '';
     });
   }
 
-  function reshuffleGrid() {
-    gridEl.querySelectorAll('.log-card--mini').forEach(function (el, i) {
-      const rot = (Math.random() * 8 - 4).toFixed(1) + 'deg';
-      el.style.setProperty('--shuffle-rot', rot);
-      el.style.animationDelay = (i * 30) + 'ms';
-      el.classList.add('is-reshuffle-out');
-    });
-    setTimeout(function () { renderGrid(); }, 250);
+  function sanitizeId(str) {
+    return str.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
   }
 
   // ─────────────────────────────────────────────────────────────
-  // CARD BUILDER
+  // CARD BUILDER (mini — drawer variant)
   // ─────────────────────────────────────────────────────────────
 
-  function buildCard(data, isMini, packOpen) {
-    const type   = data.type || 'daily';
-    const rarity = resolveRarity(data);
-    const sigil  = SIGIL_MAP[type] || '✺';
-    const num    = '#' + (data.number || '001');
-    const flavor = data.flavor || '';
-    const loc    = data.location || '';
-    const body   = data.body || '';
-    const title  = data.title || '';
-    const date   = data.date ? data.date.slice(5) : ''; // MM-DD
+  function buildCard(data, indexInDrawer) {
+    const type    = data.type || 'moment';
+    const rarity  = resolveRarity(data);
+    const sigil   = SIGIL_MAP[type] || '✺';
+    const num     = '#' + (data.number || '001');
+    const fragment = data.fragment || '';
+    const period  = data.period || '';
+    const tags    = data.tags || '';
+    const title   = data.title || '';
 
     const wrap = document.createElement('div');
-    wrap.className = 'log-card log-card--' + type + ' log-card--holo-' + rarity;
-    wrap.dataset.rarity = rarity;
-    if (packOpen) wrap.classList.add('is-pack-open');
-    else if (!isMini) wrap.classList.add('is-fan-in');
+    wrap.className = 'log-card log-card--' + type + ' log-card--holo-' + rarity + ' log-card--mini';
+    wrap.dataset.type       = type;
+    wrap.dataset.collection = data.collection || '';
+    wrap.dataset.rarity     = rarity;
+    wrap.dataset.index      = indexInDrawer;
+    wrap.style.setProperty('--stagger-i', indexInDrawer);
+    wrap.setAttribute('tabindex', '0');
+    wrap.setAttribute('role', 'button');
+    wrap.setAttribute('aria-label', 'Open card: ' + title);
 
-    // ── Corner ornament (tarot sigil corners) ────────────────
+    // ── Corner ornament ──────────────────────────────────────
     const ornament = document.createElement('div');
     ornament.className = 'log-card__ornament';
     ornament.setAttribute('aria-hidden', 'true');
-    const corners = [
-      { cls: 'tl', sigil: CORNER_SIGILS[0] },
-      { cls: 'tr', sigil: CORNER_SIGILS[1] },
-      { cls: 'bl', sigil: CORNER_SIGILS[2] },
-      { cls: 'br', sigil: CORNER_SIGILS[3] },
-    ];
-    corners.forEach(function (c) {
+    CORNER_SIGILS.forEach(function (s, ci) {
+      const pos = ['tl', 'tr', 'bl', 'br'][ci];
       const span = document.createElement('span');
-      span.className = 'log-card__corner log-card__corner--' + c.cls;
-      span.textContent = c.sigil;
+      span.className = 'log-card__corner log-card__corner--' + pos;
+      span.textContent = s;
       ornament.appendChild(span);
     });
     wrap.appendChild(ornament);
 
-    // ── Front face ──────────────────────────────────────────
+    // ── Inner (flip wrapper) ─────────────────────────────────
+    const inner = document.createElement('div');
+    inner.className = 'log-card__inner';
+
+    // ── Front face ───────────────────────────────────────────
     const front = document.createElement('div');
     front.className = 'log-card__front';
 
-    // header
+    // Header: type label (left) + sigil+number (right)
     const header = document.createElement('div');
     header.className = 'log-card__header';
 
-    const titleEl = document.createElement('span');
-    titleEl.className = 'log-card__title';
-    titleEl.textContent = title;
+    const typeLabel = document.createElement('span');
+    typeLabel.className = 'log-card__type-label';
+    typeLabel.innerHTML = '<span aria-hidden="true">' + sigil + '</span> ' + type.toUpperCase();
 
     const badge = document.createElement('div');
     badge.className = 'log-card__badge';
@@ -388,79 +263,78 @@
 
     badge.appendChild(sigilEl);
     badge.appendChild(numEl);
-    header.appendChild(titleEl);
+    header.appendChild(typeLabel);
     header.appendChild(badge);
 
-    // photo
-    const photoWrap = document.createElement('div');
-    photoWrap.className = 'log-card__photo';
+    // Photo slot (moment / food / object only)
+    let photoWrap = null;
+    if (type === 'moment' || type === 'food' || type === 'object') {
+      photoWrap = document.createElement('div');
+      photoWrap.className = 'log-card__photo';
 
-    const placeholder = document.createElement('div');
-    placeholder.className = 'log-card__photo-placeholder';
-    placeholder.setAttribute('aria-hidden', 'true');
-    placeholder.textContent = sigil;
-    photoWrap.appendChild(placeholder);
+      const placeholder = document.createElement('div');
+      placeholder.className = 'log-card__photo-placeholder';
+      placeholder.setAttribute('aria-hidden', 'true');
+      placeholder.textContent = sigil;
+      photoWrap.appendChild(placeholder);
 
-    if (data.photo) {
-      const img = document.createElement('img');
-      img.src = data.photo;
-      img.alt = title + ' photo';
-      img.loading = 'lazy';
-      img.addEventListener('error', function () { img.classList.add('is-error'); });
-      img.addEventListener('load', function () { placeholder.style.opacity = '0'; });
-      photoWrap.appendChild(img);
+      if (data.photo) {
+        const img = document.createElement('img');
+        img.src = data.photo;
+        img.alt = title + ' photo';
+        img.loading = 'lazy';
+        img.addEventListener('error', function () { img.classList.add('is-error'); });
+        img.addEventListener('load', function () { placeholder.style.opacity = '0'; });
+        photoWrap.appendChild(img);
+      }
     }
 
-    // body
+    // Body: title + period + fragment + tags
     const bodyEl = document.createElement('div');
     bodyEl.className = 'log-card__body';
 
-    if (loc) {
-      const locEl = document.createElement('p');
-      locEl.className = 'log-card__location';
-      locEl.textContent = loc;
-      bodyEl.appendChild(locEl);
+    const titleEl = document.createElement('p');
+    titleEl.className = 'log-card__title';
+    titleEl.textContent = title;
+    bodyEl.appendChild(titleEl);
+
+    if (period) {
+      const periodEl = document.createElement('p');
+      periodEl.className = 'log-card__period';
+      periodEl.textContent = period;
+      bodyEl.appendChild(periodEl);
     }
 
-    if (flavor) {
-      const flavorEl = document.createElement('p');
-      flavorEl.className = 'log-card__flavor';
-      flavorEl.textContent = flavor;
-      bodyEl.appendChild(flavorEl);
+    if (fragment) {
+      const fragmentEl = document.createElement('p');
+      fragmentEl.className = 'log-card__flavor';
+      fragmentEl.textContent = fragment;
+      bodyEl.appendChild(fragmentEl);
     }
 
-    // footer
-    const footer = document.createElement('div');
-    footer.className = 'log-card__footer';
+    if (tags) {
+      const tagsEl = document.createElement('p');
+      tagsEl.className = 'log-card__tags';
+      tagsEl.textContent = tags;
+      bodyEl.appendChild(tagsEl);
+    }
 
-    const typeLabel = document.createElement('span');
-    typeLabel.className = 'log-card__type-label';
-    typeLabel.innerHTML = '<span aria-hidden="true">' + sigil + '</span> ' + type;
-
-    const dateEl = document.createElement('span');
-    dateEl.className = 'log-card__date';
-    dateEl.textContent = date;
-
-    footer.appendChild(typeLabel);
-    footer.appendChild(dateEl);
-
-    front.appendChild(header);
-    front.appendChild(photoWrap);
-    front.appendChild(bodyEl);
-    front.appendChild(footer);
-
-    // Shine overlay (legacy, only visible on common)
+    // Shine overlay (legacy — visible on common)
     const shine = document.createElement('div');
     shine.className = 'log-card__shine';
     front.appendChild(shine);
 
-    // ── Back face ────────────────────────────────────────────
+    front.appendChild(header);
+    if (photoWrap) front.appendChild(photoWrap);
+    front.appendChild(bodyEl);
+
+    // ── Back face ─────────────────────────────────────────────
     const back = document.createElement('div');
     back.className = 'log-card__back';
 
     const backBody = document.createElement('p');
     backBody.className = 'log-card__back-body';
-    backBody.textContent = body || flavor;
+    backBody.textContent = fragment;
 
     const backFooter = document.createElement('div');
     backFooter.className = 'log-card__back-footer';
@@ -479,19 +353,106 @@
     back.appendChild(backBody);
     back.appendChild(backFooter);
 
-    // ── Inner (flip wrapper) ─────────────────────────────────
-    const inner = document.createElement('div');
-    inner.className = 'log-card__inner';
     inner.appendChild(front);
     inner.appendChild(back);
     wrap.appendChild(inner);
+
+    // ── Bind chrome ──────────────────────────────────────────
+    bindCardHolo(wrap);
+    bindCardClick(wrap, data);
+
+    // Keyboard open detail
+    wrap.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openDetail(data);
+      }
+    });
 
     return wrap;
   }
 
   // ─────────────────────────────────────────────────────────────
-  // HOLOGRAPHIC FOIL + TILT (Part A)
-  // rAF-throttled pointermove → CSS custom properties
+  // TYPE FILTER
+  // ─────────────────────────────────────────────────────────────
+
+  function bindFilterChips() {
+    if (!filterRow) return;
+    filterRow.querySelectorAll('.log-filter-chip').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        applyTypeFilter(btn.dataset.filter);
+      });
+    });
+  }
+
+  function applyTypeFilter(filter) {
+    if (filter === state.activeFilter) return;
+    state.activeFilter = filter;
+
+    // Update chip active state
+    filterRow.querySelectorAll('.log-filter-chip').forEach(function (btn) {
+      btn.classList.toggle('is-active', btn.dataset.filter === filter);
+    });
+
+    // Show/hide cards across all drawers
+    document.querySelectorAll('.log-drawer__grid .log-card--mini').forEach(function (el) {
+      const cardType = el.dataset.type || '';
+      const visible = filter === 'all' || cardType === filter;
+      el.style.display = visible ? '' : 'none';
+    });
+
+    // Update drawer counts to reflect visible cards
+    document.querySelectorAll('.log-drawer').forEach(function (drawer) {
+      const grid = drawer.querySelector('.log-drawer__grid');
+      const countEl = drawer.querySelector('.log-drawer__count');
+      if (!grid || !countEl) return;
+
+      const visibleCards = grid.querySelectorAll('.log-card--mini:not([style*="display: none"])');
+      const n = visibleCards.length;
+      countEl.textContent = n + ' card' + (n !== 1 ? 's' : '');
+
+      // Update dot strip
+      const dotsEl = drawer.querySelector('.log-drawer__dots');
+      if (dotsEl) {
+        dotsEl.innerHTML = '';
+        const dotCount = Math.min(n, 8);
+        for (let d = 0; d < dotCount; d++) {
+          const dot = document.createElement('span');
+          dot.className = 'log-drawer__dot';
+          dotsEl.appendChild(dot);
+        }
+      }
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // SHUFFLE
+  // ─────────────────────────────────────────────────────────────
+
+  function shuffleAllCards() {
+    document.querySelectorAll('.log-drawer__grid').forEach(function (grid) {
+      const cards = Array.from(grid.querySelectorAll('.log-card--mini'));
+      if (cards.length < 2) return;
+
+      // Fisher-Yates shuffle
+      for (let i = cards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        if (i !== j) {
+          grid.insertBefore(cards[j], cards[i]);
+          grid.insertBefore(cards[i], cards[j].nextSibling);
+        }
+      }
+
+      // Re-stagger after shuffle
+      const drawer = grid.closest('.log-drawer');
+      if (drawer && drawer.classList.contains('is-open')) {
+        staggerCards(grid);
+      }
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // HOLOGRAPHIC FOIL + TILT (preserved from Phase 1)
   // ─────────────────────────────────────────────────────────────
 
   function bindCardHolo(el) {
@@ -513,15 +474,14 @@
     });
 
     el.addEventListener('pointerleave', function () {
-      // Cancel any pending RAF
       rafPending = false;
-      // Smooth reset via CSS transition (already set in SCSS)
       el.style.setProperty('--cursor-rx', '0deg');
       el.style.setProperty('--cursor-ry', '0deg');
       el.style.setProperty('--holo-tx', '0');
       el.style.setProperty('--holo-ty', '0');
       el.style.setProperty('--cursor-x', '50%');
       el.style.setProperty('--cursor-y', '50%');
+      el.style.transform = '';
       el.classList.remove('is-holo-active');
     });
 
@@ -534,23 +494,15 @@
     const rect = el.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
 
-    // Normalized -1…+1
-    const nx = (clientX - (rect.left + rect.width  / 2)) / (rect.width  / 2);
-    const ny = (clientY - (rect.top  + rect.height / 2)) / (rect.height / 2);
-
-    // Clamp to ±1
+    const nx  = (clientX - (rect.left + rect.width  / 2)) / (rect.width  / 2);
+    const ny  = (clientY - (rect.top  + rect.height / 2)) / (rect.height / 2);
     const cnx = Math.max(-1, Math.min(1, nx));
     const cny = Math.max(-1, Math.min(1, ny));
 
-    // Tilt angles (rotateX tilts on Y-axis mouse movement, inverted for natural feel)
-    const rotX = (-cny * TILT_MAX_DEG).toFixed(2) + 'deg';
-    const rotY = ( cnx * TILT_MAX_DEG).toFixed(2) + 'deg';
-
-    // Foil shift as percentage offset (-50…+50)
+    const rotX   = (-cny * TILT_MAX_DEG).toFixed(2) + 'deg';
+    const rotY   = ( cnx * TILT_MAX_DEG).toFixed(2) + 'deg';
     const holoTx = (cnx * 40).toFixed(1);
     const holoTy = (cny * 40).toFixed(1);
-
-    // Cursor position as % (0…100) for sparkle radial positions
     const cursorX = ((cnx + 1) / 2 * 100).toFixed(1) + '%';
     const cursorY = ((cny + 1) / 2 * 100).toFixed(1) + '%';
 
@@ -561,21 +513,16 @@
     el.style.setProperty('--cursor-x', cursorX);
     el.style.setProperty('--cursor-y', cursorY);
 
-    // Apply tilt transform (preserve base translateX(-50%) for spotlight)
-    const baseTransform = el.dataset.baseTransform || '';
-    el.style.transform = baseTransform + ' perspective(900px) rotateX(' + rotX + ') rotateY(' + rotY + ')';
+    // 3D tilt — mini cards in grid use relative positioning
+    el.style.transform = 'perspective(700px) rotateX(' + rotX + ') rotateY(' + rotY + ') translateY(-3px)';
   }
 
   // ─────────────────────────────────────────────────────────────
-  // DETAIL VIEW (Part C)
+  // DETAIL VIEW (preserved from Phase 1)
   // ─────────────────────────────────────────────────────────────
 
   function bindCardClick(el, data) {
     el.addEventListener('click', function (e) {
-      // Don't open detail if it was a drag
-      const dx = Math.abs((state.dragCurrentX || 0) - (state.dragStartX || 0));
-      if (dx > 8) return;
-      // Don't follow the "read full" link click
       if (e.target.classList.contains('log-card__back-link')) return;
       openDetail(data);
     });
@@ -585,7 +532,6 @@
     if (!overlayEl) return;
     state.detailOpen = true;
 
-    // Clear overlay
     overlayEl.innerHTML = '';
     overlayEl.removeAttribute('hidden');
 
@@ -613,43 +559,34 @@
     wrapper.appendChild(detailCard);
     state.detailCard = detailCard;
 
-    // Show overlay
     requestAnimationFrame(function () {
       overlayEl.classList.add('is-visible');
     });
 
-    // Bind holo on detail card
     bindDetailHolo(detailCard);
 
-    // Flip on card click
     detailCard.addEventListener('click', function (e) {
       if (e.target.classList.contains('log-detail-card__back-link')) return;
       detailCard.classList.toggle('is-flipped');
     });
 
-    // Close on backdrop click (outside wrapper)
     overlayEl.addEventListener('click', function (e) {
       if (e.target === overlayEl || e.target === hint) closeDetail();
     });
 
-    // Close button
     closeBtn.addEventListener('click', closeDetail);
-
-    // Esc key
     document.addEventListener('keydown', onDetailKeydown);
-
-    // Focus trap
     closeBtn.focus();
   }
 
   function buildDetailCard(data) {
-    const type   = data.type || 'daily';
-    const rarity = resolveRarity(data);
-    const sigil  = SIGIL_MAP[type] || '✺';
-    const title  = data.title || '';
-    const flavor = data.flavor || '';
-    const body   = data.body || '';
-    const date   = data.date || '';
+    const type    = data.type || 'moment';
+    const rarity  = resolveRarity(data);
+    const sigil   = SIGIL_MAP[type] || '✺';
+    const title   = data.title || '';
+    const fragment = data.fragment || '';
+    const period  = data.period || '';
+    const body    = data.body || '';
 
     const card = document.createElement('div');
     card.className = 'log-detail-card log-card--' + type + ' log-card--holo-' + rarity;
@@ -662,29 +599,23 @@
     const ornament = document.createElement('div');
     ornament.className = 'log-card__ornament';
     ornament.setAttribute('aria-hidden', 'true');
-    const corners = [
-      { cls: 'tl', s: '✦' },
-      { cls: 'tr', s: '⊹' },
-      { cls: 'bl', s: '⌖' },
-      { cls: 'br', s: '✺' },
-    ];
-    corners.forEach(function (c) {
-      const span = document.createElement('span');
-      span.className = 'log-card__corner log-card__corner--' + c.cls;
-      span.textContent = c.s;
-      ornament.appendChild(span);
-    });
+    [{ cls: 'tl', s: '✦' }, { cls: 'tr', s: '⊹' }, { cls: 'bl', s: '⌖' }, { cls: 'br', s: '✺' }]
+      .forEach(function (c) {
+        const span = document.createElement('span');
+        span.className = 'log-card__corner log-card__corner--' + c.cls;
+        span.textContent = c.s;
+        ornament.appendChild(span);
+      });
     card.appendChild(ornament);
 
-    // ── Front face ──────────────────────────────────────────
+    // ── Front face ───────────────────────────────────────────
     const front = document.createElement('div');
     front.className = 'log-detail-card__front';
+    front.style.cssText = 'display:flex;flex-direction:column;height:100%;position:relative;overflow:hidden;';
 
-    // Reuse buildCard to get front content, but inject directly
-    // Build photo
+    // Photo slot
     const photoWrap = document.createElement('div');
     photoWrap.className = 'log-card__photo';
-    // Larger height for detail
     photoWrap.style.height = '55%';
 
     const placeholder = document.createElement('div');
@@ -733,34 +664,29 @@
     bodyArea.className = 'log-card__body';
     bodyArea.style.flex = '1';
 
-    if (data.location) {
-      const locEl = document.createElement('p');
-      locEl.className = 'log-card__location';
-      locEl.textContent = data.location;
-      bodyArea.appendChild(locEl);
+    if (period) {
+      const periodEl = document.createElement('p');
+      periodEl.className = 'log-card__period';
+      periodEl.textContent = period;
+      bodyArea.appendChild(periodEl);
     }
 
-    if (flavor) {
-      const flavorEl = document.createElement('p');
-      flavorEl.className = 'log-card__flavor';
-      flavorEl.style.fontSize = '.92rem';
-      flavorEl.textContent = flavor;
-      bodyArea.appendChild(flavorEl);
+    if (fragment) {
+      const fragmentEl = document.createElement('p');
+      fragmentEl.className = 'log-card__flavor';
+      fragmentEl.style.fontSize = '.92rem';
+      fragmentEl.textContent = fragment;
+      bodyArea.appendChild(fragmentEl);
     }
 
-    // Footer
+    // Footer: type label (no date shown)
     const footer = document.createElement('div');
     footer.className = 'log-card__footer';
     const typeLabel = document.createElement('span');
     typeLabel.className = 'log-card__type-label';
-    typeLabel.innerHTML = '<span aria-hidden="true">' + sigil + '</span> ' + type;
-    const dateEl = document.createElement('span');
-    dateEl.className = 'log-card__date';
-    dateEl.textContent = date ? date.slice(5) : '';
+    typeLabel.innerHTML = '<span aria-hidden="true">' + sigil + '</span> ' + type.toUpperCase();
     footer.appendChild(typeLabel);
-    footer.appendChild(dateEl);
 
-    front.style.cssText = 'display:flex;flex-direction:column;height:100%;position:relative;overflow:hidden;';
     front.appendChild(photoWrap);
     front.appendChild(bodyArea);
     front.appendChild(footer);
@@ -785,12 +711,11 @@
 
     const backBody = document.createElement('div');
     backBody.className = 'log-detail-card__back-body';
-    // Render post body HTML (our own content, safe)
     if (body) {
       backBody.innerHTML = body;
-    } else if (flavor) {
+    } else if (fragment) {
       const p = document.createElement('p');
-      p.textContent = flavor;
+      p.textContent = fragment;
       backBody.appendChild(p);
     }
 
@@ -821,7 +746,6 @@
     state.detailCard = null;
     overlayEl.classList.remove('is-visible');
     document.removeEventListener('keydown', onDetailKeydown);
-    // Remove from DOM after transition
     setTimeout(function () {
       overlayEl.innerHTML = '';
       overlayEl.setAttribute('hidden', '');
@@ -833,7 +757,6 @@
       e.preventDefault();
       closeDetail();
     }
-    // Tab focus trap inside overlay
     if (e.key === 'Tab' && overlayEl) {
       const focusable = overlayEl.querySelectorAll(
         'button, [href], [tabindex]:not([tabindex="-1"])'
@@ -842,24 +765,17 @@
       const first = focusable[0];
       const last  = focusable[focusable.length - 1];
       if (e.shiftKey) {
-        if (document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        }
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
       } else {
-        if (document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
+        if (document.activeElement === last)  { e.preventDefault(); first.focus(); }
       }
     }
   }
 
-  // Holo + tilt for detail card (same rAF pattern, but stronger max tilt)
   function bindDetailHolo(el) {
     if (prefersReducedMotion) return;
 
-    const DETAIL_TILT = 8; // slightly less tilt at larger size
+    const DETAIL_TILT = 8;
     let rafPending = false;
     let pendingX = 0, pendingY = 0;
 
@@ -890,15 +806,15 @@
     const rect = el.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
 
-    const nx = (clientX - (rect.left + rect.width  / 2)) / (rect.width  / 2);
-    const ny = (clientY - (rect.top  + rect.height / 2)) / (rect.height / 2);
+    const nx  = (clientX - (rect.left + rect.width  / 2)) / (rect.width  / 2);
+    const ny  = (clientY - (rect.top  + rect.height / 2)) / (rect.height / 2);
     const cnx = Math.max(-1, Math.min(1, nx));
     const cny = Math.max(-1, Math.min(1, ny));
 
-    const rotX = (-cny * maxTilt).toFixed(2) + 'deg';
-    const rotY = ( cnx * maxTilt).toFixed(2) + 'deg';
-    const holoTx = (cnx * 40).toFixed(1);
-    const holoTy = (cny * 40).toFixed(1);
+    const rotX    = (-cny * maxTilt).toFixed(2) + 'deg';
+    const rotY    = ( cnx * maxTilt).toFixed(2) + 'deg';
+    const holoTx  = (cnx * 40).toFixed(1);
+    const holoTy  = (cny * 40).toFixed(1);
     const cursorX = ((cnx + 1) / 2 * 100).toFixed(1) + '%';
     const cursorY = ((cny + 1) / 2 * 100).toFixed(1) + '%';
 
@@ -908,179 +824,6 @@
     el.style.setProperty('--holo-ty', holoTy);
     el.style.setProperty('--cursor-x', cursorX);
     el.style.setProperty('--cursor-y', cursorY);
-
-    // For detail card, tilt is driven by CSS vars in .log-detail-card rule
-    // (perspective + rotateX/Y in SCSS). We just set the vars.
-  }
-
-  // ─────────────────────────────────────────────────────────────
-  // POINTER: drag + swipe + double-tap + flip
-  // ─────────────────────────────────────────────────────────────
-
-  function bindCardPointer(el) {
-    // Store base transform for holo to restore
-    el.dataset.baseTransform = 'translateX(-50%)';
-
-    el.addEventListener('mousedown', onDragStart);
-    document.addEventListener('mousemove', onDragMove);
-    document.addEventListener('mouseup', onDragEnd);
-
-    el.addEventListener('touchstart', onTouchStart, { passive: true });
-    el.addEventListener('touchmove', onTouchMove, { passive: false });
-    el.addEventListener('touchend', onTouchEnd);
-  }
-
-  function onDragStart(e) {
-    if (e.button !== 0) return;
-    state.isDragging  = true;
-    state.dragStartX  = e.clientX;
-    state.dragStartY  = e.clientY;
-    state.dragCurrentX = e.clientX;
-    e.currentTarget.classList.add('is-dragging');
-  }
-
-  function onDragMove(e) {
-    if (!state.isDragging) return;
-    state.dragCurrentX = e.clientX;
-    const dx = e.clientX - state.dragStartX;
-    const dy = e.clientY - state.dragStartY;
-    const card = stageEl.querySelector('.log-card');
-    if (!card) return;
-    const rot = dx * 0.04;
-    card.style.transform = 'translateX(calc(-50% + ' + dx + 'px)) translateY(' + dy + 'px) rotate(' + rot + 'deg)';
-  }
-
-  function onDragEnd(e) {
-    if (!state.isDragging) return;
-    state.isDragging = false;
-
-    const card = stageEl.querySelector('.log-card');
-    if (!card) return;
-    card.classList.remove('is-dragging');
-
-    const dx = e.clientX - state.dragStartX;
-    const dy = e.clientY - state.dragStartY;
-
-    if (dy < SWIPE_UP_THRESH && Math.abs(dx) < 120) {
-      flyOff(card, function () { advance(1); });
-    } else if (Math.abs(dx) > DRAG_THRESHOLD) {
-      flyOff(card, function () { advance(dx < 0 ? 1 : -1); });
-    } else {
-      card.style.transition = 'transform .32s cubic-bezier(.34,1.56,.64,1)';
-      card.style.transform  = 'translateX(-50%)';
-      setTimeout(function () { card.style.transition = ''; }, 320);
-    }
-  }
-
-  function onTouchStart(e) {
-    if (e.touches.length !== 1) return;
-    const t = e.touches[0];
-    state.isDragging    = true;
-    state.dragStartX    = t.clientX;
-    state.dragStartY    = t.clientY;
-    state.dragCurrentX  = t.clientX;
-
-    const now = Date.now();
-    if (now - state.lastTapTime < DOUBLETAP_MS) {
-      flipCard(e.currentTarget);
-    }
-    state.lastTapTime = now;
-  }
-
-  function onTouchMove(e) {
-    if (!state.isDragging || e.touches.length !== 1) return;
-    const t  = e.touches[0];
-    const dx = t.clientX - state.dragStartX;
-    const dy = t.clientY - state.dragStartY;
-
-    if (Math.abs(dx) > Math.abs(dy)) {
-      e.preventDefault();
-    }
-
-    state.dragCurrentX = t.clientX;
-    const card = stageEl.querySelector('.log-card');
-    if (!card) return;
-    const rot = dx * 0.04;
-    card.style.transform = 'translateX(calc(-50% + ' + dx + 'px)) translateY(' + dy + 'px) rotate(' + rot + 'deg)';
-  }
-
-  function onTouchEnd(e) {
-    if (!state.isDragging) return;
-    state.isDragging = false;
-
-    const t  = e.changedTouches[0];
-    const dx = t.clientX - state.dragStartX;
-    const dy = t.clientY - state.dragStartY;
-    const card = stageEl.querySelector('.log-card');
-    if (!card) return;
-
-    if (dy < SWIPE_UP_THRESH && Math.abs(dx) < 120) {
-      flyOff(card, function () { advance(1); });
-    } else if (Math.abs(dx) > DRAG_THRESHOLD) {
-      flyOff(card, function () { advance(dx < 0 ? 1 : -1); });
-    } else {
-      card.style.transition = 'transform .32s cubic-bezier(.34,1.56,.64,1)';
-      card.style.transform  = 'translateX(-50%)';
-      setTimeout(function () { card.style.transition = ''; }, 320);
-    }
-  }
-
-  function flyOff(card, cb) {
-    card.classList.add('is-flying-off');
-    card.addEventListener('animationend', function () { cb(); }, { once: true });
-  }
-
-  // ── Card flip (spotlight) ────────────────────────────────────
-  function flipCard(cardEl) {
-    cardEl.classList.toggle('is-flipped');
-  }
-
-  // ─────────────────────────────────────────────────────────────
-  // KEYBOARD
-  // ─────────────────────────────────────────────────────────────
-
-  function bindKeyboard() {
-    document.addEventListener('keydown', function (e) {
-      // Don't intercept when detail is open (handled by onDetailKeydown)
-      if (state.detailOpen) return;
-      if (state.viewMode !== 'spotlight') return;
-      const spotlight = document.getElementById('log-spotlight');
-      if (!spotlight) return;
-
-      switch (e.key) {
-        case 'ArrowLeft':
-          e.preventDefault();
-          advance(-1);
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          advance(1);
-          break;
-        case 'ArrowUp': {
-          e.preventDefault();
-          const card = stageEl.querySelector('.log-card');
-          if (card) flipCard(card);
-          break;
-        }
-        case 'ArrowDown': {
-          e.preventDefault();
-          const card2 = stageEl.querySelector('.log-card');
-          if (card2) flyOff(card2, function () { advance(1); });
-          break;
-        }
-        case 'Enter':
-        case ' ': {
-          e.preventDefault();
-          const card3 = stageEl.querySelector('.log-card');
-          if (card3) {
-            const idx = state.currentIndex;
-            const data = state.filteredCards[idx];
-            if (data) openDetail(data);
-          }
-          break;
-        }
-      }
-    });
   }
 
 })();
