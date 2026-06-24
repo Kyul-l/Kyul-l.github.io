@@ -3,56 +3,54 @@ layout: default
 ---
 <div class="home-stage">
 
-  <!-- ── Left column: terminal (62%) ─────────────────────────── -->
-  <div class="home-col home-col--terminal">
-    <div class="mac-terminal-wrapper scene">
-      <div class="mac-terminal-glow-container">
-        <div class="mac-terminal">
-          <div class="bloom"></div>
-          <div class="panel-chrome">
-            <span class="panel-label">// terminal</span>
-            <span class="panel-dot panel-dot--pulse"></span>
-          </div>
-          <div class="body" id="terminal-window" role="region" aria-live="polite">
-            <div id="terminal-output"></div>
-          </div>
-          <div class="prompt-wrapper">
-            <div id="autocomplete-suggestions" class="autocomplete-suggestions"></div>
-            <div class="terminal-input-line">
-              <span class="prompt">>&nbsp;</span>
-              <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Command input">
-              <div class="footer-line" id="terminal-status">STATUS: OPERATIONAL</div>
+  <div class="mac-terminal-wrapper scene">
+    <div class="mac-terminal-glow-container">
+      <div class="mac-terminal">
+        <div class="bloom"></div>
+
+        <!-- Single outer chrome: ONE label + ONE pulse dot -->
+        <div class="panel-chrome">
+          <span class="panel-label">// archive</span>
+          <span class="panel-dot panel-dot--pulse"></span>
+        </div>
+
+        <!-- Internal vertical split: 60% prompt / 40% log stream -->
+        <div class="terminal-split">
+
+          <!-- LEFT: prompt pane (60%) -->
+          <div class="terminal-split__left terminal-pane--prompt">
+            <div class="body" id="terminal-window" role="region" aria-live="polite">
+              <div id="terminal-output"></div>
+            </div>
+            <div class="prompt-wrapper">
+              <div id="autocomplete-suggestions" class="autocomplete-suggestions"></div>
+              <div class="terminal-input-line">
+                <span class="prompt">>&nbsp;</span>
+                <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Command input">
+                <div class="footer-line" id="terminal-status">STATUS · OPERATIONAL</div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- ── Right column: two stacked panels (38%) ───────────────── -->
-  <div class="home-col home-col--signal">
+          <!-- DIVIDER: 1px vertical line -->
+          <div class="terminal-split__divider" aria-hidden="true"></div>
 
-    <!-- // recent ────────────────────────────────────────────── -->
-    <aside class="feed-panel feed-panel--recent" aria-label="Recent entries" aria-hidden="true">
-      <div class="panel-chrome">
-        <span class="panel-label">// recent</span>
-        <span class="panel-dot panel-dot--pulse"></span>
-      </div>
-      <div class="feed-panel__body" id="feed-recent"></div>
-    </aside>
+          <!-- RIGHT: log stream pane (40%) -->
+          <div class="terminal-split__right terminal-pane--logstream">
+            <div class="logstream-chrome">
+              <span class="logstream-label">// log stream</span>
+              <span class="logstream-dot panel-dot--pulse"></span>
+            </div>
+            <div class="logstream-rule" aria-hidden="true"></div>
+            <div class="log-stream__list" id="log-stream-body" aria-label="Recent entries" aria-hidden="true"></div>
+          </div>
 
-    <!-- // constellation ────────────────────────────────────── -->
-    <aside class="feed-panel feed-panel--now" aria-label="Wiki constellation" aria-hidden="true">
-      <div class="panel-chrome">
-        <span class="panel-label">// constellation</span>
-        <span class="panel-dot panel-dot--pulse"></span>
-      </div>
-      <div class="feed-panel__body" id="constellation-body"></div>
-    </aside>
+        </div><!-- /.terminal-split -->
+      </div><!-- /.mac-terminal -->
+    </div><!-- /.mac-terminal-glow-container -->
+  </div><!-- /.mac-terminal-wrapper -->
 
-  </div>
-
-</div>
+</div><!-- /.home-stage -->
 
 <noscript>
   <div class="noscript-warning">
@@ -63,24 +61,18 @@ layout: default
 <script>
   window.__TERMINAL_COMMANDS__ = {{ site.data.commands | jsonify }};
 
-  window.__FEED_RECENT__ = [
+  window.__LOG_STREAM__ = [
     {% assign all_docs = site.wiki | concat: site.studies | concat: site.posts %}
     {% assign sorted_docs = all_docs | sort: 'date' | reverse %}
-    {% for doc in sorted_docs limit:5 %}
+    {% for doc in sorted_docs limit:12 %}
     {
+      "sigil": {% if doc.collection == 'wiki' %}"✦"{% elsif doc.collection == 'studies' %}"⌖"{% else %}"✺"{% endif %},
       "title": {{ doc.title | jsonify }},
       "section": {% if doc.collection == 'wiki' %}"wiki"{% elsif doc.collection == 'studies' %}"studies"{% else %}"log"{% endif %},
-      "url": {{ doc.url | relative_url | jsonify }},
-      "date": {{ doc.date | date: '%H:%M' | jsonify }}
+      "time": {{ doc.date | date: '%H:%M' | jsonify }},
+      "url": {{ doc.url | relative_url | jsonify }}
     }{% unless forloop.last %},{% endunless %}
     {% endfor %}
-  ];
-
-  window.__WIKI_DOMAINS__ = [
-    { "sigil": "✦", "label": "AWS",   "href": "/wiki/#aws" },
-    { "sigil": "✺", "label": "GCP",   "href": "/wiki/#gcp" },
-    { "sigil": "⊹", "label": "Azure", "href": "/wiki/#azure" },
-    { "sigil": "⌖", "label": "Web",   "href": "/wiki/#web" }
   ];
 </script>
 

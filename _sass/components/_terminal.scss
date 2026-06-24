@@ -1,6 +1,7 @@
 // ─────────────────────────────────────────────────────────────
-// mac-terminal · primary altar (home page)
-// Dynamic-first; effects soften under [data-theme="light"]
+// _terminal.scss · mac-terminal primary altar (home page)
+// Single full-width panel with internal 60/40 vertical split.
+// T1 alive preserved: bloom + scanlines (intensity -25%).
 // ─────────────────────────────────────────────────────────────
 
 .scene {
@@ -8,6 +9,7 @@
   transition: transform 0.18s ease-out;
 }
 
+// ── Outer wrapper ─────────────────────────────────────────────
 .mac-terminal-wrapper {
   padding: 0 2rem;
   display: flex;
@@ -16,6 +18,7 @@
   width: 100%;
 }
 
+// ── Glow container (breathing ring) ──────────────────────────
 .mac-terminal-glow-container {
   position: relative;
   display: flex;
@@ -23,33 +26,33 @@
   align-items: center;
   width: 100%;
 
-  // Outer breathing glow ring (softened)
+  // Outer breathing glow ring (reduced ~25%)
   &::after {
     content: "";
     position: absolute;
     inset: -28px;
     background:
-      radial-gradient(circle at 50% 100%, rgba(144, 108, 190, .10), transparent 65%),
-      radial-gradient(circle at 30% 20%, rgba(231, 213, 249, .04), transparent 60%);
+      radial-gradient(circle at 50% 100%, rgba(144, 108, 190, .07), transparent 65%),
+      radial-gradient(circle at 30% 20%, rgba(231, 213, 249, .03), transparent 60%);
     filter: blur(34px);
     z-index: 0;
     animation: ring-breathe 7s ease-in-out infinite;
-    opacity: .65;
+    opacity: .50;
   }
 }
 
+// ── Primary altar panel ───────────────────────────────────────
 .mac-terminal {
-  width: min(82vw, 1140px);
-  aspect-ratio: 16 / 10;
-  max-height: calc(100vh - 200px);
-  max-width: 1140px;
+  width: 100%;
+  max-width: 1200px;
+  height: calc(100vh - 240px);
+  min-height: 600px;
   position: relative;
   z-index: 1;
 
-  /* Translucent glass — lets the page atmosphere show through */
   background:
-    radial-gradient(140% 90% at 50% 0%, rgba(144, 108, 190, .04), transparent 55%),
-    radial-gradient(120% 80% at 50% 100%, rgba(231, 213, 249, .02), transparent 60%),
+    radial-gradient(140% 90% at 50% 0%, rgba(144, 108, 190, .03), transparent 55%),
+    radial-gradient(120% 80% at 50% 100%, rgba(231, 213, 249, .015), transparent 60%),
     rgba(35, 38, 51, .25);
   backdrop-filter: blur(8px) saturate(120%);
   -webkit-backdrop-filter: blur(8px) saturate(120%);
@@ -67,9 +70,9 @@
   &.active {
     box-shadow:
       var(--shadow),
-      0 0 28px rgba(144, 108, 190, .35),
-      0 0 80px rgba(144, 108, 190, .18);
-    border-color: rgba(144, 108, 190, .35);
+      0 0 28px rgba(144, 108, 190, .28),
+      0 0 70px rgba(144, 108, 190, .14);
+    border-color: rgba(144, 108, 190, .30);
   }
 }
 
@@ -81,11 +84,11 @@
   border-radius: inherit;
   pointer-events: none;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(144, 108, 190, .7), rgba(231, 213, 249, .35) 50%, rgba(144, 108, 190, .55));
+  background: linear-gradient(135deg, rgba(144, 108, 190, .6), rgba(231, 213, 249, .28) 50%, rgba(144, 108, 190, .48));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  opacity: .85;
+  opacity: .75;
 }
 
 // Top glass reflection
@@ -96,36 +99,80 @@
   border-radius: inherit;
   pointer-events: none;
   background:
-    linear-gradient(to bottom, rgba(255, 255, 255, .10), transparent 34%),
-    repeating-linear-gradient(0deg, transparent 0 2px, rgba(255, 255, 255, .015) 2px 3px);
+    linear-gradient(to bottom, rgba(255, 255, 255, .08), transparent 34%),
+    repeating-linear-gradient(0deg, transparent 0 2px, rgba(255, 255, 255, .012) 2px 3px);
   mix-blend-mode: screen;
-  opacity: .75;
+  opacity: .60;
 }
 
-// Bloom layer (pulsing)
+// Bloom layer (T1 alive — reduced ~25%)
 .bloom {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(520px 260px at 40% 35%, rgba(144, 108, 190, .08), transparent 60%),
-    radial-gradient(460px 240px at 62% 60%, rgba(231, 213, 249, .05), transparent 65%);
+    radial-gradient(520px 260px at 40% 35%, rgba(144, 108, 190, .06), transparent 60%),
+    radial-gradient(460px 240px at 62% 60%, rgba(231, 213, 249, .04), transparent 65%);
   background-blend-mode: screen;
   z-index: 2;
-  opacity: .45;
+  opacity: .35;
   animation: bloom-shift 11s ease-in-out infinite alternate;
 }
 
-// Header — minimal panel chrome (// terminal label)
-// mac ●●● chrome removed; .panel-chrome / .panel-label defined in _signal.scss
-// .panel-chrome sits inside .mac-terminal at z-index 3 (same stack as old .header)
-.mac-terminal > .panel-chrome {
+// ── Internal split container ──────────────────────────────────
+.terminal-split {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  position: relative;
   z-index: 3;
 }
 
-// Body — output area
+// LEFT pane: prompt (60%)
+.terminal-split__left {
+  flex: 0 0 60%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+// DIVIDER: 1px vertical line with tick marks via repeating-gradient
+.terminal-split__divider {
+  flex: 0 0 1px;
+  width: 1px;
+  align-self: stretch;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--border) 0px 4px,
+    transparent 4px 20px
+  );
+  opacity: .55;
+  margin: 12px 0;
+}
+
+// RIGHT pane: log stream (40%)
+.terminal-split__right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  padding-left: 1px; // visual breathing room next to divider
+}
+
+// ── Panel chrome (outer — single) ────────────────────────────
+// Defined in _signal.scss (.panel-chrome, .panel-label, .panel-dot)
+// Override z-index within .mac-terminal context:
+.mac-terminal > .panel-chrome {
+  z-index: 3;
+  flex-shrink: 0;
+}
+
+// ── Body / output area (left pane) ────────────────────────────
 .body {
-  padding: 1.5rem var(--space);
+  padding: 1.25rem var(--space);
   overflow-y: auto;
   flex-grow: 1;
   display: flex;
@@ -137,7 +184,7 @@
   position: relative;
   z-index: 3;
 
-  // CRT scanlines (very subtle, dark only)
+  // CRT scanlines (reduced ~25%)
   &::before {
     content: "";
     position: absolute;
@@ -146,16 +193,16 @@
     background: repeating-linear-gradient(
       to bottom,
       transparent 0 2px,
-      rgba(144, 108, 190, .025) 2px 3px
+      rgba(144, 108, 190, .018) 2px 3px
     );
     z-index: 1;
     animation: scanlines 8s linear infinite;
   }
 
   scrollbar-width: thin;
-  scrollbar-color: rgba(144, 108, 190, .35) transparent;
-  &::-webkit-scrollbar { width: 6px; }
-  &::-webkit-scrollbar-thumb { background: rgba(144, 108, 190, .35); border-radius: 3px; }
+  scrollbar-color: rgba(144, 108, 190, .30) transparent;
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb { background: rgba(144, 108, 190, .30); border-radius: 3px; }
 }
 
 #terminal-output {
@@ -174,7 +221,6 @@
 }
 
 .line-system {
-  /* Slightly tighter than default 1.55 so consecutive rows feel grouped but stay readable */
   line-height: 1.35;
 }
 
@@ -193,12 +239,13 @@
   opacity: .9;
 }
 
-// Prompt area
+// ── Prompt area ───────────────────────────────────────────────
 .prompt-wrapper {
   border-top: 1px solid var(--border);
   padding: 10px var(--space) 12px;
   position: relative;
   z-index: 3;
+  flex-shrink: 0;
 }
 
 .terminal-input-line {
@@ -285,7 +332,7 @@
   }
 }
 
-// Footer status line — sits inside .terminal-input-line at the right edge
+// Footer status — sits right edge of input line
 .footer-line {
   font: 11px/1.4 var(--mono);
   color: var(--accent-soft);
@@ -312,27 +359,61 @@
   margin: 2rem;
 }
 
-// ── Animations ───────────────────────────────────────────────
+// ── Home stage overrides ──────────────────────────────────────
+.home-stage {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  height: calc(100vh - 240px);
+  min-height: 600px;
+
+  .mac-terminal-wrapper {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mac-terminal-glow-container {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mac-terminal {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    min-height: unset;
+    aspect-ratio: unset;
+  }
+}
+
+// ── Animations ────────────────────────────────────────────────
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-6px); }
+  50%      { transform: translateY(-5px); }
 }
 
 @keyframes ambient {
-  0%, 100% { box-shadow: var(--shadow), 0 0 22px rgba(144, 108, 190, .15); }
-  50%      { box-shadow: var(--shadow), 0 0 38px rgba(144, 108, 190, .28); }
+  0%, 100% { box-shadow: var(--shadow), 0 0 18px rgba(144, 108, 190, .12); }
+  50%      { box-shadow: var(--shadow), 0 0 30px rgba(144, 108, 190, .22); }
 }
 
 @keyframes ring-breathe {
-  0%, 100% { opacity: .85; transform: scale(1); }
-  50%      { opacity: 1;   transform: scale(1.03); }
+  0%, 100% { opacity: .65; transform: scale(1); }
+  50%      { opacity: .85; transform: scale(1.03); }
 }
 
 @keyframes bloom-shift {
-  0%   { transform: translate(0, 0); opacity: .65; }
-  50%  { transform: translate(8px, -4px); opacity: .8; }
-  100% { transform: translate(-6px, 6px); opacity: .7; }
+  0%   { transform: translate(0, 0); opacity: .50; }
+  50%  { transform: translate(8px, -4px); opacity: .62; }
+  100% { transform: translate(-6px, 6px); opacity: .55; }
 }
 
 @keyframes scanlines {
@@ -362,16 +443,16 @@
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-// ── Light theme softening ────────────────────────────────────
+// ── Light theme softening ─────────────────────────────────────
 [data-theme="light"] {
   .mac-terminal {
     background: rgba(253, 251, 246, .85);
     backdrop-filter: blur(10px) saturate(110%);
   }
-  .mac-terminal::after { opacity: .35; }
-  .body::before { display: none; } // no scanlines in light
-  .bloom { opacity: .35; }
-  .mac-terminal-glow-container::after { opacity: .5; }
+  .mac-terminal::after { opacity: .30; }
+  .body::before { display: none; }
+  .bloom { opacity: .28; }
+  .mac-terminal-glow-container::after { opacity: .40; }
 
   .autocomplete-suggestions {
     background: rgba(253, 251, 246, .55);
@@ -390,7 +471,7 @@
   }
 }
 
-// ── Reduced motion ───────────────────────────────────────────
+// ── Reduced motion ────────────────────────────────────────────
 @media (prefers-reduced-motion: reduce) {
   .mac-terminal,
   .mac-terminal-glow-container::after,
@@ -404,37 +485,57 @@
   .scene { transform: none !important; }
 }
 
+// ── Mobile: split stacks vertically below 768px ───────────────
 @media (max-width: 768px) {
-  .mac-terminal {
-    width: 92vw;
-    aspect-ratio: auto;
-    min-height: 70vh;
+  .home-stage {
+    height: auto;
+    min-height: unset;
   }
-}
 
-// ── Home stage terminal overrides (layout in _signal.scss) ───
-// Within .home-stage the terminal wrapper + glow container are
-// driven by the flex columns defined in _signal.scss.
-.home-stage {
-  .mac-terminal-wrapper {
-    flex: 1;
-    min-width: 0;
-    padding: 0;
-    display: flex;
+  .mac-terminal {
+    height: auto;
+    min-height: unset;
+  }
+
+  .terminal-split {
     flex-direction: column;
   }
 
-  .mac-terminal-glow-container {
-    flex: 1;
-    min-height: 0;
+  .terminal-split__left {
+    flex: 0 0 auto;
+    min-height: 55vh;
   }
 
-  // Let flex height drive terminal size; drop fixed aspect-ratio
-  .mac-terminal {
-    width: 100%;
-    max-width: none;
-    height: 100%;
-    aspect-ratio: unset;
-    max-height: none;
+  .terminal-split__divider {
+    width: auto;
+    height: 1px;
+    flex: 0 0 1px;
+    align-self: stretch;
+    background: repeating-linear-gradient(
+      to right,
+      var(--border) 0px 4px,
+      transparent 4px 20px
+    );
+    margin: 0 12px;
+  }
+
+  .terminal-split__right {
+    flex: 0 0 auto;
+    min-height: 200px;
+    padding-left: 0;
+    padding-top: 1px;
+  }
+}
+
+// ── Narrow: hide log stream below 480px ──────────────────────
+@media (max-width: 480px) {
+  .terminal-split__divider,
+  .terminal-split__right {
+    display: none;
+  }
+
+  .terminal-split__left {
+    flex: 1;
+    min-height: 70vh;
   }
 }

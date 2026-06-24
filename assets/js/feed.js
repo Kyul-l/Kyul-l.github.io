@@ -1,118 +1,122 @@
-// assets/js/feed.js — Refactored for split // recent + // now panels
+// assets/js/feed.js — LogStreamPanel (replaces RecentPanel + ConstellationPanel)
 
-const SIGILS = { wiki: '✦', studies: '⌖', log: '✺', system: '·' };
-const LABELS = { wiki: 'wiki', studies: 'studies', log: 'log', system: 'sys' };
+const SIGIL_CLASS = {
+  wiki:    'log-stream__entry__sigil--wiki',
+  studies: 'log-stream__entry__sigil--studies',
+  log:     'log-stream__entry__sigil--log',
+  system:  'log-stream__entry__sigil--system',
+};
 
-// ── // recent panel ───────────────────────────────────────────
-class RecentPanel {
+const FALLBACK_ENTRIES = [
+  { sigil: '⊹', title: 'STATUS · OPERATIONAL', section: 'system', time: '', url: '' },
+  { sigil: '⊹', title: 'uptime · stable',       section: 'system', time: '', url: '' },
+  { sigil: '⊹', title: 'archive · online',       section: 'system', time: '', url: '' },
+];
+
+class LogStreamPanel {
+  #container = null;
+  #entries    = [];
+  #cursor     = 0;         // next index to inject (cycles)
+  #maxVisible = 8;
+  #interval   = 8000;      // ms between rotations
+  #timer      = null;
+  #reduced    = false;
+
   constructor(containerId) {
-    this.el = document.getElementById(containerId);
-    if (!this.el) return;
-    this.#render();
+    this.#container = document.getElementById(containerId);
+    if (!this.#container) return;
+
+    this.#reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const raw = window.__LOG_STREAM__;
+    this.#entries = (Array.isArray(raw) && raw.length > 0) ? raw : FALLBACK_ENTRIES;
+
+    // Cursor starts after the initial batch so rotation continues from where
+    // the visible list leaves off.
+    this.#cursor = Math.min(this.#maxVisible, this.#entries.length) % this.#entries.length;
+
+    this.#renderInitial();
+
+    if (!this.#reduced && this.#entries.length > 1) {
+      this.#startRotation();
+    }
   }
 
-  #render() {
-    const entries = window.__FEED_RECENT__ || [];
-    if (!entries.length) {
-      this.el.innerHTML =
-        '<div class="feed-entry"><div class="feed-entry__top">' +
-        '<span class="feed-entry__sigil feed-sigil--system">·</span>' +
-        '<span class="feed-entry__title">no entries yet</span>' +
-        '</div></div>';
-      return;
+  // ── Initial render: stagger-fade the first N entries ────────
+  #renderInitial() {
+    const slice = this.#entries.slice(0, this.#maxVisible);
+    slice.forEach((entry, i) => {
+      const el = this.#makeEntry(entry);
+      if (!this.#reduced) {
+        el.style.opacity = '0';
+        el.style.animationDelay = `${i * 80}ms`;
+        el.classList.add('is-new');
+      }
+      this.#container.appendChild(el);
+    });
+  }
+
+  // ── Rotation: prepend newest at top, fade+remove oldest ─────
+  #startRotation() {
+    this.#timer = setInterval(() => {
+      const entry = this.#entries[this.#cursor];
+      this.#cursor = (this.#cursor + 1) % this.#entries.length;
+
+      // Prepend new entry
+      const newEl = this.#makeEntry(entry);
+      newEl.classList.add('is-new');
+      this.#container.prepend(newEl);
+
+      // Count visible entries; fade+remove if over limit
+      const all = Array.from(this.#container.children);
+      if (all.length > this.#maxVisible) {
+        const oldest = all[all.length - 1];
+        oldest.classList.add('is-fading');
+        setTimeout(() => oldest.remove(), 420);
+      }
+    }, this.#interval);
+  }
+
+  // ── Build a single entry element ─────────────────────────────
+  #makeEntry(entry) {
+    const section   = entry.section || 'system';
+    const sigilCls  = SIGIL_CLASS[section] || SIGIL_CLASS.system;
+
+    const el = document.createElement('div');
+    el.className = 'log-stream__entry';
+
+    const topEl = document.createElement('div');
+    topEl.className = 'log-stream__entry__top';
+
+    const sigilEl = document.createElement('span');
+    sigilEl.className = `log-stream__entry__sigil ${sigilCls}`;
+    sigilEl.textContent = entry.sigil || '·';
+
+    const textEl = document.createElement('span');
+    textEl.className = 'log-stream__entry__text';
+
+    if (entry.url) {
+      const a = document.createElement('a');
+      a.href = this.#esc(entry.url);
+      a.textContent = entry.title || '';
+      textEl.appendChild(a);
+    } else {
+      textEl.textContent = entry.title || '';
     }
 
-    entries.forEach((entry, i) => {
-      const el = document.createElement('div');
-      el.className = 'feed-entry feed-entry--in';
-      el.style.animationDelay = `${i * 60}ms`;
+    topEl.appendChild(sigilEl);
+    topEl.appendChild(textEl);
 
-      const section = entry.section || 'system';
-      const sigil   = SIGILS[section] || '·';
-      const label   = LABELS[section] || 'sys';
-      const sigilCls = `feed-sigil--${section}`;
-      const time    = entry.date || '';
+    const metaParts = [section];
+    if (entry.time) metaParts.push(entry.time);
 
-      const titleHtml = entry.url
-        ? `<a href="${this.#esc(entry.url)}" class="feed-entry__title-link">${this.#esc(entry.title)}</a>`
-        : `<span>${this.#esc(entry.title)}</span>`;
+    const metaEl = document.createElement('div');
+    metaEl.className = 'log-stream__entry__meta';
+    metaEl.textContent = metaParts.join(' · ');
 
-      el.innerHTML =
-        `<div class="feed-entry__top">` +
-          `<span class="feed-entry__sigil ${sigilCls}">${sigil}</span>` +
-          `<span class="feed-entry__title">${titleHtml}</span>` +
-        `</div>` +
-        `<div class="feed-entry__meta">${label}${time ? ' · ' + time : ''}</div>`;
-
-      this.el.appendChild(el);
-    });
-  }
-
-  #esc(s) {
-    return String(s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-}
-
-// ── // constellation panel ────────────────────────────────────
-class ConstellationPanel {
-  // Asymmetric positions (left%, top%) — observatory scatter feel
-  static #POSITIONS = [
-    [18, 22],
-    [58, 14],
-    [38, 48],
-    [72, 38],
-    [22, 68],
-    [62, 70],
-    [80, 55],
-    [10, 82],
-  ];
-
-  constructor(containerId) {
-    this.el      = document.getElementById(containerId);
-    this.domains = window.__WIKI_DOMAINS__ || [];
-    if (!this.el || !this.domains.length) return;
-
-    this.#render();
-    this.#startTwinkle();
-  }
-
-  #render() {
-    const wrap = document.createElement('div');
-    wrap.className = 'feed-constellation';
-
-    this.domains.forEach((domain, i) => {
-      const pos = ConstellationPanel.#POSITIONS[i] || [50, 50];
-      const a   = document.createElement('a');
-      a.className  = 'feed-constellation__star';
-      a.href       = domain.href;
-      a.style.left = `${pos[0]}%`;
-      a.style.top  = `${pos[1]}%`;
-      a.setAttribute('aria-label', domain.label);
-
-      a.innerHTML =
-        `<span class="feed-constellation__sigil">${domain.sigil}</span>` +
-        `<span class="feed-constellation__label">${this.#esc(domain.label)}</span>`;
-
-      wrap.appendChild(a);
-    });
-
-    this.el.appendChild(wrap);
-    this.stars = Array.from(wrap.querySelectorAll('.feed-constellation__star'));
-  }
-
-  #startTwinkle() {
-    if (!this.stars || !this.stars.length) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    setInterval(() => {
-      const star = this.stars[Math.floor(Math.random() * this.stars.length)];
-      star.classList.add('is-twinkling');
-      setTimeout(() => star.classList.remove('is-twinkling'), 800);
-    }, 60000);
+    el.appendChild(topEl);
+    el.appendChild(metaEl);
+    return el;
   }
 
   #esc(s) {
@@ -125,5 +129,4 @@ class ConstellationPanel {
 }
 
 // ── Boot ──────────────────────────────────────────────────────
-new RecentPanel('feed-recent');
-new ConstellationPanel('constellation-body');
+new LogStreamPanel('log-stream-body');
