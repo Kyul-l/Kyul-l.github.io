@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────
 // _terminal.scss · mac-terminal primary altar (home page)
-// Single full-width panel with internal 60/40 vertical split.
-// T1 alive preserved: bloom + scanlines (intensity -25%).
+// Single standalone panel — occupies .home-col--terminal (65%).
+// T1 alive preserved: bloom + scanlines at ~25% reduced intensity.
 // ─────────────────────────────────────────────────────────────
 
 .scene {
@@ -11,20 +11,22 @@
 
 // ── Outer wrapper ─────────────────────────────────────────────
 .mac-terminal-wrapper {
-  padding: 0 2rem;
+  padding: 0;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: stretch;
   width: 100%;
+  height: 100%;
 }
 
 // ── Glow container (breathing ring) ──────────────────────────
 .mac-terminal-glow-container {
   position: relative;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
 
   // Outer breathing glow ring (reduced ~25%)
   &::after {
@@ -44,9 +46,7 @@
 // ── Primary altar panel ───────────────────────────────────────
 .mac-terminal {
   width: 100%;
-  max-width: 1200px;
-  height: calc(100vh - 240px);
-  min-height: 600px;
+  height: 100%;
   position: relative;
   z-index: 1;
 
@@ -119,58 +119,13 @@
   animation: bloom-shift 11s ease-in-out infinite alternate;
 }
 
-// ── Internal split container ──────────────────────────────────
-.terminal-split {
-  display: flex;
-  flex-direction: row;
-  flex: 1;
-  min-height: 0;
-  position: relative;
-  z-index: 3;
-}
-
-// LEFT pane: prompt (60%)
-.terminal-split__left {
-  flex: 0 0 60%;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  overflow: hidden;
-}
-
-// DIVIDER: 1px vertical line with tick marks via repeating-gradient
-.terminal-split__divider {
-  flex: 0 0 1px;
-  width: 1px;
-  align-self: stretch;
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--border) 0px 4px,
-    transparent 4px 20px
-  );
-  opacity: .55;
-  margin: 12px 0;
-}
-
-// RIGHT pane: log stream (40%)
-.terminal-split__right {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  overflow: hidden;
-  padding-left: 1px; // visual breathing room next to divider
-}
-
-// ── Panel chrome (outer — single) ────────────────────────────
-// Defined in _signal.scss (.panel-chrome, .panel-label, .panel-dot)
-// Override z-index within .mac-terminal context:
+// ── Panel chrome override within terminal ─────────────────────
 .mac-terminal > .panel-chrome {
   z-index: 3;
   flex-shrink: 0;
 }
 
-// ── Body / output area (left pane) ────────────────────────────
+// ── Body / output area ────────────────────────────────────────
 .body {
   padding: 1.25rem var(--space);
   overflow-y: auto;
@@ -359,40 +314,6 @@
   margin: 2rem;
 }
 
-// ── Home stage overrides ──────────────────────────────────────
-.home-stage {
-  display: flex;
-  align-items: stretch;
-  width: 100%;
-  height: calc(100vh - 240px);
-  min-height: 600px;
-
-  .mac-terminal-wrapper {
-    flex: 1;
-    min-width: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .mac-terminal-glow-container {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .mac-terminal {
-    width: 100%;
-    max-width: none;
-    height: 100%;
-    min-height: unset;
-    aspect-ratio: unset;
-  }
-}
-
 // ── Animations ────────────────────────────────────────────────
 
 @keyframes float {
@@ -485,57 +406,14 @@
   .scene { transform: none !important; }
 }
 
-// ── Mobile: split stacks vertically below 768px ───────────────
+// ── Mobile: terminal fills column, right column stacks below ──
 @media (max-width: 768px) {
-  .home-stage {
+  .mac-terminal-wrapper {
     height: auto;
-    min-height: unset;
   }
 
   .mac-terminal {
     height: auto;
-    min-height: unset;
-  }
-
-  .terminal-split {
-    flex-direction: column;
-  }
-
-  .terminal-split__left {
-    flex: 0 0 auto;
     min-height: 55vh;
-  }
-
-  .terminal-split__divider {
-    width: auto;
-    height: 1px;
-    flex: 0 0 1px;
-    align-self: stretch;
-    background: repeating-linear-gradient(
-      to right,
-      var(--border) 0px 4px,
-      transparent 4px 20px
-    );
-    margin: 0 12px;
-  }
-
-  .terminal-split__right {
-    flex: 0 0 auto;
-    min-height: 200px;
-    padding-left: 0;
-    padding-top: 1px;
-  }
-}
-
-// ── Narrow: hide log stream below 480px ──────────────────────
-@media (max-width: 480px) {
-  .terminal-split__divider,
-  .terminal-split__right {
-    display: none;
-  }
-
-  .terminal-split__left {
-    flex: 1;
-    min-height: 70vh;
   }
 }

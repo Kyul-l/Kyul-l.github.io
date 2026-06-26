@@ -3,54 +3,57 @@ layout: default
 ---
 <div class="home-stage">
 
-  <div class="mac-terminal-wrapper scene">
-    <div class="mac-terminal-glow-container">
-      <div class="mac-terminal">
-        <div class="bloom"></div>
+  <!-- ── LEFT 65%: terminal ───────────────────────────────── -->
+  <div class="home-col--terminal">
+    <div class="mac-terminal-wrapper scene">
+      <div class="mac-terminal-glow-container">
+        <div class="mac-terminal">
+          <div class="bloom"></div>
 
-        <!-- Single outer chrome: ONE label + ONE pulse dot -->
-        <div class="panel-chrome">
-          <span class="panel-label">// archive</span>
-          <span class="panel-dot panel-dot--pulse"></span>
-        </div>
+          <div class="panel-chrome">
+            <span class="panel-label">// terminal</span>
+            <span class="panel-dot panel-dot--pulse"></span>
+          </div>
 
-        <!-- Internal vertical split: 60% prompt / 40% log stream -->
-        <div class="terminal-split">
+          <div class="body" id="terminal-window" role="region" aria-live="polite">
+            <div id="terminal-output"></div>
+          </div>
 
-          <!-- LEFT: prompt pane (60%) -->
-          <div class="terminal-split__left terminal-pane--prompt">
-            <div class="body" id="terminal-window" role="region" aria-live="polite">
-              <div id="terminal-output"></div>
-            </div>
-            <div class="prompt-wrapper">
-              <div id="autocomplete-suggestions" class="autocomplete-suggestions"></div>
-              <div class="terminal-input-line">
-                <span class="prompt">>&nbsp;</span>
-                <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Command input">
-                <div class="footer-line" id="terminal-status">STATUS · OPERATIONAL</div>
-              </div>
+          <div class="prompt-wrapper">
+            <div id="autocomplete-suggestions" class="autocomplete-suggestions"></div>
+            <div class="terminal-input-line">
+              <span class="prompt">>&nbsp;</span>
+              <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Command input">
+              <div class="footer-line" id="terminal-status">STATUS · OK</div>
             </div>
           </div>
 
-          <!-- DIVIDER: 1px vertical line -->
-          <div class="terminal-split__divider" aria-hidden="true"></div>
+        </div><!-- /.mac-terminal -->
+      </div><!-- /.mac-terminal-glow-container -->
+    </div><!-- /.mac-terminal-wrapper -->
+  </div><!-- /.home-col--terminal -->
 
-          <!-- RIGHT: log stream pane (40%) -->
-          <div class="terminal-split__right terminal-pane--logstream">
-            <div class="logstream-chrome">
-              <span class="logstream-label">// log stream</span>
-              <span class="logstream-dot panel-dot--pulse"></span>
-            </div>
-            <div class="logstream-rule" aria-hidden="true"></div>
-            <div class="log-stream__list" id="log-stream-body" aria-label="Recent entries" aria-hidden="true"></div>
-          </div>
+  <!-- ── RIGHT 35%: recent + artifact ────────────────────── -->
+  <div class="home-col--right">
 
-        </div><!-- /.terminal-split -->
-      </div><!-- /.mac-terminal -->
-    </div><!-- /.mac-terminal-glow-container -->
-  </div><!-- /.mac-terminal-wrapper -->
+    <!-- TOP: recent panel -->
+    <div class="feed-panel--recent">
+      <div class="panel-chrome">
+        <span class="panel-label">// recent</span>
+        <span class="panel-dot panel-dot--pulse"></span>
+      </div>
+      <ul id="recent-body" class="feed-recent-list" aria-label="Recent entries"></ul>
+    </div>
+
+    <!-- BOTTOM: today's artifact Log card -->
+    <article id="artifact-slot" class="artifact-slot" aria-label="Today's artifact"></article>
+
+  </div><!-- /.home-col--right -->
 
 </div><!-- /.home-stage -->
+
+<!-- Detail view overlay (same one as Log page) -->
+<div id="log-detail-overlay" class="log-detail-overlay" role="dialog" aria-modal="true" aria-label="Card detail" hidden></div>
 
 <noscript>
   <div class="noscript-warning">
@@ -61,10 +64,10 @@ layout: default
 <script>
   window.__TERMINAL_COMMANDS__ = {{ site.data.commands | jsonify }};
 
-  window.__LOG_STREAM__ = [
+  window.__RECENT_FEED__ = [
     {% assign all_docs = site.wiki | concat: site.studies | concat: site.posts %}
     {% assign sorted_docs = all_docs | sort: 'date' | reverse %}
-    {% for doc in sorted_docs limit:12 %}
+    {% for doc in sorted_docs limit:9 %}
     {
       "sigil": {% if doc.collection == 'wiki' %}"✦"{% elsif doc.collection == 'studies' %}"⌖"{% else %}"✺"{% endif %},
       "title": {{ doc.title | jsonify }},
@@ -74,7 +77,29 @@ layout: default
     }{% unless forloop.last %},{% endunless %}
     {% endfor %}
   ];
+
+  window.__LOG_ARTIFACTS__ = [
+    {% assign log_posts = site.posts | sort: 'date' | reverse %}
+    {% for post in log_posts %}
+    {
+      "title":      {{ post.title | jsonify }},
+      "type":       {{ post.type | default: 'moment' | jsonify }},
+      "collection": {{ post.collection | jsonify }},
+      "period":     {{ post.period | default: '' | jsonify }},
+      "fragment":   {{ post.fragment | default: '' | jsonify }},
+      "tags":       {{ post.tags | default: '' | jsonify }},
+      "rarity":     {{ post.rarity | default: 'uncommon' | jsonify }},
+      "body":       {{ post.content | markdownify | jsonify }},
+      "url":        {{ post.url | relative_url | jsonify }},
+      "number":     {{ forloop.index | prepend: '00' | slice: -3, 3 | jsonify }}
+    }{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ];
+
+  window.__TODAY_KEY__ = "{{ 'now' | date: '%Y-%m-%d' }}";
 </script>
 
 <script defer src="{{ '/assets/js/ui-effects.js' | relative_url }}"></script>
+<script defer src="{{ '/assets/js/terminal.js' | relative_url }}"></script>
+<script defer src="{{ '/assets/js/log-deck.js' | relative_url }}"></script>
 <script defer type="module" src="{{ '/assets/js/feed.js' | relative_url }}"></script>

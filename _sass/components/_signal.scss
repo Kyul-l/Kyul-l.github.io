@@ -1,10 +1,10 @@
 // ─────────────────────────────────────────────────────────────
-// _signal.scss · Shared panel chrome + log stream pane
-// Old: feed panels + constellation (deleted)
-// New: panel-chrome shared styles + .terminal-pane--logstream
+// _signal.scss · Shared panel chrome + home-stage layout
+// Provides: .panel-chrome, .home-stage, .home-col--*, .feed-panel--recent, .artifact-slot
+// Log-stream pane styles removed; repurposed for 65/35 home layout.
 // ─────────────────────────────────────────────────────────────
 
-// ── Shared panel chrome (used by .mac-terminal outer chrome) ──
+// ── Shared panel chrome (used by terminal + recent panel) ─────
 .panel-chrome {
   display: flex;
   align-items: center;
@@ -44,96 +44,114 @@
   50%       { opacity: .6; box-shadow: 0 0 10px rgba(144, 108, 190, .25); }
 }
 
-// ── Log stream pane (right side of terminal split) ────────────
-
-// Sub-chrome: smaller, visually subordinate to the outer chrome
-.logstream-chrome {
+// ── Home stage: 65/35 flex row ────────────────────────────────
+.home-stage {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 14px 7px;
-  flex-shrink: 0;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 24px;
+  width: 100%;
+  height: calc(100vh - 240px);
+  min-height: 600px;
 }
 
-.logstream-label {
-  font: 10px/1 var(--mono);
-  color: var(--fg-muted);
-  letter-spacing: .07em;
-  opacity: .45;
-  user-select: none;
-}
-
-.logstream-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--kp-purple);
-  flex-shrink: 0;
-  box-shadow: 0 0 4px rgba(144, 108, 190, .45);
-  animation: panel-dot-pulse 2.8s ease-in-out infinite;
-}
-
-.logstream-rule {
-  height: 1px;
-  background: var(--border);
-  opacity: .45;
-  flex-shrink: 0;
-  margin: 0 14px;
-}
-
-// Log stream list — scrolls entries, fades out at bottom
-.log-stream__list {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
+// ── Left column: terminal (65%) ───────────────────────────────
+.home-col--terminal {
+  flex: 0 0 65%;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  padding: 8px 0 0;
-  position: relative;
-
-  // Bottom fade-out mask — old entries dissolve
-  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 70%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 0%, black 70%, transparent 100%);
 }
 
-// Individual log entry
-.log-stream__entry {
-  padding: 5px 14px 6px;
+// ── Right column: recent + artifact (35%) ────────────────────
+.home-col--right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ── Recent panel (top ~60% of right column) ───────────────────
+.feed-panel--recent {
+  flex: 0 0 60%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(140% 90% at 50% 0%, rgba(144, 108, 190, .02), transparent 55%),
+    rgba(35, 38, 51, .18);
+  backdrop-filter: blur(6px) saturate(115%);
+  -webkit-backdrop-filter: blur(6px) saturate(115%);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+// Recent list
+.feed-recent-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0 8px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(144, 108, 190, .20) transparent;
+  &::-webkit-scrollbar { width: 3px; }
+  &::-webkit-scrollbar-thumb { background: rgba(144, 108, 190, .20); border-radius: 2px; }
+}
+
+// Individual recent entry
+.feed-entry {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  flex-shrink: 0;
+  padding: 5px 14px 5px;
+  opacity: 0;
+
+  &.is-visible {
+    opacity: 1;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+    &:hover .feed-entry__title { color: var(--accent); }
+  }
 }
 
-.log-stream__entry__top {
+.feed-entry__top {
   display: flex;
   align-items: baseline;
   gap: .4rem;
 }
 
-.log-stream__entry__sigil {
+.feed-entry__sigil {
   font-size: 11px;
   line-height: 1;
   flex-shrink: 0;
   color: var(--kp-purple);
   opacity: .9;
+
+  &--wiki    { color: var(--kp-lavender); }
+  &--studies { color: var(--kp-purple); }
+  &--log     { color: var(--fg-muted); }
 }
 
-.log-stream__entry__sigil--wiki    { color: var(--kp-lavender); }
-.log-stream__entry__sigil--studies { color: var(--kp-purple); }
-.log-stream__entry__sigil--log     { color: var(--fg-muted); }
-.log-stream__entry__sigil--system  { color: var(--fg-dim); }
-
-.log-stream__entry__text {
+.feed-entry__title {
   font: 500 11px/1.4 var(--mono);
   color: var(--fg-main);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   opacity: .82;
+  transition: color .15s ease;
 }
 
-.log-stream__entry__meta {
+.feed-entry__meta {
   font: 9px/1 var(--mono);
   color: var(--fg-dim);
   letter-spacing: .03em;
@@ -141,33 +159,57 @@
   opacity: .45;
 }
 
-// ── Entry animations ──────────────────────────────────────────
-
-// Fade-in when a new entry arrives at top
-@keyframes log-entry-in {
-  from { opacity: 0; transform: translateY(-8px); }
+@keyframes feed-entry-in {
+  from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.log-stream__entry.is-new {
-  animation: log-entry-in .4s ease forwards;
+.feed-entry.is-animating {
+  animation: feed-entry-in .32s ease forwards;
 }
 
-// Fade-out when oldest entry is dismissed
-@keyframes log-entry-out {
-  from { opacity: 1; }
-  to   { opacity: .22; }
+// ── Artifact slot (bottom ~40% of right column) ───────────────
+.artifact-slot {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  position: relative;
+  // No outer chrome — the .log-card provides its own visual shell
 }
 
-.log-stream__entry.is-fading {
-  animation: log-entry-out .4s ease forwards;
-  pointer-events: none;
+// The log-card inside artifact-slot fills the slot via aspect-ratio constraint.
+// We limit max width so the card stays proportioned (5:8 ratio).
+.artifact-slot .log-card {
+  // Constrain width so card doesn't stretch too wide; height follows aspect-ratio.
+  width: auto;
+  max-width: 100%;
+  // Let the height drive sizing — slot height is the constraint.
+  // aspect-ratio: 5/8 is already set on .log-card; we bind the height to slot.
+  height: 100%;
+  aspect-ratio: 5 / 8;
+  // Center it if narrower than slot width
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+// Fallback empty state
+.artifact-slot__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  font: 400 .78rem/1.4 var(--mono);
+  color: var(--fg-dim);
+  opacity: .45;
+  letter-spacing: .04em;
+  text-align: center;
 }
 
 // ── Light theme ───────────────────────────────────────────────
 [data-theme="light"] {
-  .panel-dot--pulse,
-  .logstream-dot {
+  .panel-dot--pulse {
     background: var(--kp-purple);
     box-shadow: 0 0 5px rgba(107, 79, 149, .4);
   }
@@ -177,22 +219,73 @@
     50%       { opacity: .6; box-shadow: 0 0 8px rgba(107, 79, 149, .2); }
   }
 
-  .log-stream__entry__text {
+  .feed-panel--recent {
+    background: rgba(253, 251, 246, .72);
+    backdrop-filter: blur(6px) saturate(110%);
+  }
+
+  .feed-entry__title {
     opacity: .78;
   }
 }
 
 // ── Reduced motion ────────────────────────────────────────────
 @media (prefers-reduced-motion: reduce) {
-  .panel-dot--pulse,
-  .logstream-dot {
+  .panel-dot--pulse {
     animation: none;
   }
 
-  .log-stream__entry.is-new,
-  .log-stream__entry.is-fading {
+  .feed-entry.is-animating {
     animation: none !important;
     opacity: 1;
-    transform: none;
+  }
+}
+
+// ── Mobile: stack right column below terminal ─────────────────
+@media (max-width: 768px) {
+  .home-stage {
+    flex-direction: column;
+    height: auto;
+    min-height: unset;
+    gap: 16px;
+  }
+
+  .home-col--terminal {
+    flex: 0 0 auto;
+  }
+
+  .home-col--right {
+    flex: 0 0 auto;
+  }
+
+  .feed-panel--recent {
+    flex: 0 0 auto;
+    min-height: 220px;
+  }
+
+  .artifact-slot {
+    flex: 0 0 auto;
+    min-height: 300px;
+  }
+
+  .artifact-slot .log-card {
+    height: auto;
+    width: min(220px, 55vw);
+    aspect-ratio: 5 / 8;
+  }
+}
+
+// ── Narrow: hide recent panel, keep artifact ──────────────────
+@media (max-width: 480px) {
+  .feed-panel--recent {
+    display: none;
+  }
+
+  .artifact-slot {
+    min-height: 260px;
+  }
+
+  .artifact-slot .log-card {
+    width: min(200px, 70vw);
   }
 }
