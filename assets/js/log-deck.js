@@ -8,11 +8,11 @@
 
   // ── Sigil + rarity maps ──────────────────────────────────────
   const SIGIL_MAP = {
-    moment:  '✺',
+    moment:  '◇',
     food:    '✦',
     thought: '⊹',
-    object:  '⌖',
-    signal:  '◈',
+    object:  '⊹',
+    signal:  '◇',
   };
 
   // Rarity derived from type when frontmatter rarity is absent
@@ -24,7 +24,7 @@
     signal:  'legendary',
   };
 
-  const CORNER_SIGILS = ['✦', '⊹', '⌖', '✺'];
+  const CORNER_SIGILS = ['✦', '⊹', '✦', '⊹'];
 
   const TILT_MAX_DEG = 12;
 
@@ -202,7 +202,7 @@
   function buildCard(data, indexInDrawer) {
     const type    = data.type || 'moment';
     const rarity  = resolveRarity(data);
-    const sigil   = SIGIL_MAP[type] || '✺';
+    const sigil   = SIGIL_MAP[type] || '◇';
     const num     = '#' + (data.number || '001');
     const fragment = data.fragment || '';
     const period  = data.period || '';
@@ -582,7 +582,7 @@
   function buildDetailCard(data) {
     const type    = data.type || 'moment';
     const rarity  = resolveRarity(data);
-    const sigil   = SIGIL_MAP[type] || '✺';
+    const sigil   = SIGIL_MAP[type] || '◇';
     const title   = data.title || '';
     const fragment = data.fragment || '';
     const period  = data.period || '';
@@ -599,7 +599,7 @@
     const ornament = document.createElement('div');
     ornament.className = 'log-card__ornament';
     ornament.setAttribute('aria-hidden', 'true');
-    [{ cls: 'tl', s: '✦' }, { cls: 'tr', s: '⊹' }, { cls: 'bl', s: '⌖' }, { cls: 'br', s: '✺' }]
+    [{ cls: 'tl', s: '✦' }, { cls: 'tr', s: '⊹' }, { cls: 'bl', s: '✦' }, { cls: 'br', s: '⊹' }]
       .forEach(function (c) {
         const span = document.createElement('span');
         span.className = 'log-card__corner log-card__corner--' + c.cls;

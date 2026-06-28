@@ -46,7 +46,9 @@ layout: default
     </div>
 
     <!-- BOTTOM: today's artifact Log card -->
-    <article id="artifact-slot" class="artifact-slot" aria-label="Today's artifact"></article>
+    <article id="artifact-slot" class="artifact-slot" aria-label="Today's artifact">
+      <span class="artifact-slot__chrome-dot" aria-hidden="true"></span>
+    </article>
 
   </div><!-- /.home-col--right -->
 
@@ -67,9 +69,9 @@ layout: default
   window.__RECENT_FEED__ = [
     {% assign all_docs = site.wiki | concat: site.studies | concat: site.posts %}
     {% assign sorted_docs = all_docs | sort: 'date' | reverse %}
-    {% for doc in sorted_docs limit:9 %}
+    {% for doc in sorted_docs limit:15 %}
     {
-      "sigil": {% if doc.collection == 'wiki' %}"✦"{% elsif doc.collection == 'studies' %}"⌖"{% else %}"✺"{% endif %},
+      "sigil": {% if doc.collection == 'wiki' %}"✦"{% elsif doc.collection == 'studies' %}"⊹"{% else %}"◇"{% endif %},
       "title": {{ doc.title | jsonify }},
       "section": {% if doc.collection == 'wiki' %}"wiki"{% elsif doc.collection == 'studies' %}"studies"{% else %}"log"{% endif %},
       "time": {{ doc.date | date: '%H:%M' | jsonify }},

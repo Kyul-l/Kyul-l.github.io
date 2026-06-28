@@ -8,7 +8,7 @@ section: studies
 <div class="studies-page">
 
   <header class="studies-header">
-    <h1 class="studies-header__title"><span aria-hidden="true">⌖</span> Studies</h1>
+    <h1 class="studies-header__title"><span aria-hidden="true">⊹</span> Studies</h1>
     <p class="studies-header__lead">Research and reports, findings recorded.</p>
   </header>
 
@@ -42,7 +42,7 @@ section: studies
                aria-controls="episodes-{{ series_key }}">
               <span class="studies-series__inner">
                 <span class="studies-series__num">0{{ series_counter }}</span>
-                <span class="studies-series__sigil" aria-hidden="true">⌖</span>
+                <span class="studies-series__sigil" aria-hidden="true">⊹</span>
                 <span class="studies-series__label">{{ series_name }}</span>
               </span>
               <span class="studies-series__meta">
@@ -79,7 +79,7 @@ section: studies
                  href="{{ entry.url | relative_url }}">
                 <span class="studies-series__inner">
                   <span class="studies-series__num">0{{ singles_counter }}</span>
-                  <span class="studies-series__sigil" aria-hidden="true">⌖</span>
+                  <span class="studies-series__sigil" aria-hidden="true">⊹</span>
                   <span class="studies-series__label">{{ entry.title }}</span>
                 </span>
                 <span class="studies-series__meta">
@@ -112,7 +112,7 @@ section: studies
         {% if latest %}
           <p class="studies-preview__from">
             <span class="studies-preview__from-sigil" aria-hidden="true">FROM</span>
-            <span class="studies-preview__from-series">⌖ {{ latest.series | default: 'Singles' }}</span>
+            <span class="studies-preview__from-series">⊹ {{ latest.series | default: 'Singles' }}</span>
           </p>
           <h3 class="studies-preview__title">{{ latest.title }}</h3>
           <p class="studies-preview__meta">

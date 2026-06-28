@@ -21,11 +21,21 @@ function dateHash(key, length) {
 
 // ─────────────────────────────────────────────────────────────
 // RecentPanel
-// Reads window.__RECENT_FEED__, renders 9 entries, stagger fade-in.
+// Reads window.__RECENT_FEED__ (up to 15 entries pool),
+// renders 5 visible entries with stagger fade-in.
+// Auto-rotates every 8s: prepend new entry (.is-new), remove
+// oldest (.is-fading). Pauses on hover. Respects reduced-motion.
 // ─────────────────────────────────────────────────────────────
+const VISIBLE_COUNT  = 5;
+const ROTATE_INTERVAL = 8000; // ms
+
 class RecentPanel {
-  #container = null;
-  #reduced   = false;
+  #container  = null;
+  #reduced    = false;
+  #pool       = [];   // full feed array
+  #nextIdx    = 0;    // index into pool for next rotation entry
+  #timer      = null;
+  #paused     = false;
 
   constructor(containerId) {
     this.#container = document.getElementById(containerId);
@@ -34,12 +44,14 @@ class RecentPanel {
     this.#reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const raw = window.__RECENT_FEED__;
-    const entries = (Array.isArray(raw) && raw.length > 0) ? raw : [];
-    this.#render(entries);
-  }
+    this.#pool = (Array.isArray(raw) && raw.length > 0) ? raw : [];
+    if (this.#pool.length === 0) return;
 
-  #render(entries) {
-    entries.forEach((entry, i) => {
+    // Render initial VISIBLE_COUNT entries
+    const initial = this.#pool.slice(0, VISIBLE_COUNT);
+    this.#nextIdx = initial.length % this.#pool.length;
+
+    initial.forEach((entry, i) => {
       const li = this.#makeEntry(entry);
       if (!this.#reduced) {
         li.classList.add('is-animating');
@@ -53,6 +65,48 @@ class RecentPanel {
       }
       this.#container.appendChild(li);
     });
+
+    // Start auto-rotate (skip if reduced-motion or pool too small)
+    if (!this.#reduced && this.#pool.length > VISIBLE_COUNT) {
+      this.#startRotate();
+      this.#bindHoverPause();
+    }
+  }
+
+  #startRotate() {
+    this.#timer = setInterval(() => {
+      if (!this.#paused) this.#rotate();
+    }, ROTATE_INTERVAL);
+  }
+
+  #rotate() {
+    const items = this.#container.querySelectorAll('.feed-entry');
+    if (items.length === 0) return;
+
+    // Fade out the last (oldest) item
+    const last = items[items.length - 1];
+    last.classList.add('is-fading');
+    last.addEventListener('animationend', () => last.remove(), { once: true });
+
+    // Prepend new item at top
+    const nextEntry = this.#pool[this.#nextIdx];
+    this.#nextIdx   = (this.#nextIdx + 1) % this.#pool.length;
+
+    const li = this.#makeEntry(nextEntry);
+    li.classList.add('is-new');
+    li.addEventListener('animationend', () => {
+      li.classList.remove('is-new');
+      li.classList.add('is-visible');
+    }, { once: true });
+
+    this.#container.insertBefore(li, this.#container.firstChild);
+  }
+
+  #bindHoverPause() {
+    const panel = this.#container.closest('.feed-panel--recent');
+    if (!panel) return;
+    panel.addEventListener('mouseenter', () => { this.#paused = true; });
+    panel.addEventListener('mouseleave', () => { this.#paused = false; });
   }
 
   #makeEntry(entry) {
@@ -107,11 +161,11 @@ class RecentPanel {
 // ─────────────────────────────────────────────────────────────
 
 const SIGIL_MAP = {
-  moment:  '✺',
+  moment:  '◇',
   food:    '✦',
   thought: '⊹',
-  object:  '⌖',
-  signal:  '◈',
+  object:  '⊹',
+  signal:  '◇',
 };
 
 const TYPE_RARITY_FALLBACK = {
@@ -122,7 +176,7 @@ const TYPE_RARITY_FALLBACK = {
   signal:  'legendary',
 };
 
-const CORNER_SIGILS = ['✦', '⊹', '⌖', '✺'];
+const CORNER_SIGILS = ['✦', '⊹', '✦', '⊹'];
 const TILT_MAX_DEG  = 12;
 
 class ArtifactPanel {
@@ -157,7 +211,7 @@ class ArtifactPanel {
   #renderCard(data) {
     const type   = data.type   || 'moment';
     const rarity = this.#resolveRarity(data);
-    const sigil  = SIGIL_MAP[type] || '✺';
+    const sigil  = SIGIL_MAP[type] || '◇';
     const num    = '#' + (data.number || '001');
     const title  = data.title    || '';
     const period = data.period   || '';
@@ -490,7 +544,7 @@ class ArtifactPanel {
   #buildDetailCard(data) {
     const type   = data.type || 'moment';
     const rarity = this.#resolveRarity(data);
-    const sigil  = SIGIL_MAP[type] || '✺';
+    const sigil  = SIGIL_MAP[type] || '◇';
     const title  = data.title    || '';
     const frag   = data.fragment || '';
     const period = data.period   || '';
@@ -507,7 +561,7 @@ class ArtifactPanel {
     const ornament = document.createElement('div');
     ornament.className = 'log-card__ornament';
     ornament.setAttribute('aria-hidden', 'true');
-    [{ cls: 'tl', s: '✦' }, { cls: 'tr', s: '⊹' }, { cls: 'bl', s: '⌖' }, { cls: 'br', s: '✺' }]
+    [{ cls: 'tl', s: '✦' }, { cls: 'tr', s: '⊹' }, { cls: 'bl', s: '✦' }, { cls: 'br', s: '⊹' }]
       .forEach(c => {
         const span = document.createElement('span');
         span.className = `log-card__corner log-card__corner--${c.cls}`;

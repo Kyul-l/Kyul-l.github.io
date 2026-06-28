@@ -87,6 +87,25 @@
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
   overflow: hidden;
+  position: relative;
+
+  // ── Particle/grid background layer (option α: CSS dot grid + slow drift)
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, rgba(144, 108, 190, .18) 1px, transparent 1px);
+    background-size: 16px 16px;
+    animation: feed-dot-drift 60s linear infinite;
+    opacity: .45;
+  }
+}
+
+@keyframes feed-dot-drift {
+  0%   { background-position: 0 0; }
+  100% { background-position: 0 320px; }
 }
 
 // Recent list
@@ -97,6 +116,8 @@
   overflow-y: auto;
   flex: 1;
   min-height: 0;
+  position: relative;
+  z-index: 1;
 
   scrollbar-width: thin;
   scrollbar-color: rgba(144, 108, 190, .20) transparent;
@@ -111,9 +132,26 @@
   gap: 2px;
   padding: 5px 14px 5px;
   opacity: 0;
+  transition: transform 200ms ease, color 200ms ease;
 
   &.is-visible {
     opacity: 1;
+  }
+
+  // Hover lift
+  &:hover {
+    transform: translateY(-2px);
+    .feed-entry__title { color: var(--accent); }
+  }
+
+  // Auto-rotate: new entry entering from top
+  &.is-new {
+    animation: feed-entry-rotate-in 400ms ease forwards;
+  }
+
+  // Auto-rotate: oldest entry fading out at bottom
+  &.is-fading {
+    animation: feed-entry-fade-out 400ms ease forwards;
   }
 
   a {
@@ -121,6 +159,16 @@
     color: inherit;
     &:hover .feed-entry__title { color: var(--accent); }
   }
+}
+
+@keyframes feed-entry-rotate-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes feed-entry-fade-out {
+  from { opacity: 1; }
+  to   { opacity: .3; }
 }
 
 .feed-entry__top {
@@ -176,22 +224,63 @@
   align-items: stretch;
   justify-content: center;
   position: relative;
-  // No outer chrome — the .log-card provides its own visual shell
 }
 
 // The log-card inside artifact-slot fills the slot via aspect-ratio constraint.
 // We limit max width so the card stays proportioned (5:8 ratio).
 .artifact-slot .log-card {
-  // Constrain width so card doesn't stretch too wide; height follows aspect-ratio.
   width: auto;
   max-width: 100%;
-  // Let the height drive sizing — slot height is the constraint.
-  // aspect-ratio: 5/8 is already set on .log-card; we bind the height to slot.
   height: 100%;
   aspect-ratio: 5 / 8;
-  // Center it if narrower than slot width
   margin: 0 auto;
   cursor: pointer;
+
+  // Outer purple ring: box-shadow outline 4px outside the card border.
+  // Uses box-shadow spread so it doesn't conflict with ::before/::after pseudo layers.
+  box-shadow:
+    var(--shadow),
+    0 0 0 1px rgba(144, 108, 190, .07),       // existing inner ring
+    0 0 0 3px rgba(144, 108, 190, .45),        // outer purple ring
+    0 0 18px 0 rgba(144, 108, 190, .12);       // soft bloom behind ring
+  animation: artifact-ring-breathe 3s ease-in-out infinite;
+}
+
+@keyframes artifact-ring-breathe {
+  0%, 100% {
+    box-shadow:
+      var(--shadow),
+      0 0 0 1px rgba(144, 108, 190, .07),
+      0 0 0 3px rgba(144, 108, 190, .40),
+      0 0 14px 0 rgba(144, 108, 190, .10);
+  }
+  50% {
+    box-shadow:
+      var(--shadow),
+      0 0 0 1px rgba(144, 108, 190, .10),
+      0 0 0 3px rgba(144, 108, 190, .60),
+      0 0 22px 0 rgba(144, 108, 190, .18);
+  }
+}
+
+// Chrome pulse dot — top-right of artifact slot
+.artifact-slot__chrome-dot {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--kp-purple);
+  z-index: 3;
+  pointer-events: none;
+  box-shadow: 0 0 6px rgba(144, 108, 190, .55);
+  animation: artifact-dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes artifact-dot-pulse {
+  0%, 100% { opacity: .6;  box-shadow: 0 0 6px rgba(144, 108, 190, .55); }
+  50%       { opacity: 1;  box-shadow: 0 0 10px rgba(144, 108, 190, .3); }
 }
 
 // Fallback empty state
@@ -239,6 +328,24 @@
     animation: none !important;
     opacity: 1;
   }
+
+  .feed-entry.is-new,
+  .feed-entry.is-fading {
+    animation: none !important;
+    opacity: 1;
+  }
+
+  .feed-panel--recent::before {
+    animation: none;
+  }
+
+  .artifact-slot .log-card {
+    animation: none;
+  }
+
+  .artifact-slot__chrome-dot {
+    animation: none;
+  }
 }
 
 // ── Mobile: stack right column below terminal ─────────────────
@@ -272,6 +379,7 @@
     height: auto;
     width: min(220px, 55vw);
     aspect-ratio: 5 / 8;
+    // Ring animation still active on mobile — only suppressed by reduced-motion
   }
 }
 

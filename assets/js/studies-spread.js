@@ -172,7 +172,7 @@
         // FROM breadcrumb
         html += '<p class="studies-preview__from">';
         html += '<span class="studies-preview__from-sigil" aria-hidden="true">FROM</span>';
-        html += ' <span class="studies-preview__from-series">⌖ ' + escHtml(fromLabel) + '</span>';
+        html += ' <span class="studies-preview__from-series">⊹ ' + escHtml(fromLabel) + '</span>';
         html += '</p>';
 
         // Episode title
