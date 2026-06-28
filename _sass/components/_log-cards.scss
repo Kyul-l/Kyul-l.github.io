@@ -265,190 +265,96 @@
 .log-card {
   position: relative;  // drawer cards are in-flow; detail uses absolute overlay
   width: 100%;
-  // Tarot 5:8 ratio — height derived from width
+  // Tarot 5:8 ratio — height derived from width (artifact-slot overrides to 5/4 landscape in _signal.scss)
   aspect-ratio: 5 / 8;
-  border-radius: 16px;
-  background: var(--kp-surface);
+  border-radius: var(--radius);
+  background: var(--panel);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow), 0 0 0 1px rgba(144, 108, 190, .07);
+  box-shadow: var(--shadow);
   overflow: hidden;
   cursor: grab;
-  // CSS custom properties for holo + tilt (set by JS pointermove)
+
+  // CSS custom properties for holo + tilt (kept as vars; JS may still set them, but tilt is commented in CSS)
   --cursor-x: 50%;
   --cursor-y: 50%;
   --cursor-rx: 0deg;
   --cursor-ry: 0deg;
   --holo-tx: 0;
   --holo-ty: 0;
-  // 3D tilt driven by JS via CSS custom properties
-  transform-style: preserve-3d;
-  transition:
-    transform 0.4s cubic-bezier(0.23, 1, 0.32, 1),
-    box-shadow .25s ease,
-    border-color .25s ease;
 
-  // Holo foil layer — driven by cursor position (common = opacity 0)
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    z-index: 4;
-    opacity: 0;
-    // Multi-stop prismatic gradient; position shifts with cursor
-    background:
-      linear-gradient(
-        calc(110deg + var(--cursor-ry) * 2),
-        rgba(231, 213, 249, 0)    0%,
-        rgba(144, 108, 190, .55)  20%,
-        rgba(231, 213, 249, .65)  35%,
-        rgba(144, 108, 190, .45)  50%,
-        rgba(234, 224, 200, .55)  65%,
-        rgba(144, 108, 190, .45)  80%,
-        rgba(231, 213, 249, 0)   100%
-      );
-    background-size: 200% 200%;
-    background-position: calc(50% + var(--holo-tx) * 1%) calc(50% + var(--holo-ty) * 1%);
-    mix-blend-mode: color-dodge;
-    transition: opacity .35s ease, background-position .1s linear;
-  }
+  // DYNAMIC: 3D tilt + transitions disabled for hush mode
+  // transform-style: preserve-3d;
+  // transition:
+  //   transform 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+  //   box-shadow .25s ease,
+  //   border-color .25s ease;
 
-  // Sparkle / shimmer dots layer
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    z-index: 5;
-    opacity: 0;
-    background:
-      radial-gradient(circle at calc(25% + var(--cursor-x) * .3) calc(30% + var(--cursor-y) * .3), rgba(231, 213, 249, .9) 0%, transparent 2%),
-      radial-gradient(circle at calc(75% - var(--cursor-x) * .2) calc(20% + var(--cursor-y) * .4), rgba(234, 224, 200, .8) 0%, transparent 1.5%),
-      radial-gradient(circle at calc(50% + var(--cursor-x) * .25) calc(70% - var(--cursor-y) * .2), rgba(144, 108, 190, .85) 0%, transparent 1.8%),
-      radial-gradient(circle at calc(20% + var(--cursor-x) * .15) calc(60% + var(--cursor-y) * .1), rgba(231, 213, 249, .7) 0%, transparent 1.2%),
-      radial-gradient(circle at calc(80% - var(--cursor-x) * .1) calc(80% - var(--cursor-y) * .15), rgba(234, 224, 200, .75) 0%, transparent 1.5%),
-      radial-gradient(circle at calc(40% + var(--cursor-x) * .2) calc(45% + var(--cursor-y) * .2), rgba(231, 213, 249, .6) 0%, transparent 1%);
-    background-size: 100% 100%;
-    mix-blend-mode: screen;
-    transition: opacity .35s ease;
-  }
+  /* DYNAMIC: holo foil layer (::before) disabled for hush mode */
+  // &::before {
+  //   content: '';
+  //   position: absolute;
+  //   inset: 0;
+  //   border-radius: inherit;
+  //   pointer-events: none;
+  //   z-index: 4;
+  //   opacity: 0;
+  //   background:
+  //     linear-gradient(
+  //       calc(110deg + var(--cursor-ry) * 2),
+  //       rgba(231, 213, 249, 0)    0%,
+  //       rgba(144, 108, 190, .55)  20%,
+  //       rgba(231, 213, 249, .65)  35%,
+  //       rgba(144, 108, 190, .45)  50%,
+  //       rgba(234, 224, 200, .55)  65%,
+  //       rgba(144, 108, 190, .45)  80%,
+  //       rgba(231, 213, 249, 0)   100%
+  //     );
+  //   background-size: 200% 200%;
+  //   background-position: calc(50% + var(--holo-tx) * 1%) calc(50% + var(--holo-ty) * 1%);
+  //   mix-blend-mode: color-dodge;
+  //   transition: opacity .35s ease, background-position .1s linear;
+  // }
 
-  // ── Rarity holo tiers ─────────────────────────────────────────
+  /* DYNAMIC: sparkle dots layer (::after) disabled for hush mode */
+  // &::after {
+  //   content: '';
+  //   position: absolute;
+  //   inset: 0;
+  //   border-radius: inherit;
+  //   pointer-events: none;
+  //   z-index: 5;
+  //   opacity: 0;
+  //   background:
+  //     radial-gradient(circle at calc(25% + var(--cursor-x) * .3) calc(30% + var(--cursor-y) * .3), rgba(231, 213, 249, .9) 0%, transparent 2%),
+  //     radial-gradient(circle at calc(75% - var(--cursor-x) * .2) calc(20% + var(--cursor-y) * .4), rgba(234, 224, 200, .8) 0%, transparent 1.5%),
+  //     radial-gradient(circle at calc(50% + var(--cursor-x) * .25) calc(70% - var(--cursor-y) * .2), rgba(144, 108, 190, .85) 0%, transparent 1.8%),
+  //     radial-gradient(circle at calc(20% + var(--cursor-x) * .15) calc(60% + var(--cursor-y) * .1), rgba(231, 213, 249, .7) 0%, transparent 1.2%),
+  //     radial-gradient(circle at calc(80% - var(--cursor-x) * .1) calc(80% - var(--cursor-y) * .15), rgba(234, 224, 200, .75) 0%, transparent 1.5%),
+  //     radial-gradient(circle at calc(40% + var(--cursor-x) * .2) calc(45% + var(--cursor-y) * .2), rgba(231, 213, 249, .6) 0%, transparent 1%);
+  //   background-size: 100% 100%;
+  //   mix-blend-mode: screen;
+  //   transition: opacity .35s ease;
+  // }
 
-  // common: no foil (default opacity 0)
+  /* DYNAMIC: rarity holo tiers — all disabled for hush mode */
+  // &.log-card--holo-uncommon { ... }
+  // &.log-card--holo-rare { ... }
+  // &.log-card--holo-legendary { ... }
 
-  // uncommon: warm shimmer — subtle
-  &.log-card--holo-uncommon {
-    &::before {
-      opacity: 0;
-      background:
-        linear-gradient(
-          calc(110deg + var(--cursor-ry) * 2),
-          rgba(234, 224, 200, 0)    0%,
-          rgba(234, 224, 200, .28)  30%,
-          rgba(144, 108, 190, .22)  55%,
-          rgba(234, 224, 200, .28)  75%,
-          rgba(234, 224, 200, 0)   100%
-        );
-      background-size: 200% 200%;
-      background-position: calc(50% + var(--holo-tx) * 1%) calc(50% + var(--holo-ty) * 1%);
-    }
-    &::after { opacity: 0; }
-    &:hover::before,
-    &.is-holo-active::before { opacity: .3; }
-    &:hover::after,
-    &.is-holo-active::after  { opacity: .25; }
-  }
-
-  // rare: full prismatic
-  &.log-card--holo-rare {
-    &::before { opacity: 0; }
-    &::after  { opacity: 0; }
-    &:hover::before,
-    &.is-holo-active::before { opacity: .6; }
-    &:hover::after,
-    &.is-holo-active::after  { opacity: .5; }
-  }
-
-  // legendary: cosmic — strong + animated hue drift
-  &.log-card--holo-legendary {
-    &::before {
-      opacity: 0;
-      background:
-        linear-gradient(
-          calc(110deg + var(--cursor-ry) * 3),
-          rgba(18, 19, 24, 0)       0%,
-          rgba(144, 108, 190, .75)  15%,
-          rgba(231, 213, 249, .85)  30%,
-          rgba(234, 224, 200, .70)  45%,
-          rgba(144, 108, 190, .65)  60%,
-          rgba(231, 213, 249, .75)  75%,
-          rgba(18, 19, 24, 0)      100%
-        );
-      background-size: 300% 300%;
-      background-position: calc(50% + var(--holo-tx) * 1%) calc(50% + var(--holo-ty) * 1%);
-    }
-    &::after { opacity: 0; }
-    &:hover::before,
-    &.is-holo-active::before {
-      opacity: .8;
-      animation: log-holo-drift 4s ease-in-out infinite;
-    }
-    &:hover::after,
-    &.is-holo-active::after {
-      opacity: .65;
-      animation: log-sparkle-drift 3s ease-in-out infinite;
-    }
-    // Extra border glow for legendary
-    &:hover,
-    &.is-holo-active {
-      box-shadow:
-        var(--shadow),
-        0 0 0 1px rgba(144, 108, 190, .4),
-        0 0 40px rgba(144, 108, 190, .22),
-        0 0 80px rgba(144, 108, 190, .08);
-    }
-  }
-
-  // Holographic shine overlay (legacy — kept for non-holo fallback glow)
+  // Holographic shine overlay — hidden in hush mode
   &__shine {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: linear-gradient(
-      105deg,
-      transparent 20%,
-      rgba(231, 213, 249, .18) 35%,
-      rgba(144, 108, 190, .22) 50%,
-      rgba(231, 213, 249, .18) 65%,
-      transparent 80%
-    );
-    background-size: 200% 100%;
-    mix-blend-mode: screen;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 2;
-    transition: opacity .3s ease;
-    animation: none;
+    display: none;
+    // DYNAMIC: was opacity:0 → 1 on hover with log-shine-pass animation
   }
 
-  // Only show legacy shine on common cards (no rarity class)
-  &:not([class*="log-card--holo-"]):hover &__shine,
-  &.log-card--holo-common:hover &__shine,
-  &.is-hovered &__shine {
-    opacity: 1;
-    animation: log-shine-pass .9s ease-in-out forwards;
-  }
-
-  &:hover {
-    border-color: rgba(144, 108, 190, .30);
-    box-shadow:
-      var(--shadow),
-      0 0 0 1px rgba(144, 108, 190, .15),
-      0 0 28px rgba(144, 108, 190, .12);
-  }
+  // DYNAMIC: hover border+shadow glow disabled
+  // &:hover {
+  //   border-color: rgba(144, 108, 190, .30);
+  //   box-shadow:
+  //     var(--shadow),
+  //     0 0 0 1px rgba(144, 108, 190, .15),
+  //     0 0 28px rgba(144, 108, 190, .12);
+  // }
 
   &:active {
     cursor: grabbing;
@@ -457,10 +363,7 @@
   // Dragging state
   &.is-dragging {
     cursor: grabbing;
-    box-shadow:
-      0 20px 60px rgba(0,0,0,.65),
-      0 0 0 1px rgba(144, 108, 190, .25),
-      0 0 36px rgba(144, 108, 190, .18);
+    box-shadow: var(--shadow);
     z-index: 10;
   }
 
@@ -515,11 +418,9 @@
   color: rgba(144, 108, 190, .45);
   line-height: 1;
   user-select: none;
-  transition: color .3s ease, opacity .3s ease;
-
-  .log-card:hover & {
-    color: rgba(231, 213, 249, .65);
-  }
+  // DYNAMIC: hover color transition disabled for hush mode
+  // transition: color .3s ease, opacity .3s ease;
+  // .log-card:hover & { color: rgba(231, 213, 249, .65); }
 
   &--tl { top: 10px;    left: 10px;    }
   &--tr { top: 10px;    right: 10px;   }
@@ -532,12 +433,10 @@
   position: relative;
   width: 100%;
   height: 100%;
-  transform-style: preserve-3d;
-  transition: transform .5s cubic-bezier(.4, 0, .2, 1);
-
-  .log-card.is-flipped & {
-    transform: rotateY(180deg);
-  }
+  // DYNAMIC: 3D flip transform disabled for hush mode — detail modal click still works (instant swap)
+  // transform-style: preserve-3d;
+  // transition: transform .5s cubic-bezier(.4, 0, .2, 1);
+  // .log-card.is-flipped & { transform: rotateY(180deg); }
 }
 
 .log-card__front,
@@ -629,7 +528,8 @@
 .log-card__sigil {
   font: 400 1.15rem/1 var(--sans);
   color: var(--kp-purple);
-  animation: log-sigil-pulse 3.2s ease-in-out infinite;
+  // DYNAMIC: log-sigil-pulse animation disabled for hush mode
+  // animation: log-sigil-pulse 3.2s ease-in-out infinite;
   display: block;
 }
 
@@ -789,14 +689,15 @@
 .log-card--mini {
   // Base card is already position:relative + width:100% + aspect-ratio:5/8
   cursor: pointer;
-  border-radius: 12px;
+  border-radius: var(--radius);
 
   .log-card__inner { position: relative; }
 
-  &:hover {
-    transform: translateY(-3px);
-    border-color: rgba(144, 108, 190, .32);
-  }
+  // DYNAMIC: hover lift disabled for hush mode
+  // &:hover {
+  //   transform: translateY(-3px);
+  //   border-color: rgba(144, 108, 190, .32);
+  // }
 
   // Fade-in stagger driven by _log-drawer.scss .log-drawer__body .log-card--mini
 }
@@ -811,16 +712,14 @@
 
     &__shine { display: none; }
     &__inner { transition: none !important; }
-    &.is-flipped .log-card__inner { transform: none; }
 
-    // Disable all holo animations + tilt
+    // Holo + tilt already disabled in hush mode; belt-and-suspenders
     &::before,
     &::after {
       animation: none !important;
       opacity: 0 !important;
     }
 
-    // Disable cursor-driven tilt (JS will check this media query too)
     transform: none !important;
   }
 

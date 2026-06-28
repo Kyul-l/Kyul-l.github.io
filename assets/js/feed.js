@@ -47,66 +47,41 @@ class RecentPanel {
     this.#pool = (Array.isArray(raw) && raw.length > 0) ? raw : [];
     if (this.#pool.length === 0) return;
 
-    // Render initial VISIBLE_COUNT entries
+    // Render initial VISIBLE_COUNT entries — instant, no stagger
+    // /* DYNAMIC: stagger fade-in disabled for hush mode */
     const initial = this.#pool.slice(0, VISIBLE_COUNT);
     this.#nextIdx = initial.length % this.#pool.length;
 
-    initial.forEach((entry, i) => {
+    initial.forEach((entry) => {
       const li = this.#makeEntry(entry);
-      if (!this.#reduced) {
-        li.classList.add('is-animating');
-        li.style.animationDelay = `${i * 55}ms`;
-        li.addEventListener('animationend', () => {
-          li.classList.remove('is-animating');
-          li.classList.add('is-visible');
-        }, { once: true });
-      } else {
-        li.classList.add('is-visible');
-      }
+      li.classList.add('is-visible'); // instant — no animation delay
       this.#container.appendChild(li);
     });
 
-    // Start auto-rotate (skip if reduced-motion or pool too small)
-    if (!this.#reduced && this.#pool.length > VISIBLE_COUNT) {
-      this.#startRotate();
-      this.#bindHoverPause();
-    }
+    // /* DYNAMIC: auto-rotate + hover-pause disabled for hush mode */
+    // if (!this.#reduced && this.#pool.length > VISIBLE_COUNT) {
+    //   this.#startRotate();
+    //   this.#bindHoverPause();
+    // }
   }
 
+  /* DYNAMIC: #startRotate disabled for hush mode */
   #startRotate() {
-    this.#timer = setInterval(() => {
-      if (!this.#paused) this.#rotate();
-    }, ROTATE_INTERVAL);
+    // return early — auto-rotate off
+    return;
+    // this.#timer = setInterval(() => {
+    //   if (!this.#paused) this.#rotate();
+    // }, ROTATE_INTERVAL);
   }
 
+  /* DYNAMIC: #rotate disabled for hush mode */
   #rotate() {
-    const items = this.#container.querySelectorAll('.feed-entry');
-    if (items.length === 0) return;
-
-    // Fade out the last (oldest) item
-    const last = items[items.length - 1];
-    last.classList.add('is-fading');
-    last.addEventListener('animationend', () => last.remove(), { once: true });
-
-    // Prepend new item at top
-    const nextEntry = this.#pool[this.#nextIdx];
-    this.#nextIdx   = (this.#nextIdx + 1) % this.#pool.length;
-
-    const li = this.#makeEntry(nextEntry);
-    li.classList.add('is-new');
-    li.addEventListener('animationend', () => {
-      li.classList.remove('is-new');
-      li.classList.add('is-visible');
-    }, { once: true });
-
-    this.#container.insertBefore(li, this.#container.firstChild);
+    return; // no-op
   }
 
+  /* DYNAMIC: #bindHoverPause disabled for hush mode */
   #bindHoverPause() {
-    const panel = this.#container.closest('.feed-panel--recent');
-    if (!panel) return;
-    panel.addEventListener('mouseenter', () => { this.#paused = true; });
-    panel.addEventListener('mouseleave', () => { this.#paused = false; });
+    return; // no-op
   }
 
   #makeEntry(entry) {
@@ -373,11 +348,10 @@ class ArtifactPanel {
 
     this.#slot.appendChild(card);
 
-    // Bind holo + tilt (same algorithm as log-deck.js bindCardHolo)
-    this.#bindHolo(card);
+    // /* DYNAMIC: holo + tilt disabled for hush mode */
+    // this.#bindHolo(card);
 
-    // Bind click → detail view modal (log-deck.js openDetail is IIFE-scoped,
-    // so we dispatch a custom event that a shim below forwards to openDetail).
+    // Click → detail view modal: KEPT — this is navigation, not eye-candy
     this.#bindClick(card, data);
 
     // Keyboard
@@ -499,7 +473,8 @@ class ArtifactPanel {
       overlayEl.classList.add('is-visible');
     });
 
-    this.#bindDetailHolo(detailCard);
+    // /* DYNAMIC: detail holo/tilt disabled for hush mode */
+    // this.#bindDetailHolo(detailCard);
 
     detailCard.addEventListener('click', (e) => {
       if (e.target.classList.contains('log-detail-card__back-link')) return;

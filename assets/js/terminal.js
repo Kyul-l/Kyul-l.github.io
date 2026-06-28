@@ -60,32 +60,32 @@ class Terminal {
       { text: 'type /help to enter.', classes: ['line-system'] },
       { text: ' ', classes: [] },
     ];
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    if (prefersReducedMotion) {
-      welcomeLines.forEach(line => this.printLine(line.text, false, line.classes));
-      return;
-    }
-
-    for (const line of welcomeLines) {
-      await this.typeLine(line.text, 50, line.classes);
-    }
+    // /* DYNAMIC: typing animation disabled for hush mode — instant render */
+    // Render all lines at once regardless of reduced-motion setting
+    welcomeLines.forEach(line => this.printLine(line.text, false, line.classes));
   }
 
+  /* DYNAMIC: typeLine disabled for hush mode — kept for reference/restore */
+  // typeLine(line, speed, classes = []) {
+  //   return new Promise(resolve => {
+  //     let i = 0;
+  //     const outputLine = this.createNewLine(classes);
+  //     const interval = setInterval(() => {
+  //       if (i < line.length) {
+  //         outputLine.textContent += line.charAt(i);
+  //         i++;
+  //       } else {
+  //         clearInterval(interval);
+  //         resolve();
+  //       }
+  //     }, speed);
+  //   });
+  // }
   typeLine(line, speed, classes = []) {
-    return new Promise(resolve => {
-      let i = 0;
-      const outputLine = this.createNewLine(classes);
-      const interval = setInterval(() => {
-        if (i < line.length) {
-          outputLine.textContent += line.charAt(i);
-          i++;
-        } else {
-          clearInterval(interval);
-          resolve();
-        }
-      }, speed);
-    });
+    // no-op fallback in case any call remains — instant render
+    this.printLine(line, false, classes);
+    return Promise.resolve();
   }
 
   handleAutocomplete(e) {
