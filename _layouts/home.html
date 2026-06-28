@@ -71,7 +71,7 @@ layout: default
     {% assign sorted_docs = all_docs | sort: 'date' | reverse %}
     {% for doc in sorted_docs limit:15 %}
     {
-      "sigil": {% if doc.collection == 'wiki' %}"✦"{% elsif doc.collection == 'studies' %}"⊹"{% else %}"◇"{% endif %},
+      "sigil": {% if doc.collection == 'wiki' %}"✦"{% elsif doc.collection == 'studies' %}"⊹"{% else %}"⊹"{% endif %},
       "title": {{ doc.title | jsonify }},
       "section": {% if doc.collection == 'wiki' %}"wiki"{% elsif doc.collection == 'studies' %}"studies"{% else %}"log"{% endif %},
       "time": {{ doc.date | date: '%H:%M' | jsonify }},

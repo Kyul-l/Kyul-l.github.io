@@ -752,7 +752,7 @@ class ArtifactPanel {
   #renderEmpty() {
     const msg = document.createElement('div');
     msg.className   = 'artifact-slot__empty';
-    msg.textContent = '~ no artifacts yet ~';
+    msg.textContent = '· artifact pending ·';
     this.#slot.appendChild(msg);
   }
 }

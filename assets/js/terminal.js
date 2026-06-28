@@ -54,10 +54,10 @@ class Terminal {
       { text: '·  ✦  ·', classes: ['line-art'] },
       { text: ' ', classes: [] },
       { text: 'Kyul\'s Archive', classes: ['line-welcome'] },
-      { text: 'welcome to kyul archive', classes: ['line-system'] },
+      { text: '[init] archive node established', classes: ['line-system'] },
       { text: ' ', classes: [] },
-      { text: 'Notes examined. Research recorded. Thoughts preserved.', classes: ['line-system'] },
-      { text: 'Type /help to see available commands.', classes: ['line-system'] },
+      { text: 'signal acquired · wiki · studies · log indexed.', classes: ['line-system'] },
+      { text: 'type /help to enter.', classes: ['line-system'] },
       { text: ' ', classes: [] },
     ];
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

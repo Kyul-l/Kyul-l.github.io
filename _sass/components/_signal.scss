@@ -219,7 +219,7 @@
 // ── Artifact slot (bottom ~40% of right column) ───────────────
 .artifact-slot {
   flex: 1;
-  min-height: 0;
+  min-height: 260px;
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -243,7 +243,7 @@
     0 0 0 1px rgba(144, 108, 190, .07),       // existing inner ring
     0 0 0 3px rgba(144, 108, 190, .45),        // outer purple ring
     0 0 18px 0 rgba(144, 108, 190, .12);       // soft bloom behind ring
-  animation: artifact-ring-breathe 3s ease-in-out infinite;
+  animation: artifact-ring-breathe 6s ease-in-out infinite;
 }
 
 @keyframes artifact-ring-breathe {
