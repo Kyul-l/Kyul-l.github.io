@@ -44,6 +44,10 @@ section: wiki
               {% if first == L %}
                 <li class="wiki-dict__entry">
                   <a class="wiki-dict__link" href="{{ entry.url | relative_url }}">
+                    <span class="wiki-dict__spark wiki-dict__spark--tl" aria-hidden="true">✦</span>
+                    <span class="wiki-dict__spark wiki-dict__spark--tr" aria-hidden="true">✦</span>
+                    <span class="wiki-dict__spark wiki-dict__spark--bl" aria-hidden="true">✦</span>
+                    <span class="wiki-dict__spark wiki-dict__spark--br" aria-hidden="true">✦</span>
                     <span class="wiki-dict__title">{{ entry.title }}</span>
                     {% if entry.category %}
                       <span class="wiki-dict__cat">{{ entry.category }}</span>
