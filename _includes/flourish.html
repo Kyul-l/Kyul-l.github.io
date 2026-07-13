@@ -1,0 +1,47 @@
+{%- comment -%}
+  Flourish — hairline SVG ornament. Variants: short | long | sweep | corner | trail.
+  Usage: {% include flourish.html variant='short' %}
+{%- endcomment -%}
+
+{%- assign variant = include.variant | default: 'short' -%}
+
+{%- case variant -%}
+{%- when 'short' -%}
+<svg class="flourish flourish--short" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 26" role="presentation" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+  <path data-flourish-line d="M 12 16 C 70 4, 130 24, 208 12" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity="0.7"/>
+  <path data-flourish-sparkle d="M 58 12 l 2 5 l 5 2 l -5 2 l -2 5 l -2 -5 l -5 -2 l 5 -2 z" fill="currentColor" opacity="0.9"/>
+  <path data-flourish-sparkle d="M 152 18 l 1.3 3.5 l 3.5 1.3 l -3.5 1.3 l -1.3 3.5 l -1.3 -3.5 l -3.5 -1.3 l 3.5 -1.3 z" fill="currentColor" opacity="0.65"/>
+</svg>
+
+{%- when 'long' -%}
+<svg class="flourish flourish--long" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 40" role="presentation" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+  <path data-flourish-line d="M 20 24 C 130 6, 260 38, 380 20 C 470 6, 540 32, 580 22" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity="0.72"/>
+  <path data-flourish-sparkle d="M 100 15 l 2.6 6 l 6 2.6 l -6 2.6 l -2.6 6 l -2.6 -6 l -6 -2.6 l 6 -2.6 z" fill="currentColor" opacity="0.95"/>
+  <path data-flourish-sparkle d="M 320 30 l 1.4 4 l 4 1.4 l -4 1.4 l -1.4 4 l -1.4 -4 l -4 -1.4 l 4 -1.4 z" fill="currentColor" opacity="0.7"/>
+  <path data-flourish-sparkle d="M 510 16 l 1 3 l 3 1 l -3 1 l -1 3 l -1 -3 l -3 -1 l 3 -1 z" fill="currentColor" opacity="0.55"/>
+  <circle data-flourish-dot cx="90" cy="9" r="1" fill="currentColor" opacity="0.5"/>
+</svg>
+
+{%- when 'sweep' -%}
+<svg class="flourish flourish--sweep" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 140" role="presentation" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+  <path data-flourish-line d="M 30 100 C 200 20, 420 140, 590 50 C 690 -10, 750 70, 780 80" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity="0.7"/>
+  <path data-flourish-sparkle d="M 40 96 l 3 7.5 l 7.5 3 l -7.5 3 l -3 7.5 l -3 -7.5 l -7.5 -3 l 7.5 -3 z" fill="currentColor" opacity="0.95"/>
+  <path data-flourish-sparkle d="M 430 66 l 2 5 l 5 2 l -5 2 l -2 5 l -2 -5 l -5 -2 l 5 -2 z" fill="currentColor" opacity="0.75"/>
+  <path data-flourish-sparkle d="M 776 82 l 1.4 3.6 l 3.6 1.4 l -3.6 1.4 l -1.4 3.6 l -1.4 -3.6 l -3.6 -1.4 l 3.6 -1.4 z" fill="currentColor" opacity="0.6"/>
+  <circle data-flourish-dot cx="24" cy="112" r="1.4" fill="currentColor" opacity="0.55"/>
+</svg>
+
+{%- when 'corner' -%}
+<svg class="flourish flourish--corner" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" role="presentation" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+  <path data-flourish-line d="M 8 6 C 30 6, 52 20, 60 44 C 63 54, 66 62, 66 68" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity="0.7"/>
+  <path data-flourish-sparkle d="M 8 6 l 1.8 4.5 l 4.5 1.8 l -4.5 1.8 l -1.8 4.5 l -1.8 -4.5 l -4.5 -1.8 l 4.5 -1.8 z" fill="currentColor" opacity="0.9"/>
+  <path data-flourish-sparkle d="M 66 68 l 1.2 3 l 3 1.2 l -3 1.2 l -1.2 3 l -1.2 -3 l -3 -1.2 l 3 -1.2 z" fill="currentColor" opacity="0.65"/>
+</svg>
+
+{%- when 'trail' -%}
+<svg class="flourish flourish--trail" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 30" role="presentation" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+  <path data-flourish-line d="M 10 15 C 80 10, 160 22, 240 14 C 300 8, 350 18, 388 14" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity="0.6"/>
+  <path data-flourish-sparkle d="M 10 15 l 2 5 l 5 2 l -5 2 l -2 5 l -2 -5 l -5 -2 l 5 -2 z" fill="currentColor" opacity="0.85"/>
+  <circle data-flourish-dot cx="392" cy="14" r="1.2" fill="currentColor" opacity="0.5"/>
+</svg>
+{%- endcase -%}

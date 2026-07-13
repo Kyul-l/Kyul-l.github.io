@@ -1,0 +1,32 @@
+{% assign max_related = 5 %}
+{% assign min_common_tags = 1 %}
+{% assign related_posts = '' | split: '' %}
+
+{% for post in site.posts %}
+  {% assign common_tags = 0 %}
+  {% for tag in post.tags %}
+    {% if page.tags contains tag %}
+      {% assign common_tags = common_tags | plus: 1 %}
+    {% endif %}
+  {% endfor %}
+
+  {% if common_tags >= min_common_tags %}
+    {% unless post.url == page.url %}
+      {% assign related_posts = related_posts | push: post %}
+    {% endunless %}
+  {% endif %}
+{% endfor %}
+
+{% if related_posts.size > 0 %}
+<div class="related-posts">
+  <h3>Related Posts</h3>
+  <ul>
+    {% for post in related_posts limit: max_related %}
+      <li>
+        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        <span class="post-meta">- {{ post.date | date: "%B %-d, %Y" }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
