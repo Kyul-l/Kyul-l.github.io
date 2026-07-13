@@ -1,0 +1,27 @@
+---
+# This front matter tells Jekyll to process the file
+---
+
+// Kyul's Log — main stylesheet
+// Imports grouped by concern; order matters (variables first).
+
+// ── Base: variables, resets, accessibility ────────────────────
+@import "base/variables";
+@import "base/base";
+@import "base/accessibility";
+
+// ── Layout: page structure (header, footer, nav, dividers) ────
+@import "layout/structure";
+
+// ── Components ────────────────────────────────────────────────
+@import "components/terminal";   // home: macOS-style terminal
+@import "components/signal";     // home: feed panels + panel chrome
+@import "components/panel";      // generic surface card
+@import "components/post";       // post list cards + single post body
+@import "components/page";       // misc page elements + 404
+@import "components/graph";      // /map knowledge graph overlay
+@import "components/modal";      // /map modal wrapper
+@import "components/wiki";       // /wiki Cloud Focus + Live Signals
+@import "components/studies";   // /studies Codex Spread + Dynamic 강
+@import "components/log-board";   // /log Pin Board — size = meaning, season nav
+@import "components/flourish";    // decorative hairline curve system (design vocabulary)

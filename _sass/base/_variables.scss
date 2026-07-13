@@ -1,0 +1,182 @@
+// ─────────────────────────────────────────────────────────────
+// Kyul · Esoteric Dark Academia (Purple) — light/dark theming
+// SSOT for all colors. Toggle via <html data-theme="light|dark">.
+// ─────────────────────────────────────────────────────────────
+
+:root {
+  // Brand palette (theme-neutral hex anchors)
+  --kp-void:      #121318;
+  --kp-deep:      #14111c;   // deepest card floor (log lightbox base)
+  --kp-card:      #1a1723;   // card / photo well surface (log board)
+  --kp-surface:   #232633;
+  --kp-well:      #17141d;   // wiki dictionary well
+  --kp-twilight:  #37437B;
+  --kp-muted:     #4D5488;
+  --kp-purple:    #906CBE;
+  --kp-purple-d:  #6B4F95;   // darker purple for light bg contrast
+  --kp-lilac:     #C8A8E9;   // Wiki nav + /map Wiki node
+  --kp-lavender:  #E7D5F9;
+  --kp-parchment: #EAE0C8;
+  --kp-cream:     #f8f4ec;
+  --kp-marble:    #fdfbf6;
+  --kp-ink:       #1f1c2c;
+
+  // Category accents (Log — tint tokens per entry type)
+  --kp-tint-moment:  #b9a3d6;
+  --kp-tint-food:    #d6b3a0;
+  --kp-tint-thought: #a0b3d0;
+  --kp-tint-object:  #c4b098;
+  --kp-tint-signal:  #9cc0ba;
+
+  // Typography & geometry (theme-invariant)
+  --mono: 'Share Tech Mono', 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --serif: 'Lora', Georgia, 'Times New Roman', serif;
+  --sans: 'Open Sans', 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --fs: 15px;
+  --lh: 1.55;
+  --radius: 12px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 100px;
+  --space: 1.5rem;
+
+  // Reading scale (blog body)
+  --read-fs: 17px;
+  --read-lh: 1.75;
+  --read-width: 720px;
+
+  // Spacing scale (legacy aliases)
+  --s1: 0.25rem;
+  --s2: 0.5rem;
+  --s3: 0.75rem;
+  --s4: 1rem;
+  --s5: 1.5rem;
+  --s6: 2rem;
+  --f-sm: 0.9rem;
+}
+
+// Legacy variable aliases — bind to current theme vars
+:root,
+[data-theme="dark"],
+[data-theme="light"] {
+  --fg:            var(--fg-main);
+  --muted:         var(--fg-muted);
+  --accent-1:      var(--accent);
+  --accent-2:      var(--accent-soft);
+  --accent-blue-2: var(--link);
+  --panel-strong:  var(--surface-elevated);
+}
+
+// ── Dark theme (default — main page tone) ────────────────────
+:root,
+[data-theme="dark"] {
+  --bg:       var(--kp-void);
+  --bg-1:     var(--kp-void);
+  --bg-2:     #1a1b24;
+  --panel:    var(--kp-surface);
+  --surface-elevated: #2d3142;
+
+  --fg-main:    var(--kp-parchment);
+  --fg-muted:   #9ea2b8;
+  --fg-dim:     var(--kp-muted);
+  --fg-welcome: var(--kp-lavender);
+  --fg-command: var(--kp-purple);
+  --fg-system:  var(--kp-purple);
+  --fg-help:    var(--kp-muted);
+
+  --accent:        var(--kp-purple);
+  --accent-soft:   var(--kp-lavender);
+  --accent-deep:   var(--kp-twilight);
+  --accent-violet: var(--kp-purple);
+  --accent-blue:   var(--kp-twilight);
+  --accent-cyan:   var(--kp-purple);
+  --neon-cyan:     var(--kp-purple);
+  --neon-magenta:  var(--kp-lavender);
+  --neon-yellow:   var(--kp-parchment);
+
+  --border:       rgba(231, 213, 249, .10);
+  --border-soft:  rgba(231, 213, 249, .06);
+  --glass-border: rgba(231, 213, 249, .08);
+  --panel-accent: rgba(144, 108, 190, .08);
+
+  --glow-weak:   0 0 10px rgba(144, 108, 190, .25);
+  --glow-strong: 0 0 24px rgba(144, 108, 190, .45), 0 0 48px rgba(144, 108, 190, .18);
+  --glow-blue-weak:   0 0 10px rgba(144, 108, 190, .22);
+  --glow-violet-weak: 0 0 12px rgba(144, 108, 190, .18);
+  --text-shadow: 0 0 8px rgba(144, 108, 190, .35), 0 0 24px rgba(231, 213, 249, .18);
+  --shadow: 0 12px 28px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(231, 213, 249, .04);
+
+  --code-bg:      rgba(35, 38, 51, .85);
+  --code-border:  rgba(231, 213, 249, .10);
+  --code-fg:      var(--kp-parchment);
+  --link:         var(--kp-lavender);
+  --link-hover:   var(--kp-purple);
+  --selection-bg: rgba(144, 108, 190, .35);
+  --selection-fg: var(--kp-parchment);
+
+  --card:        var(--kp-card);
+  --card-deep:   var(--kp-deep);
+  --well:        var(--kp-well);
+  --overlay:     rgba(20, 17, 28, .7);
+
+  --grid-line: rgba(231, 213, 249, .04);
+  --noise-opacity: 0.05;
+  color-scheme: dark;
+}
+
+// ── Light theme (readable for blog body) ─────────────────────
+[data-theme="light"] {
+  --bg:       var(--kp-cream);
+  --bg-1:     var(--kp-cream);
+  --bg-2:     var(--kp-marble);
+  --panel:    var(--kp-marble);
+  --surface-elevated: #fff;
+
+  --fg-main:    var(--kp-ink);
+  --fg-muted:   #5d5670;
+  --fg-dim:     #8a839a;
+  --fg-welcome: var(--kp-purple-d);
+  --fg-command: var(--kp-purple-d);
+  --fg-system:  var(--kp-purple-d);
+  --fg-help:    #5d5670;
+
+  --accent:        var(--kp-purple-d);
+  --accent-soft:   var(--kp-purple);
+  --accent-deep:   var(--kp-twilight);
+  --accent-violet: var(--kp-purple-d);
+  --accent-blue:   var(--kp-twilight);
+  --accent-cyan:   var(--kp-purple-d);
+  --neon-cyan:     var(--kp-purple-d);
+  --neon-magenta:  var(--kp-purple);
+  --neon-yellow:   #b89400;
+
+  --border:       rgba(31, 28, 44, .14);
+  --border-soft:  rgba(31, 28, 44, .08);
+  --glass-border: rgba(31, 28, 44, .10);
+  --panel-accent: rgba(107, 79, 149, .06);
+
+  --glow-weak:   0 0 6px rgba(107, 79, 149, .15);
+  --glow-strong: 0 0 16px rgba(107, 79, 149, .25);
+  --glow-blue-weak:   0 0 6px rgba(107, 79, 149, .15);
+  --glow-violet-weak: 0 0 8px rgba(107, 79, 149, .15);
+  --text-shadow: none;
+  --shadow: 0 8px 24px rgba(31, 28, 44, .10), inset 0 1px 0 rgba(255, 255, 255, .6);
+
+  --code-bg:      #f0eadf;
+  --code-border:  rgba(31, 28, 44, .12);
+  --code-fg:      var(--kp-ink);
+  --link:         var(--kp-purple-d);
+  --link-hover:   var(--kp-twilight);
+  --selection-bg: rgba(107, 79, 149, .22);
+  --selection-fg: var(--kp-ink);
+
+  --card:        var(--kp-marble);
+  --card-deep:   var(--kp-cream);
+  --well:        #f0eadf;
+  --overlay:     rgba(31, 28, 44, .35);
+
+  --grid-line: rgba(31, 28, 44, .05);
+  --noise-opacity: 0.025;
+  color-scheme: light;
+}

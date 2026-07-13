@@ -1,0 +1,39 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: var(--sans);
+  background: var(--bg-1);
+  color: var(--fg-main);
+  transition: background-color .35s ease, color .35s ease;
+}
+
+body {
+  font-size: var(--fs);
+  line-height: var(--lh);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  position: relative;
+}
+
+::selection {
+  background: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+/* Background grid + noise overlays removed for a cleaner canvas */
+
+.post-content h1::after {
+  content: "";
+  display: block;
+  height: 1px;
+  margin-top: 6px;
+  background: linear-gradient(to right, rgba(144, 108, 190, .35), transparent);
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+  transition: color .2s ease;
+
+  &:hover { color: var(--link-hover); }
+}
