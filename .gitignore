@@ -10,6 +10,7 @@ _site/
 
 # macOS files
 .DS_Store
+Icon?
 
 # OMC (oh-my-claudecode) state
 .omc/
