@@ -182,21 +182,6 @@
     gap: .5rem;
 }
 
-// Affordance hint next to "Excerpt" — hidden after user's first interaction
-.studies-spread__hint {
-    font: 400 italic .68rem/1 var(--mono);
-    color: var(--fg-dim);
-    letter-spacing: .02em;
-    text-transform: none;
-    opacity: .7;
-    transition: opacity .3s ease;
-}
-
-.studies-spread__right.has-interacted .studies-spread__hint {
-    opacity: 0;
-    pointer-events: none;
-}
-
 .studies-spread__rule {
     height: 1px;
     background: var(--border);

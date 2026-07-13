@@ -15,6 +15,7 @@ section: studies
   </header>
 
   <div class="studies-spread" role="main" aria-label="Studies index">
+    {% include panel-ornament.html preset='recent' %}
 
     <!-- ── LEFT: Contents ──────────────────────────────────── -->
     <div class="studies-spread__left">
@@ -105,7 +106,7 @@ section: studies
 
     <!-- ── RIGHT: Latest entry preview ───────────────────────── -->
     <div class="studies-spread__right">
-      <p class="studies-spread__heading">Excerpt <span class="studies-spread__hint" aria-hidden="true">← hover a title</span></p>
+      <p class="studies-spread__heading">Excerpt</p>
       <hr class="studies-spread__rule" aria-hidden="true">
 
       <!-- Preview slot — populated/replaced by JS.
