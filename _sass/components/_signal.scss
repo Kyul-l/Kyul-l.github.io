@@ -156,9 +156,9 @@
   gap: 16px;
 }
 
-// ── Recent panel (top ~60% of right column) ───────────────────
+// ── Recent panel (upper block of right column) ────────────────
 .feed-panel--recent {
-  flex: 1 1 auto;
+  flex: 1 1 60%;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -170,7 +170,132 @@
   box-shadow: var(--shadow);
   overflow: hidden;
   position: relative;
+}
 
+// ── Fragment panel (lower block — one random piece from the archive)
+.feed-panel--fragment {
+  flex: 0 1 auto;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color .25s ease, box-shadow .25s ease;
+
+  &:hover {
+    border-color: rgba(185, 163, 214, .35);
+    box-shadow: var(--shadow), var(--glow-weak);
+
+    .fragment-title { color: var(--accent); }
+  }
+}
+
+.fragment-body {
+  padding: 2.5rem 1.75rem 1.5rem;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .55rem;
+}
+
+.fragment-kind {
+  margin: 0;
+  font: 500 .62rem/1 var(--mono);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: .5em;
+}
+
+.fragment-kind__glyph {
+  color: var(--accent-soft);
+  font-family: var(--serif);
+  font-size: .95rem;
+  line-height: 1;
+}
+
+.fragment-title {
+  margin: 0;
+  font: 600 1.05rem/1.3 var(--serif);
+  color: var(--fg-main);
+  letter-spacing: -.005em;
+  transition: color .25s ease;
+}
+
+.fragment-excerpt {
+  margin: 0;
+  font: 400 italic .82rem/1.55 var(--serif);
+  color: var(--fg-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Optional image — placed above the body when the entry has a photo
+.fragment-media {
+  margin: 0;
+  aspect-ratio: 5 / 3;
+  overflow: hidden;
+  background: var(--card);
+  border-bottom: 1px solid var(--border-soft);
+  position: relative;
+  z-index: 1;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: saturate(.9);
+    transition: transform .6s cubic-bezier(.2, .6, .2, 1), filter .3s ease;
+  }
+}
+
+.feed-panel--fragment:hover .fragment-media img {
+  transform: scale(1.02);
+  filter: saturate(1);
+}
+
+// Foot row — date on the left, quiet Open Entry affordance on the right
+.fragment-foot {
+  margin: .35rem 0 0;
+  padding-top: .55rem;
+  border-top: 1px dashed var(--border-soft);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .5rem;
+  font: 500 .62rem/1 var(--mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.fragment-date {
+  color: var(--fg-dim);
+}
+
+.fragment-more {
+  color: var(--fg-muted);
+  transition: color .25s ease, letter-spacing .25s ease;
+}
+
+.feed-panel--fragment:hover .fragment-more {
+  color: var(--accent);
+  letter-spacing: .18em;
+}
+
+.feed-panel--recent {
   // ── Particle/grid background layer (static — no drift animation)
   /* DYNAMIC: recent bg-drift disabled for hush mode */
   // &::before {

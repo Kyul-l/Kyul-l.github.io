@@ -31,7 +31,7 @@ layout: default
     </div><!-- /.mac-terminal-wrapper -->
   </div><!-- /.home-col--terminal -->
 
-  <!-- ── RIGHT 30%: recent + artifact ────────────────────── -->
+  <!-- ── RIGHT 30%: recent + fragment ───────────────────── -->
   <div class="home-col--right">
 
     <!-- TOP: recent panel -->
@@ -40,6 +40,24 @@ layout: default
       <div class="panel-label" aria-hidden="true"><span class="panel-label__sigil">✦</span>RECENT</div>
       <ul id="recent-body" class="feed-recent-list" aria-label="Recent entries"></ul>
     </div>
+
+    <!-- BOTTOM: fragment — one piece surfaced from the archive, stable per day -->
+    <a class="feed-panel--fragment" id="fragment-card" href="#" aria-label="Fragment from the archive">
+      {% include panel-ornament.html preset='recent' %}
+      <div class="panel-label" aria-hidden="true"><span class="panel-label__sigil">✦</span>FRAGMENT</div>
+      <figure class="fragment-media" hidden>
+        <img alt="" loading="lazy">
+      </figure>
+      <div class="fragment-body">
+        <p class="fragment-kind"><span class="fragment-kind__glyph" aria-hidden="true">·</span><span class="fragment-kind__label">…</span></p>
+        <h3 class="fragment-title">—</h3>
+        <p class="fragment-excerpt"></p>
+        <p class="fragment-foot">
+          <span class="fragment-date"></span>
+          <span class="fragment-more">Open Entry <span aria-hidden="true">→</span></span>
+        </p>
+      </div>
+    </a>
 
   </div><!-- /.home-col--right -->
 
@@ -60,22 +78,55 @@ layout: default
     log:     {{ site.posts.size }}
   };
 
+  {%- assign all_docs = site.wiki | concat: site.studies | concat: site.posts -%}
+  {%- assign sorted_docs = all_docs | sort: 'date' | reverse -%}
+
   window.__RECENT_FEED__ = [
-    {% assign all_docs = site.wiki | concat: site.studies | concat: site.posts %}
-    {% assign sorted_docs = all_docs | sort: 'date' | reverse %}
-    {% for doc in sorted_docs limit:15 %}
-    {% if doc.collection == 'wiki' %}{% assign _sigil = '◇' %}{% assign _section = 'wiki' %}{% elsif doc.collection == 'studies' %}{% assign _sigil = '✦' %}{% assign _section = 'studies' %}{% else %}{% assign _sigil = '·' %}{% assign _section = 'log' %}{% endif %}
+    {%- for doc in sorted_docs limit:15 -%}
+    {%- if doc.collection == 'wiki' -%}{%- assign _section = 'wiki' -%}
+    {%- elsif doc.collection == 'studies' -%}{%- assign _section = 'studies' -%}
+    {%- else -%}{%- assign _section = 'log' -%}{%- endif -%}
     {
-      "sigil": {{ _sigil | jsonify }},
+      "sigil": "◇",
       "title": {{ doc.title | jsonify }},
       "section": {{ _section | jsonify }},
       "time": {{ doc.date | date: '%H:%M' | jsonify }},
       "url": {{ doc.url | relative_url | jsonify }}
     }{% unless forloop.last %},{% endunless %}
-    {% endfor %}
+    {%- endfor -%}
+  ];
+
+  {%- comment -%}
+    Fragment pool — Log-only. One piece surfaced per calendar day.
+    Selection order (in fragment.js): today's entry → current season → any.
+    Season mapping: Dec/Jan/Feb=winter · Mar–May=spring · Jun–Aug=summer · Sep–Nov=autumn.
+  {%- endcomment -%}
+  {%- assign log_posts = site.posts | sort: 'date' | reverse -%}
+  window.__FRAGMENT_POOL__ = [
+    {%- for doc in log_posts -%}
+    {%- assign _m = doc.date | date: '%-m' | plus: 0 -%}
+    {%- if _m == 12 or _m == 1 or _m == 2 -%}{%- assign _season = 'winter' -%}
+    {%- elsif _m == 3 or _m == 4 or _m == 5 -%}{%- assign _season = 'spring' -%}
+    {%- elsif _m == 6 or _m == 7 or _m == 8 -%}{%- assign _season = 'summer' -%}
+    {%- else -%}{%- assign _season = 'autumn' -%}
+    {%- endif -%}
+    {%- assign _excerpt = doc.fragment | default: doc.excerpt -%}
+    {%- if _excerpt == blank -%}{%- assign _excerpt = doc.content | strip_html | strip | truncate: 140 -%}{%- endif -%}
+    {
+      "kind":    {{ doc.type | default: 'moment' | jsonify }},
+      "title":   {{ doc.title | jsonify }},
+      "excerpt": {{ _excerpt | jsonify }},
+      "date":    {{ doc.date | date: '%Y-%m-%d' | jsonify }},
+      "dateLabel": {{ doc.date | date: '%b %-d' | jsonify }},
+      "season":  {{ _season | jsonify }},
+      "image":   {{ doc.photo | default: '' | jsonify }},
+      "url":     {{ doc.url | relative_url | jsonify }}
+    }{% unless forloop.last %},{% endunless %}
+    {%- endfor -%}
   ];
 
 </script>
 
 <script defer src="{{ '/assets/js/ui-effects.js' | relative_url }}"></script>
 <script type="module" src="{{ '/assets/js/recent-panel.js' | relative_url }}"></script>
+<script type="module" src="{{ '/assets/js/fragment.js' | relative_url }}"></script>
