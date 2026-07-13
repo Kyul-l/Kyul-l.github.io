@@ -1,0 +1,108 @@
+.page-content {
+  hr {
+    border: 0; height:1px;
+    background: linear-gradient(90deg, transparent, rgba(144, 108, 190, .18), transparent);
+    margin: 2rem 0;
+  }
+}
+
+// ── Page header + sigil (about, blog) ────────────────────────
+.page-header {
+  text-align: center;
+  margin: 0 auto 2.25rem;
+  max-width: var(--read-width);
+}
+
+.page-title {
+  font: 700 clamp(1.8rem, 4vw, 2.3rem)/1.2 var(--serif);
+  color: var(--fg-main);
+  margin: 0;
+  letter-spacing: -.005em;
+  display: inline-flex;
+  align-items: baseline;
+  gap: .6rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.page-sigil {
+  font: 400 .85em/1 var(--mono);
+  color: var(--accent-soft);
+  letter-spacing: .15em;
+  opacity: .8;
+  user-select: none;
+}
+
+// README-style banner — compact one-line divider for section heads (blog)
+.page-banner {
+  font: 500 1.05rem/1.4 var(--mono);
+  color: var(--accent-soft);
+  letter-spacing: .12em;
+  text-align: center;
+  margin: 0 auto 2rem;
+  max-width: var(--read-width);
+  white-space: nowrap;
+  overflow-x: auto;
+  user-select: none;
+}
+
+// ── 404 page (담백 · constellation glyph) ────────────────────
+.page-404 {
+  max-width: 560px;
+  margin: 6rem auto;
+  padding: 0 1rem;
+  text-align: center;
+
+  &__ascii {
+    color: var(--accent-soft);
+    font: 500 1rem/1.5 var(--mono);
+    letter-spacing: .3em;
+    opacity: .75;
+    margin: 0 0 1rem;
+    white-space: pre;
+  }
+
+  &__mascot {
+    display: block;
+    width: 240px;
+    height: 240px;
+    margin: 0 auto 1rem;
+    filter: drop-shadow(0 6px 24px rgba(144, 108, 190, .25));
+  }
+
+  &__title {
+    font: 700 clamp(3rem, 8vw, 4.5rem)/1 var(--serif);
+    color: var(--fg-main);
+    margin: 0;
+    letter-spacing: -.02em;
+  }
+
+  &__lead {
+    font: 400 1.05rem/1.6 var(--sans);
+    color: var(--fg-main);
+    margin: .55rem 0 .25rem;
+    letter-spacing: .02em;
+  }
+
+  &__sub {
+    font: 400 .9rem/1.5 var(--sans);
+    color: var(--fg-muted);
+    margin: 0 0 2.5rem;
+    letter-spacing: .02em;
+  }
+
+  &__return {
+    font: 500 .9rem/1 var(--mono);
+    letter-spacing: .08em;
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--border);
+    padding-bottom: 2px;
+    transition: color .2s ease, border-color .2s ease;
+
+    &:hover {
+      color: var(--link-hover);
+      border-bottom-color: var(--link-hover);
+    }
+  }
+}

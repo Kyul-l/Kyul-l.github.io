@@ -1,0 +1,452 @@
+// _sass/layout/_structure.scss
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.75rem 0;
+  border-bottom: 1px solid var(--border-soft);
+  background-color: transparent;
+}
+
+.site-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font: 700 1.4rem/1 var(--serif);
+  text-decoration: none;
+  color: var(--fg-main);
+  letter-spacing: .02em;
+  transition: color .2s ease, text-shadow .25s ease;
+
+  &:hover {
+    color: var(--accent);
+    text-shadow: var(--glow-weak);
+  }
+}
+
+.site-title__text {
+  display: inline-block;
+}
+
+.site-mascot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  transition: transform .25s ease, filter .25s ease;
+
+  .site-title:hover & {
+    transform: translateY(-1px) rotate(-4deg);
+    filter: drop-shadow(0 0 6px var(--accent));
+  }
+}
+
+.site-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+/* Divider — independent flex item; participates in site-header-right gap */
+.nav-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.site-nav a {
+  text-decoration: none;
+  color: var(--fg-main);
+  font: 500 .92rem/1 var(--sans);
+  letter-spacing: .02em;
+  position: relative;
+  padding: .3rem 0;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  transition: color .2s ease;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .25s ease;
+  }
+
+  &:hover {
+    color: var(--accent);
+    &::after { transform: scaleX(1); }
+  }
+}
+
+// ── Theme toggle ─────────────────────────────────────────────
+.theme-toggle {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--fg-main);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+  position: relative;
+  overflow: hidden;
+
+  svg { display: block; transition: opacity .25s ease, transform .35s ease; position: absolute; }
+
+  .icon-sun  { opacity: 0; transform: rotate(-90deg); }
+  .icon-moon { opacity: 1; transform: rotate(0); }
+
+  &:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--panel-accent);
+    transform: translateY(-1px);
+  }
+}
+
+[data-theme="light"] .theme-toggle {
+  .icon-sun  { opacity: 1; transform: rotate(0); }
+  .icon-moon { opacity: 0; transform: rotate(90deg); }
+}
+
+.site-main {
+  padding: 1rem 0 .5rem;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Home — main hugs the terminal so footer border sits exactly 1.5rem below panel */
+body.layout-home .site-main {
+  padding: 1.75rem 0;
+  min-height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body.layout-home .site-footer {
+  margin-top: 1rem;
+  padding: 0;
+}
+
+// Single-column page wrapper (used by `_layouts/page.html`)
+.main-single > *:first-child {
+  margin-top: 0;
+}
+
+// ── Responsive layout ────────────────────────────────────────
+@media (max-width: 1200px) {
+  .site-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space);
+    /* padding stays 1.1rem 0 — keep border centered between text and panel */
+  }
+
+  .site-nav {
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+  }
+}
+
+// Mobile-only terminal body min-height (small screens)
+@media (max-width: 768px) {
+  .mac-terminal .body {
+    min-height: 420px;
+  }
+}
+
+// Accessibility: Skip to content link
+.skip-to-content {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: -9999;
+
+  &:focus {
+    left: 50%;
+    transform: translateX(-50%);
+    top: 10px;
+    width: auto;
+    height: auto;
+    padding: 10px 15px;
+    background-color: var(--accent-1);
+    color: var(--bg);
+    z-index: 9999;
+    text-decoration: none;
+    border-radius: var(--radius);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Section sigils — ✦ shared shape, color split
+   Wiki = lavender · Studies = purple · Log = muted
+   ───────────────────────────────────────────── */
+.nav-sigil {
+  display: inline-block;
+  font-size: 0.9em;
+  line-height: 1;
+  transform: translateY(-0.05em);
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.site-nav .nav-wiki    .nav-sigil { color: var(--kp-lilac); }
+.site-nav .nav-studies .nav-sigil { color: var(--kp-purple); }
+.site-nav .nav-log     .nav-sigil { color: var(--kp-muted); }
+
+.site-nav a:hover .nav-sigil {
+  text-shadow: 0 0 8px currentColor;
+}
+
+[data-theme="light"] {
+  .site-nav .nav-wiki    .nav-sigil { color: var(--kp-purple-d); opacity: 0.7; }
+  .site-nav .nav-studies .nav-sigil { color: var(--kp-purple-d); }
+  .site-nav .nav-log     .nav-sigil { color: var(--kp-muted); }
+}
+
+/* ─────────────────────────────────────────────
+   Language toggle (UI only — EN coming soon)
+   Rounded square 36x36, matches theme-toggle for shape parity
+   ───────────────────────────────────────────── */
+.lang-toggle {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  cursor: pointer;
+  color: var(--fg-muted);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  .lang-label { display: inline-block; }
+
+  &:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--panel-accent);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   GitHub link — icon opens the profile in a new tab.
+   Same shape as theme-toggle for parity.
+   ───────────────────────────────────────────── */
+.github-link {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--fg-muted);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+
+  svg { display: block; }
+
+  &:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--panel-accent);
+    transform: translateY(-1px);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Write link — pencil icon, opens Decap CMS at /admin/
+   Same shape as theme-toggle for parity
+   ───────────────────────────────────────────── */
+.write-toggle {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--fg-muted);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+
+  &:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--panel-accent);
+    transform: translateY(-1px);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Post divider — glyph-line with soft glow (V1)
+   ·  ⋆  ·  ⋆  ·  — quiet mark between content sections
+   ───────────────────────────────────────────── */
+.post-divider {
+  display: flex;
+  justify-content: center;
+  max-width: var(--read-width);
+  margin: 3rem auto;
+  padding: 0 1.5rem;
+  user-select: none;
+}
+
+.post-divider__glyphs {
+  font: 500 20px/1 var(--mono);
+  letter-spacing: 1.2em;
+  color: var(--accent);
+  opacity: .85;
+  text-shadow: 0 0 12px rgba(144, 108, 190, .55);
+}
+
+[data-theme="light"] .post-divider__glyphs {
+  color: var(--kp-purple-d);
+  text-shadow: 0 0 10px rgba(107, 79, 149, .35);
+}
+
+/* ─────────────────────────────────────────────
+   Legacy divider sigil (kept for pages that still reference it)
+   ───────────────────────────────────────────── */
+.divider-sigil {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  max-width: var(--read-width);
+  margin: 2.5rem auto;
+  padding: 0 1.5rem;
+  color: var(--accent-soft);
+  user-select: none;
+
+  &__line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  &__star {
+    font-size: 1rem;
+    line-height: 1;
+    opacity: 0.85;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Site footer — single quiet line
+   ───────────────────────────────────────────── */
+// Footer — just a divider line, no content. Contact routes through GitHub.
+.site-footer {
+  border-top: 1px solid var(--border-soft);
+  padding: 0;
+  min-height: 0;
+  margin-top: 1rem;
+
+  .footer-contact {
+    display: none;
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    letter-spacing: 0.01em;
+    font-family: var(--serif);
+    font-style: italic;
+    line-height: 1.6;
+
+    a {
+      color: var(--link);
+      text-decoration: none;
+      margin-left: 0.5em;
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 1px;
+      transition: color 0.2s ease, border-color 0.2s ease;
+      font-style: normal;
+      font-family: var(--mono);
+      font-size: 0.9em;
+
+      &:hover {
+        color: var(--link-hover);
+        border-bottom-color: var(--link-hover);
+      }
+    }
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Section index (Wiki / Studies / Log landing)
+   ───────────────────────────────────────────── */
+.section-index {
+  max-width: var(--read-width);
+  margin: 1.5rem auto 2rem;
+  padding: 0 1.5rem;
+
+  &__header {
+    margin-bottom: 2.5rem;
+    text-align: center;
+  }
+
+  &__title {
+    font-family: var(--serif);
+    font-size: 2rem;
+    margin: 0 0 0.4rem;
+    color: var(--fg-main);
+  }
+
+  &__lead {
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+    margin: 0;
+    font-style: italic;
+  }
+
+  &__empty {
+    color: var(--fg-muted);
+    text-align: center;
+    font-style: italic;
+    margin: 3rem 0;
+    letter-spacing: 0.05em;
+  }
+
+  &--wiki    .section-index__title .nav-sigil { color: var(--kp-lavender); }
+  &--studies .section-index__title .nav-sigil { color: var(--kp-purple); }
+}
