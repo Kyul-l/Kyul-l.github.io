@@ -1,0 +1,181 @@
+(function () {
+    var sections = Array.prototype.slice.call(document.querySelectorAll('.log-month'));
+    if (!sections.length) return;
+
+    function keyFromHash() {
+        var h = (window.location.hash || '').replace(/^#m-/, '');
+        return /^\d{4}-\d{2}$/.test(h) ? h : null;
+    }
+
+    function findSection(key) {
+        for (var i = 0; i < sections.length; i++) {
+            if (sections[i].dataset.key === key) return sections[i];
+        }
+        return null;
+    }
+
+    function show(key) {
+        var target = findSection(key);
+        if (!target) return;
+        sections.forEach(function (s) {
+            s.dataset.current = s === target ? 'true' : 'false';
+        });
+        target.querySelectorAll('.log-month__season, .log-month__month').forEach(function (el) {
+            el.classList.remove('is-fading');
+        });
+        if (window.location.hash !== '#m-' + key) {
+            history.replaceState(null, '', '#m-' + key);
+        }
+        var photos = target.querySelectorAll('.log-photo');
+        photos.forEach(function (p) { p.classList.remove('is-in'); });
+        requestAnimationFrame(function () {
+            photos.forEach(function (p) { p.classList.add('is-in'); });
+        });
+    }
+
+    function navigate(currentSection, dir) {
+        var idx = sections.indexOf(currentSection);
+        var targetIdx = dir === 'prev' ? idx - 1 : idx + 1;
+        if (targetIdx < 0 || targetIdx >= sections.length) return;
+        var target = sections[targetIdx];
+
+        var currentSeason = currentSection.querySelector('.log-month__season');
+        var currentMonth = currentSection.querySelector('.log-month__month');
+        if (currentSeason) currentSeason.classList.add('is-fading');
+        if (currentMonth) currentMonth.classList.add('is-fading');
+
+        setTimeout(function () {
+            show(target.dataset.key);
+        }, 220);
+    }
+
+    sections.forEach(function (s, i) {
+        var prevBtn = s.querySelector('.log-month__btn--prev');
+        var nextBtn = s.querySelector('.log-month__btn--next');
+        if (i === 0 && prevBtn) prevBtn.classList.add('is-disabled');
+        if (i === sections.length - 1 && nextBtn) nextBtn.classList.add('is-disabled');
+        if (prevBtn) prevBtn.addEventListener('click', function () {
+            if (prevBtn.classList.contains('is-disabled')) return;
+            navigate(s, 'prev');
+        });
+        if (nextBtn) nextBtn.addEventListener('click', function () {
+            if (nextBtn.classList.contains('is-disabled')) return;
+            navigate(s, 'next');
+        });
+    });
+
+    var initialKey = keyFromHash();
+    if (initialKey && findSection(initialKey)) {
+        show(initialKey);
+    } else {
+        var current = document.querySelector('.log-month[data-current="true"]');
+        if (current) {
+            var photos = current.querySelectorAll('.log-photo');
+            requestAnimationFrame(function () {
+                photos.forEach(function (p) { p.classList.add('is-in'); });
+            });
+        }
+    }
+
+    window.addEventListener('hashchange', function () {
+        var k = keyFromHash();
+        if (k) show(k);
+    });
+})();
+
+// ── Lightbox: click photo → flip-card modal ─────────────
+(function () {
+    var lb = document.querySelector('.log-lightbox');
+    if (!lb) return;
+    var card = lb.querySelector('.log-lightbox__card');
+    var placeholder = lb.querySelector('.log-lightbox__placeholder');
+    var img = lb.querySelector('.log-lightbox__media img');
+    var flag = lb.querySelector('.log-lightbox__flag');
+    var dateEl = lb.querySelector('.log-lightbox__date');
+    var catEl = lb.querySelector('.log-lightbox__cat');
+    var titleEl = lb.querySelector('.log-lightbox__title');
+    var whisperEl = lb.querySelector('.log-lightbox__whisper');
+    var tagsEl = lb.querySelector('.log-lightbox__tags');
+    var moreEl = lb.querySelector('.log-lightbox__more');
+    var lastTrigger = null;
+
+    function open(tile) {
+        var d = tile.dataset;
+        // Category class → color tint drives placeholder + accent
+        lb.className = 'log-lightbox log-lightbox--' + (d.cat || 'moment');
+
+        if (d.image) {
+            img.src = d.image;
+            img.alt = d.title || '';
+            img.style.display = '';
+            placeholder.style.display = 'none';
+        } else {
+            img.style.display = 'none';
+            img.removeAttribute('src');
+            placeholder.style.display = '';
+        }
+
+        flag.style.display = d.feat === '1' ? '' : 'none';
+        dateEl.textContent = d.date || '';
+        catEl.textContent = d.cat || '';
+        titleEl.textContent = d.title || '';
+        whisperEl.textContent = d.fragment || '';
+        whisperEl.style.display = d.fragment ? '' : 'none';
+
+        // Tags — comma or middle-dot separated
+        tagsEl.innerHTML = '';
+        var raw = (d.tags || '').replace(/&middot;|·/g, ',');
+        raw.split(',').map(function (t) { return t.trim(); }).filter(Boolean).forEach(function (t) {
+            var el = document.createElement('span');
+            el.className = 'log-lightbox__tag';
+            el.textContent = t;
+            tagsEl.appendChild(el);
+        });
+
+        // Open-entry link — escape hatch to the full post
+        if (moreEl) {
+            var href = tile.getAttribute('href') || '';
+            if (href) {
+                moreEl.setAttribute('href', href);
+                moreEl.style.display = '';
+            } else {
+                moreEl.removeAttribute('href');
+                moreEl.style.display = 'none';
+            }
+        }
+
+        lb.hidden = false;
+        lb.setAttribute('aria-hidden', 'false');
+        // Force reflow then activate for animation
+        void card.offsetWidth;
+        lb.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+        lastTrigger = tile;
+    }
+
+    function close() {
+        lb.classList.remove('is-open');
+        lb.setAttribute('aria-hidden', 'true');
+        setTimeout(function () {
+            lb.hidden = true;
+            document.body.style.overflow = '';
+            if (lastTrigger) { try { lastTrigger.focus(); } catch (e) {} }
+        }, 350);
+    }
+
+    document.addEventListener('click', function (e) {
+        var tile = e.target.closest('.log-photo');
+        if (tile && !e.metaKey && !e.ctrlKey && e.button === 0) {
+            e.preventDefault();
+            open(tile);
+            return;
+        }
+        if (e.target.closest('[data-close]')) {
+            close();
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !lb.hidden) close();
+    });
+})();

@@ -1,0 +1,577 @@
+// ─────────────────────────────────────────────────────────────
+// Log · Pin Board
+// Size = meaning. Near-monochrome. Month pager, season emphasized.
+// Width matches Wiki (1120px). Season word morphs on nav.
+// ─────────────────────────────────────────────────────────────
+
+// Page wrapper — shared rhythm across Wiki / Studies / Log
+.log-board {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 2rem 1rem 3rem;
+    position: relative;
+    min-height: calc(100vh - 260px);
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+// ── Header — matches .wiki-header / .studies-header exactly ─
+.log-header {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+}
+
+.log-header__title {
+    margin: 0;
+    font: 700 clamp(1.75rem, 3.5vw, 2.15rem)/1.2 var(--serif);
+    color: var(--kp-parchment);
+    letter-spacing: -.005em;
+}
+
+[data-theme="light"] .log-header__title {
+    color: var(--fg-main);
+}
+
+.log-header__lead {
+    margin: .25rem 0 0;
+    font: 400 .95rem/1.5 var(--sans);
+    color: var(--kp-lavender);
+    letter-spacing: .01em;
+}
+
+[data-theme="light"] .log-header__lead {
+    color: var(--fg-muted);
+}
+
+// ── Months wrapper: all months rendered, only current visible ─
+.log-months {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+// ── Month section (each month has its own pager + grid) ──────
+.log-month {
+    margin: 0;
+    scroll-margin-top: 5rem;
+    display: none;
+
+    &[data-current="true"] {
+        display: block;
+    }
+}
+
+.log-month__pager {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: .8rem 0 1.5rem;
+    margin-bottom: 2rem;
+    gap: 1rem;
+}
+
+.log-month__btn {
+    font: 500 .7rem/1 var(--mono);
+    letter-spacing: .16em;
+    color: var(--fg-muted);
+    text-transform: lowercase;
+    padding: .55rem 0;
+    text-decoration: none;
+    transition: color .2s ease, letter-spacing .2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    white-space: nowrap;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+
+    &:hover:not(.is-disabled) {
+        color: var(--accent);
+        letter-spacing: .18em;
+    }
+
+    &.is-disabled {
+        opacity: .25;
+        cursor: default;
+        pointer-events: none;
+    }
+
+    &--prev { justify-self: start; }
+    &--next { justify-self: end; }
+}
+
+// Season centered and emphasized; month subordinate below
+.log-month__label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .35rem;
+    text-align: center;
+}
+
+.log-month__season {
+    font: 400 italic 2rem/1 var(--serif);
+    color: var(--fg-main);
+    letter-spacing: -.005em;
+    transition: opacity .35s ease, transform .35s ease;
+    position: relative;
+
+    // Subtle underline glow on the season word
+    &::after {
+        content: '';
+        position: absolute;
+        left: 20%;
+        right: 20%;
+        bottom: -6px;
+        height: 1px;
+        background: linear-gradient(
+            to right,
+            transparent,
+            rgba(144, 108, 190, .55),
+            transparent
+        );
+    }
+
+    &.is-fading {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+}
+
+.log-month__month {
+    font: 500 .68rem/1 var(--mono);
+    letter-spacing: .18em;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    margin-top: .3rem;
+    transition: opacity .35s ease, transform .35s ease;
+
+    &.is-fading {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+}
+
+.log-month__sep {
+    opacity: .5;
+    margin: 0 .25em;
+}
+
+// Season-specific accent tints on the underline
+.log-month[data-season="winter"] .log-month__season::after {
+    background: linear-gradient(to right, transparent, rgba(168, 180, 200, .55), transparent);
+}
+.log-month[data-season="spring"] .log-month__season::after {
+    background: linear-gradient(to right, transparent, rgba(208, 168, 192, .55), transparent);
+}
+.log-month[data-season="summer"] .log-month__season::after {
+    background: linear-gradient(to right, transparent, rgba(232, 201, 138, .55), transparent);
+}
+.log-month[data-season="autumn"] .log-month__season::after {
+    background: linear-gradient(to right, transparent, rgba(198, 154, 128, .55), transparent);
+}
+
+// ═══════════════════════════════════════════════════════════
+// Photo Masonry — VSCO / Pinterest / Camera Roll vibe
+// Photo is the protagonist. Text supports.
+// ═══════════════════════════════════════════════════════════
+.log-masonry {
+    columns: 3;
+    column-gap: 1.5rem;
+
+    @media (max-width: 900px) { columns: 2; }
+    @media (max-width: 560px) { columns: 1; }
+}
+
+.log-photo {
+    display: block;
+    break-inside: avoid;
+    margin: 0 0 1.75rem;
+    text-decoration: none;
+    color: inherit;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+        opacity .55s ease var(--photo-delay, 0ms),
+        transform .55s ease var(--photo-delay, 0ms);
+
+    &.is-in {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.log-photo__media {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    position: relative;
+    background: var(--card);
+    margin: 0;
+    border-radius: var(--radius-sm);
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform .6s cubic-bezier(.2, .6, .2, 1), filter .4s ease;
+        filter: saturate(.92);
+    }
+}
+
+// Aspect ratios drive masonry height variation
+.log-photo--sm    .log-photo__media { aspect-ratio: 1 / 1; }
+.log-photo--md    .log-photo__media { aspect-ratio: 3 / 4; }
+.log-photo--photo .log-photo__media { aspect-ratio: 4 / 5; }
+.log-photo--feat  .log-photo__media { aspect-ratio: 4 / 5; }
+
+// Category placeholder — subtle tinted gradient when no photo
+.log-photo__placeholder {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 30% 25%, var(--tint, rgba(185,163,214,.28)) 0%, transparent 55%),
+        radial-gradient(ellipse at 70% 80%, var(--tint2, rgba(185,163,214,.15)) 0%, transparent 60%),
+        linear-gradient(160deg, var(--card) 0%, var(--card-deep) 100%);
+    transition: transform .6s cubic-bezier(.2, .6, .2, 1);
+}
+
+.log-photo--moment  { --tint: rgba(185, 163, 214, .3); --tint2: rgba(185, 163, 214, .15); }
+.log-photo--food    { --tint: rgba(214, 179, 160, .3); --tint2: rgba(214, 179, 160, .12); }
+.log-photo--thought { --tint: rgba(160, 179, 208, .3); --tint2: rgba(160, 179, 208, .12); }
+.log-photo--object  { --tint: rgba(196, 176, 152, .3); --tint2: rgba(196, 176, 152, .12); }
+.log-photo--signal  { --tint: rgba(156, 192, 186, .3); --tint2: rgba(156, 192, 186, .12); }
+
+// Featured mark — tiny ✦ overlay at top-right
+.log-photo__flag {
+    position: absolute;
+    top: .55rem;
+    right: .65rem;
+    font: 500 .8rem/1 var(--serif);
+    color: var(--accent);
+    text-shadow: 0 0 8px rgba(185, 163, 214, .7);
+    opacity: .85;
+    z-index: 2;
+}
+
+// Caption — small text below photo
+.log-photo__caption {
+    padding: .65rem .2rem 0;
+}
+
+.log-photo__title {
+    font: 500 1rem/1.3 var(--serif);
+    color: var(--fg-main);
+    margin: 0 0 .25rem;
+    letter-spacing: -.002em;
+    transition: color .25s ease;
+}
+
+.log-photo__meta {
+    font: 500 .65rem/1 var(--mono);
+    letter-spacing: .18em;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: .45em;
+}
+
+.log-photo__sep { opacity: .5; }
+.log-photo__cat { color: var(--tint, var(--accent-soft)); opacity: .9; }
+
+.log-photo__whisper {
+    font: 400 italic .82rem/1.5 var(--serif);
+    color: var(--fg-muted);
+    margin: .5rem 0 0;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height .35s ease, opacity .3s ease, margin .35s ease;
+}
+
+// Featured entry — slightly bigger title
+.log-photo--feat .log-photo__title {
+    font: 600 italic 1.2rem/1.3 var(--serif);
+}
+
+// Hover — photo animates, title tints, whisper reveals
+.log-photo:hover {
+    .log-photo__media img,
+    .log-photo__placeholder {
+        transform: scale(1.04);
+    }
+    .log-photo__media img {
+        filter: saturate(1);
+    }
+    .log-photo__title {
+        color: var(--accent);
+    }
+    .log-photo__whisper {
+        max-height: 100px;
+        opacity: 1;
+        margin-top: .5rem;
+    }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+    .log-photo {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+    .log-photo__media img,
+    .log-photo__placeholder,
+    .log-photo__whisper {
+        transition: none;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+// Lightbox — flip-card modal on tile click
+// Compact single-column card with internal scroll.
+// ═══════════════════════════════════════════════════════════
+.log-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    perspective: 1400px;
+}
+
+.log-lightbox[hidden] { display: none; }
+
+.log-lightbox__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(6, 5, 10, .68);
+    backdrop-filter: blur(10px) saturate(1.2);
+    -webkit-backdrop-filter: blur(10px) saturate(1.2);
+    opacity: 0;
+    transition: opacity .35s ease;
+    cursor: pointer;
+}
+
+.log-lightbox.is-open .log-lightbox__backdrop { opacity: 1; }
+
+.log-lightbox__card {
+    position: relative;
+    background: var(--card);
+    border: 1px solid rgba(185, 163, 214, .18);
+    border-radius: var(--radius-md);
+    width: min(440px, 100%);
+    max-height: min(90vh, 720px);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, .55),
+        0 0 0 1px rgba(185, 163, 214, .08);
+
+    transform: perspective(1400px) rotateY(75deg) scale(.9);
+    opacity: 0;
+    transform-origin: center left;
+    transition:
+        transform .55s cubic-bezier(.2, .8, .3, 1),
+        opacity .3s ease;
+}
+
+.log-lightbox.is-open .log-lightbox__card {
+    transform: perspective(1400px) rotateY(0) scale(1);
+    opacity: 1;
+}
+
+[data-theme="light"] .log-lightbox__card {
+    border-color: rgba(107, 79, 149, .2);
+    color: var(--fg-main);
+}
+
+.log-lightbox__close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 3;
+    width: 30px;
+    height: 30px;
+    background: var(--overlay);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--fg-muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color .2s ease, border-color .2s ease, background .2s ease;
+
+    &:hover {
+        color: var(--accent);
+        border-color: rgba(185, 163, 214, .5);
+        background: rgba(185, 163, 214, .15);
+    }
+}
+
+// Internal scroll container
+.log-lightbox__scroll {
+    padding: 1.4rem 1.4rem 1.5rem;
+    overflow-y: auto;
+    max-height: min(90vh, 720px);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(185, 163, 214, .25) transparent;
+
+    &::-webkit-scrollbar { width: 6px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+    &::-webkit-scrollbar-thumb {
+        background: rgba(185, 163, 214, .2);
+        border-radius: var(--radius-pill);
+    }
+}
+
+// Category tints (drive placeholder + accent inside card)
+.log-lightbox--moment  { --tint: rgba(185, 163, 214, .38); --tint2: rgba(185, 163, 214, .2);  --lb-accent: var(--kp-tint-moment); }
+.log-lightbox--food    { --tint: rgba(214, 179, 160, .38); --tint2: rgba(214, 179, 160, .18); --lb-accent: var(--kp-tint-food); }
+.log-lightbox--thought { --tint: rgba(160, 179, 208, .38); --tint2: rgba(160, 179, 208, .18); --lb-accent: var(--kp-tint-thought); }
+.log-lightbox--object  { --tint: rgba(196, 176, 152, .38); --tint2: rgba(196, 176, 152, .18); --lb-accent: var(--kp-tint-object); }
+.log-lightbox--signal  { --tint: rgba(156, 192, 186, .38); --tint2: rgba(156, 192, 186, .18); --lb-accent: var(--kp-tint-signal); }
+
+.log-lightbox__meta {
+    font: 500 .68rem/1 var(--mono);
+    letter-spacing: .18em;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    margin: 0 0 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .5em;
+}
+
+.log-lightbox__sep { opacity: .5; }
+.log-lightbox__cat { color: var(--lb-accent, var(--accent)); }
+
+.log-lightbox__media {
+    margin: 0 0 1.25rem;
+    position: relative;
+    background: var(--card-deep);
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+}
+
+.log-lightbox__placeholder {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 30% 25%, var(--tint, rgba(185, 163, 214, .35)) 0%, transparent 55%),
+        radial-gradient(ellipse at 70% 80%, var(--tint2, rgba(185, 163, 214, .18)) 0%, transparent 60%),
+        linear-gradient(160deg, var(--kp-surface) 0%, var(--card-deep) 100%);
+}
+
+.log-lightbox__flag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font: 500 .95rem/1 var(--serif);
+    color: var(--accent);
+    text-shadow: 0 0 10px rgba(185, 163, 214, .8);
+    z-index: 2;
+}
+
+.log-lightbox__title {
+    font: 500 italic 1.5rem/1.25 var(--serif);
+    color: var(--fg-main);
+    margin: 0 0 .9rem;
+    letter-spacing: -.005em;
+}
+
+.log-lightbox__whisper {
+    font: 400 italic .96rem/1.6 var(--serif);
+    color: var(--fg-main);
+    opacity: .78;
+    margin: 0 0 1.2rem;
+}
+
+.log-lightbox__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    margin: 0;
+}
+
+.log-lightbox__tag {
+    display: inline-block;
+    padding: .3rem .65rem;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, .015);
+    font: 500 .62rem/1 var(--mono);
+    letter-spacing: .06em;
+    color: var(--fg-muted);
+}
+
+// Escape hatch — link to the full post
+.log-lightbox__more {
+    display: inline-block;
+    margin-top: 1.2rem;
+    font: 500 .68rem/1 var(--mono);
+    letter-spacing: .18em;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color .2s ease, letter-spacing .2s ease;
+
+    &:hover {
+        color: var(--lb-accent, var(--accent));
+        letter-spacing: .2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .log-lightbox { padding: 1rem; }
+    .log-lightbox__title { font-size: 1.3rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .log-lightbox__card,
+    .log-lightbox__backdrop {
+        transition: opacity .2s ease;
+        transform: none;
+    }
+    .log-lightbox.is-open .log-lightbox__card { transform: none; }
+}
+
+// ── Reduced motion for season label ──────────────────────────
+@media (prefers-reduced-motion: reduce) {
+    .log-month__season { transition: none; }
+}
+
+// ── Responsive pager ─────────────────────────────────────────
+@media (max-width: 600px) {
+    .log-month__pager {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    .log-month__btn--prev,
+    .log-month__btn--next {
+        justify-self: center;
+    }
+    .log-month__season { font-size: 1.6rem; }
+}
+
+// ── Empty state ──────────────────────────────────────────────
+.log-empty {
+    text-align: center;
+    padding: 4rem 0;
+    color: var(--fg-muted);
+    font: 400 italic 1.05rem/1.5 var(--serif);
+}

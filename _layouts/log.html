@@ -1,0 +1,148 @@
+---
+layout: page
+---
+<div class="wiki-constellation" aria-hidden="true"></div>
+
+<article class="log-board">
+
+  <header class="log-header">
+    <h1 class="log-header__title"><span aria-hidden="true">◇</span> Log</h1>
+    <p class="log-header__lead">A season-bound roll of moments.</p>
+  </header>
+
+  {%- assign all_posts = site.posts | sort: 'date' | reverse -%}
+  {%- assign posts_by_month = all_posts | group_by_exp: 'p', 'p.date | date: "%Y-%m"' -%}
+
+  {%- assign years_str = '' -%}
+  {%- for post in all_posts -%}
+    {%- assign py = post.date | date: '%Y' -%}
+    {%- unless years_str contains py -%}
+      {%- assign years_str = years_str | append: py | append: ',' -%}
+    {%- endunless -%}
+  {%- endfor -%}
+  {%- assign years = years_str | split: ',' | uniq | sort -%}
+
+  {%- assign newest_key = '' -%}
+  {%- if all_posts.size > 0 -%}
+    {%- assign newest_key = all_posts[0].date | date: '%Y-%m' -%}
+  {%- endif -%}
+
+  {%- assign month_names = 'January,February,March,April,May,June,July,August,September,October,November,December' | split: ',' -%}
+
+  <div class="log-months">
+    {%- for year in years -%}
+      {%- for i in (0..11) -%}
+        {%- assign m_num_int = i | plus: 1 -%}
+        {%- assign m_num_padded = m_num_int | prepend: '00' | slice: -2, 2 -%}
+        {%- assign m_name = month_names[i] -%}
+        {%- assign key = year | append: '-' | append: m_num_padded -%}
+
+        {%- if m_num_int == 12 or m_num_int == 1 or m_num_int == 2 -%}{%- assign sn = 'Winter' -%}
+        {%- elsif m_num_int == 3 or m_num_int == 4 or m_num_int == 5 -%}{%- assign sn = 'Spring' -%}
+        {%- elsif m_num_int == 6 or m_num_int == 7 or m_num_int == 8 -%}{%- assign sn = 'Summer' -%}
+        {%- else -%}{%- assign sn = 'Autumn' -%}
+        {%- endif -%}
+
+        {%- assign m_posts_size = 0 -%}
+        {%- assign m_posts = nil -%}
+        {%- for group in posts_by_month -%}
+          {%- if group.name == key -%}
+            {%- assign m_posts = group.items -%}
+            {%- assign m_posts_size = m_posts | size -%}
+          {%- endif -%}
+        {%- endfor -%}
+
+        {%- if m_posts_size > 0 -%}
+        <section class="log-month" data-key="{{ key }}" data-season="{{ sn | downcase }}"{% if key == newest_key %} data-current="true"{% endif %}>
+          <div class="log-month__pager">
+            <button type="button" class="log-month__btn log-month__btn--prev" data-nav="prev" aria-label="Previous month"><span aria-hidden="true">‹</span> prev month</button>
+            <div class="log-month__label">
+              <span class="log-month__season">{{ sn }}</span>
+              <span class="log-month__month">{{ year }} <span class="log-month__sep">·</span> {{ m_name }}</span>
+            </div>
+            <button type="button" class="log-month__btn log-month__btn--next" data-nav="next" aria-label="Next month">next month <span aria-hidden="true">›</span></button>
+          </div>
+
+          <div class="log-masonry">
+            {%- for post in m_posts -%}
+              {%- assign ttype = post.type | default: 'moment' -%}
+              {%- assign tsize = post.size | default: 'sm' -%}
+              {%- assign has_image = false -%}
+              {%- if post.photo and post.photo != '' -%}{%- assign has_image = true -%}{%- endif -%}
+
+              <a class="log-photo log-photo--{{ ttype }} log-photo--{{ tsize }}{% if has_image %} log-photo--has-image{% endif %}"
+                 href="{{ post.url | relative_url }}"
+                 role="button"
+                 aria-haspopup="dialog"
+                 style="--photo-delay:{{ forloop.index0 | times: 50 }}ms"
+                 data-title="{{ post.title | escape }}"
+                 data-date="{{ post.date | date: '%-m.%-d' }}"
+                 data-cat="{{ ttype }}"
+                 data-tags="{{ post.tags | escape }}"
+                 data-fragment="{{ post.fragment | escape }}"
+                 data-image="{% if has_image %}{{ post.photo | relative_url }}{% endif %}"
+                 data-feat="{% if tsize == 'feat' %}1{% endif %}">
+                <figure class="log-photo__media">
+                  {%- if has_image -%}
+                    <img src="{{ post.photo | relative_url }}" alt="{{ post.title }}" loading="lazy">
+                  {%- else -%}
+                    <span class="log-photo__placeholder" aria-hidden="true"></span>
+                  {%- endif -%}
+                  {%- if tsize == 'feat' -%}
+                    <span class="log-photo__flag">✦</span>
+                  {%- endif -%}
+                </figure>
+                <figcaption class="log-photo__caption">
+                  <h3 class="log-photo__title">{{ post.title }}</h3>
+                  <p class="log-photo__meta">
+                    <span class="log-photo__date">{{ post.date | date: '%b %-d' }}</span>
+                    <span class="log-photo__sep">·</span>
+                    <span class="log-photo__cat">{{ ttype }}</span>
+                  </p>
+                  {%- if post.fragment and post.fragment != '' -%}
+                    <p class="log-photo__whisper">{{ post.fragment }}</p>
+                  {%- endif -%}
+                </figcaption>
+              </a>
+            {%- endfor -%}
+          </div>
+        </section>
+        {%- endif -%}
+
+      {%- endfor -%}
+    {%- endfor -%}
+
+    {%- if all_posts.size == 0 -%}
+      <p class="log-empty">No entries yet.</p>
+    {%- endif -%}
+  </div>
+
+</article>
+
+<!-- Lightbox: flip-in card modal with photo + memo -->
+<div class="log-lightbox" role="dialog" aria-modal="true" aria-hidden="true" hidden>
+  <div class="log-lightbox__backdrop" data-close></div>
+  <article class="log-lightbox__card" aria-label="Log entry detail">
+    <button type="button" class="log-lightbox__close" aria-label="Close" data-close>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+    <div class="log-lightbox__scroll">
+      <p class="log-lightbox__meta">
+        <span class="log-lightbox__cat"></span>
+        <span class="log-lightbox__sep">·</span>
+        <span class="log-lightbox__date"></span>
+      </p>
+      <figure class="log-lightbox__media">
+        <span class="log-lightbox__placeholder" aria-hidden="true"></span>
+        <img alt="" style="display:none">
+        <span class="log-lightbox__flag" aria-hidden="true">✦</span>
+      </figure>
+      <h2 class="log-lightbox__title"></h2>
+      <p class="log-lightbox__whisper"></p>
+      <div class="log-lightbox__tags" aria-label="Tags"></div>
+      <a class="log-lightbox__more" href="#">Open entry <span aria-hidden="true">→</span></a>
+    </div>
+  </article>
+</div>
+
+<script defer src="{{ '/assets/js/log-page.js' | relative_url }}"></script>
