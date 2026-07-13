@@ -1,0 +1,474 @@
+// ─────────────────────────────────────────────────────────────
+// _terminal.scss · mac-terminal primary altar (home page)
+// Single standalone panel — occupies .home-col--terminal (70%).
+// HUSH MODE: bloom/scanlines/glow animations commented out.
+// ─────────────────────────────────────────────────────────────
+
+.scene {
+  perspective: 1200px;
+  // DYNAMIC: 3D tilt transition disabled
+  // transition: transform 0.18s ease-out;
+}
+
+// ── Outer wrapper ─────────────────────────────────────────────
+.mac-terminal-wrapper {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+}
+
+// ── Glow container (breathing ring — disabled) ────────────────
+.mac-terminal-glow-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+
+  /* DYNAMIC: terminal bloom/scanlines/glow disabled for hush mode */
+  // Outer breathing glow ring — commented out
+  // &::after {
+  //   content: "";
+  //   position: absolute;
+  //   inset: -28px;
+  //   background:
+  //     radial-gradient(circle at 50% 100%, rgba(144, 108, 190, .07), transparent 65%),
+  //     radial-gradient(circle at 30% 20%, rgba(231, 213, 249, .03), transparent 60%);
+  //   filter: blur(34px);
+  //   z-index: 0;
+  //   animation: ring-breathe 7s ease-in-out infinite;
+  //   opacity: .50;
+  // }
+}
+
+// ── Primary altar panel ───────────────────────────────────────
+.mac-terminal {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+
+  // Token-unified: same bg/border/radius/shadow as recent + artifact panels
+  background: var(--panel);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+
+  // DYNAMIC: float + ambient animations disabled for hush mode
+  // background:
+  //   radial-gradient(140% 90% at 50% 0%, rgba(144, 108, 190, .03), transparent 55%),
+  //   radial-gradient(120% 80% at 50% 100%, rgba(231, 213, 249, .015), transparent 60%),
+  //   rgba(35, 38, 51, .25);
+  // backdrop-filter: blur(8px) saturate(120%);
+  // -webkit-backdrop-filter: blur(8px) saturate(120%);
+  // box-shadow: var(--shadow), var(--glow-blue-weak), var(--glow-violet-weak);
+  // will-change: transform, box-shadow;
+  // animation: float 9s ease-in-out infinite, ambient 6s ease-in-out infinite alternate;
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  &.active {
+    box-shadow: var(--shadow);
+    border-color: rgba(144, 108, 190, .22);
+  }
+}
+
+// DYNAMIC: gradient border seam disabled for hush mode
+// .mac-terminal::before {
+//   content: "";
+//   position: absolute;
+//   inset: 0;
+//   border-radius: inherit;
+//   pointer-events: none;
+//   padding: 1px;
+//   background: linear-gradient(135deg, rgba(144, 108, 190, .6), rgba(231, 213, 249, .28) 50%, rgba(144, 108, 190, .48));
+//   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+//   -webkit-mask-composite: xor;
+//   mask-composite: exclude;
+//   opacity: .75;
+// }
+
+// DYNAMIC: top glass reflection + scanline overlay disabled for hush mode
+// .mac-terminal::after {
+//   content: "";
+//   position: absolute;
+//   inset: 0;
+//   border-radius: inherit;
+//   pointer-events: none;
+//   background:
+//     linear-gradient(to bottom, rgba(255, 255, 255, .08), transparent 34%),
+//     repeating-linear-gradient(0deg, transparent 0 2px, rgba(255, 255, 255, .012) 2px 3px);
+//   mix-blend-mode: screen;
+//   opacity: .60;
+// }
+
+// DYNAMIC: bloom layer disabled for hush mode
+// .bloom {
+//   position: absolute;
+//   inset: 0;
+//   pointer-events: none;
+//   background:
+//     radial-gradient(520px 260px at 40% 35%, rgba(144, 108, 190, .06), transparent 60%),
+//     radial-gradient(460px 240px at 62% 60%, rgba(231, 213, 249, .04), transparent 65%);
+//   background-blend-mode: screen;
+//   z-index: 2;
+//   opacity: .35;
+//   animation: bloom-shift 11s ease-in-out infinite alternate;
+// }
+
+// Bloom element still present in HTML — hide it statically
+.bloom {
+  display: none;
+}
+
+// ── Panel chrome override within terminal ─────────────────────
+.mac-terminal > .panel-chrome {
+  z-index: 3;
+  flex-shrink: 0;
+}
+
+// ── Body / output area ────────────────────────────────────────
+.body {
+  // Top gets a touch more breathing room than Recent — welcome sequence
+  // reads better sitting slightly further from the panel label.
+  padding: 4rem 2rem 1.5rem 2.75rem;
+  overflow-y: auto;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  font: var(--fs)/var(--lh) var(--mono);
+  color: var(--fg-main);
+  text-shadow: var(--text-shadow);
+  position: relative;
+  z-index: 3;
+
+  // DYNAMIC: CRT scanlines disabled for hush mode
+  // &::before {
+  //   content: "";
+  //   position: absolute;
+  //   inset: 0;
+  //   pointer-events: none;
+  //   background: repeating-linear-gradient(
+  //     to bottom,
+  //     transparent 0 2px,
+  //     rgba(144, 108, 190, .018) 2px 3px
+  //   );
+  //   z-index: 1;
+  //   animation: scanlines 8s linear infinite;
+  // }
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(144, 108, 190, .30) transparent;
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb { background: rgba(144, 108, 190, .30); border-radius: 3px; }
+}
+
+#terminal-output {
+  white-space: pre-wrap;
+  word-break: break-all;
+  flex-grow: 1;
+  position: relative;
+  z-index: 2;
+}
+
+.line-welcome {
+  color: var(--fg-welcome);
+  font-size: 1.2rem;
+  letter-spacing: .02em;
+  // DYNAMIC: text-glow animation disabled
+  // animation: text-glow 4s ease-in-out infinite alternate;
+}
+
+.line-system {
+  line-height: 1.35;
+}
+
+.line-art {
+  color: var(--accent-soft);
+  font-size: 0.95rem;
+  letter-spacing: .2em;
+  opacity: .75;
+  white-space: pre;
+}
+
+.output-help { color: var(--fg-help); }
+
+.line-system {
+  color: var(--fg-system);
+  opacity: .9;
+}
+
+// ── Prompt area ───────────────────────────────────────────────
+// Internal divider is inset from panel edges so it doesn't overlap
+// the sparkle border corners.
+.prompt-wrapper {
+  padding: 10px var(--space) 22px;
+  position: relative;
+  z-index: 3;
+  flex-shrink: 0;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 28px;
+    right: 28px;
+    height: 1px;
+    background: var(--border);
+  }
+}
+
+.terminal-input-line {
+  display: flex;
+  align-items: baseline;
+  gap: .6rem;
+
+  .terminal-input { flex: 1; }
+  .footer-line { flex-shrink: 0; margin-left: auto; }
+}
+
+.autocomplete-suggestions {
+  position: absolute;
+  bottom: 100%;
+  left: 16px;
+  right: 16px;
+  margin-bottom: 6px;
+  background: var(--panel);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 0;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 10;
+  display: none;
+  box-shadow: var(--shadow);
+  transform-origin: bottom center;
+
+  &.is-visible {
+    display: block;
+    animation: suggest-in .22s cubic-bezier(.2, .9, .3, 1.2);
+  }
+
+  .suggestion-item {
+    padding: 6px 12px;
+    cursor: pointer;
+    color: var(--fg-main);
+    font-size: .9rem;
+    transition: background .15s ease, color .15s ease, padding-left .15s ease;
+
+    &:hover,
+    &.selected {
+      background: rgba(144, 108, 190, .18);
+      color: var(--accent);
+      padding-left: 16px;
+    }
+  }
+}
+
+.prompt {
+  color: var(--accent);
+  text-shadow: 0 0 8px rgba(144, 108, 190, .6);
+  font-weight: 600;
+}
+
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--fg-command);
+  font: inherit;
+  caret-color: var(--accent);
+  text-shadow: 0 0 6px rgba(144, 108, 190, .35);
+  // DYNAMIC: caret-pulse animation disabled
+  // animation: caret-pulse 1.2s ease-in-out infinite;
+}
+
+// DYNAMIC: caret-pulse disabled
+// @keyframes caret-pulse {
+//   0%, 100% { caret-color: rgba(144, 108, 190, 1); }
+//   50%      { caret-color: rgba(144, 108, 190, .35); }
+// }
+
+.command-output a {
+  color: var(--link);
+  text-shadow: none;
+  border-bottom: 1px dotted rgba(144, 108, 190, .5);
+
+  &:hover {
+    color: var(--link-hover);
+    text-shadow: var(--glow-violet-weak);
+    border-bottom-color: rgba(144, 108, 190, .9);
+  }
+}
+
+// Footer status — sits right edge of input line
+.footer-line {
+  font: 11px/1.4 var(--mono);
+  color: var(--accent-soft);
+  opacity: .55;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  // DYNAMIC: status-flicker animation disabled
+  // animation: status-flicker 5.5s steps(1) infinite;
+
+  &::before {
+    content: "● ";
+    color: var(--accent-soft);
+    text-shadow: var(--glow-violet-weak);
+    // DYNAMIC: dot-pulse animation disabled
+    // animation: dot-pulse 1.8s ease-in-out infinite;
+  }
+}
+
+.noscript-warning {
+  text-align: center;
+  padding: 2rem;
+  color: var(--fg-main);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 2rem;
+}
+
+// ── Animations (DYNAMIC — all disabled for hush mode) ─────────
+/* DYNAMIC: terminal bloom/scanlines/glow animations disabled for hush mode */
+
+// @keyframes float {
+//   0%, 100% { transform: translateY(0); }
+//   50%      { transform: translateY(-5px); }
+// }
+
+// @keyframes ambient {
+//   0%, 100% { box-shadow: var(--shadow), 0 0 18px rgba(144, 108, 190, .12); }
+//   50%      { box-shadow: var(--shadow), 0 0 30px rgba(144, 108, 190, .22); }
+// }
+
+// @keyframes ring-breathe {
+//   0%, 100% { opacity: .65; transform: scale(1); }
+//   50%      { opacity: .85; transform: scale(1.03); }
+// }
+
+// @keyframes bloom-shift {
+//   0%   { transform: translate(0, 0); opacity: .50; }
+//   50%  { transform: translate(8px, -4px); opacity: .62; }
+//   100% { transform: translate(-6px, 6px); opacity: .55; }
+// }
+
+// @keyframes scanlines {
+//   0%   { background-position: 0 0; }
+//   100% { background-position: 0 200px; }
+// }
+
+// @keyframes text-glow {
+//   0%, 100% { text-shadow: 0 0 6px rgba(231, 213, 249, .35), 0 0 18px rgba(144, 108, 190, .18); }
+//   50%      { text-shadow: 0 0 10px rgba(231, 213, 249, .6),  0 0 28px rgba(144, 108, 190, .32); }
+// }
+
+// @keyframes status-flicker {
+//   0%, 96%, 100% { opacity: .55; }
+//   97%           { opacity: .15; }
+//   98%           { opacity: .75; }
+//   99%           { opacity: .35; }
+// }
+
+// @keyframes dot-pulse {
+//   0%, 100% { opacity: 1;   transform: scale(1); }
+//   50%      { opacity: .55; transform: scale(.85); }
+// }
+
+// suggest-in is a UI response animation (not ambient eye-candy) — kept
+@keyframes suggest-in {
+  from { opacity: 0; transform: translateY(6px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+// ── Light theme softening ─────────────────────────────────────
+[data-theme="light"] {
+  .mac-terminal {
+    background: var(--panel);
+  }
+  // DYNAMIC: scanline overlay + bloom opacity overrides no longer needed
+  // .mac-terminal::after { opacity: .30; }
+  // .body::before { display: none; }
+  // .bloom { opacity: .28; }
+  // .mac-terminal-glow-container::after { opacity: .40; }
+
+  .autocomplete-suggestions {
+    background: var(--panel);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+
+    .suggestion-item {
+      color: var(--fg-main);
+
+      &:hover,
+      &.selected {
+        background: rgba(107, 79, 149, .10);
+        color: var(--accent);
+      }
+    }
+  }
+}
+
+// ── Reduced motion ────────────────────────────────────────────
+@media (prefers-reduced-motion: reduce) {
+  .mac-terminal,
+  .mac-terminal-glow-container::after,
+  .bloom,
+  .body::before,
+  .line-welcome,
+  .footer-line,
+  .footer-line::before {
+    animation: none !important;
+  }
+  .scene { transform: none !important; }
+}
+
+// ── Search empty state (inline in terminal, with mascot) ──
+.search-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+  padding: 1.25rem 0 .75rem;
+
+  &__mascot {
+    width: 140px;
+    height: 140px;
+    filter: drop-shadow(0 4px 16px rgba(144, 108, 190, .25));
+  }
+
+  &__lead {
+    margin: .35rem 0 0;
+    color: var(--fg-welcome);
+    font: 500 .95rem/1.4 var(--sans);
+  }
+
+  &__sub {
+    margin: 0;
+    color: var(--fg-muted);
+    font: 400 .85rem/1.4 var(--sans);
+  }
+}
+
+// ── Mobile: terminal fills column, right column stacks below ──
+@media (max-width: 768px) {
+  .mac-terminal-wrapper {
+    height: auto;
+  }
+
+  .mac-terminal {
+    height: auto;
+    min-height: 55vh;
+  }
+}

@@ -1,0 +1,81 @@
+---
+layout: default
+---
+<div class="home-stage">
+
+  <!-- ── LEFT 70%: terminal ───────────────────────────────── -->
+  <div class="home-col--terminal">
+    <div class="mac-terminal-wrapper scene">
+      <div class="mac-terminal-glow-container">
+        <div class="mac-terminal">
+          <div class="bloom"></div>
+
+          {% include panel-ornament.html preset='terminal' %}
+          <div class="panel-label" aria-hidden="true"><span class="panel-label__sigil">✦</span>TERMINAL</div>
+
+          <div class="body" id="terminal-window" role="region" aria-live="polite">
+            <div id="terminal-output"></div>
+          </div>
+
+          <div class="prompt-wrapper">
+            <div id="autocomplete-suggestions" class="autocomplete-suggestions"></div>
+            <div class="terminal-input-line">
+              <span class="prompt">>&nbsp;</span>
+              <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Command input">
+              <div class="footer-line" id="terminal-status">STATUS · OK</div>
+            </div>
+          </div>
+
+        </div><!-- /.mac-terminal -->
+      </div><!-- /.mac-terminal-glow-container -->
+    </div><!-- /.mac-terminal-wrapper -->
+  </div><!-- /.home-col--terminal -->
+
+  <!-- ── RIGHT 30%: recent + artifact ────────────────────── -->
+  <div class="home-col--right">
+
+    <!-- TOP: recent panel -->
+    <div class="feed-panel--recent">
+      {% include panel-ornament.html preset='recent' %}
+      <div class="panel-label" aria-hidden="true"><span class="panel-label__sigil">✦</span>RECENT</div>
+      <ul id="recent-body" class="feed-recent-list" aria-label="Recent entries"></ul>
+    </div>
+
+  </div><!-- /.home-col--right -->
+
+</div><!-- /.home-stage -->
+
+<noscript>
+  <div class="noscript-warning">
+    <p>This website's terminal interface requires JavaScript to function. Please enable it to use the terminal.</p>
+  </div>
+</noscript>
+
+<script>
+  window.__TERMINAL_COMMANDS__ = {{ site.data.commands | jsonify }};
+
+  window.__PAGE_COUNTS__ = {
+    wiki:    {{ site.wiki.size }},
+    studies: {{ site.studies.size }},
+    log:     {{ site.posts.size }}
+  };
+
+  window.__RECENT_FEED__ = [
+    {% assign all_docs = site.wiki | concat: site.studies | concat: site.posts %}
+    {% assign sorted_docs = all_docs | sort: 'date' | reverse %}
+    {% for doc in sorted_docs limit:15 %}
+    {% if doc.collection == 'wiki' %}{% assign _sigil = '◇' %}{% assign _section = 'wiki' %}{% elsif doc.collection == 'studies' %}{% assign _sigil = '✦' %}{% assign _section = 'studies' %}{% else %}{% assign _sigil = '·' %}{% assign _section = 'log' %}{% endif %}
+    {
+      "sigil": {{ _sigil | jsonify }},
+      "title": {{ doc.title | jsonify }},
+      "section": {{ _section | jsonify }},
+      "time": {{ doc.date | date: '%H:%M' | jsonify }},
+      "url": {{ doc.url | relative_url | jsonify }}
+    }{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ];
+
+</script>
+
+<script defer src="{{ '/assets/js/ui-effects.js' | relative_url }}"></script>
+<script type="module" src="{{ '/assets/js/recent-panel.js' | relative_url }}"></script>
