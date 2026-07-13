@@ -1,0 +1,47 @@
+---
+layout: null
+---
+{%- assign all_docs = site.wiki | concat: site.studies | concat: site.posts -%}
+{%- assign all_tags = "" | split: "" -%}
+{%- for doc in all_docs -%}
+  {%- for tag in doc.tags -%}
+    {%- assign all_tags = all_tags | push: tag -%}
+  {%- endfor -%}
+{%- endfor -%}
+{%- assign unique_tags = all_tags | uniq -%}
+
+{
+  "nodes": [
+    {%- for doc in all_docs -%}
+      {
+        "id": {{ doc.url | jsonify }},
+        "label": {{ doc.title | jsonify }},
+        "group": {% if doc.collection == 'wiki' %}"wiki"{% elsif doc.collection == 'studies' %}"studies"{% else %}"log"{% endif %},
+        "date": {{ doc.date | date: '%Y-%m-%d' | jsonify }}
+      }
+      {%- unless forloop.last -%},{%- endunless -%}
+    {%- endfor -%}
+  ],
+  "links": [
+    {%- assign processed_pairs = "" | split: "" -%}
+    {%- for tag in unique_tags -%}
+      {%- assign tagged_docs = all_docs | where_exp: "d", "d.tags contains tag" -%}
+      {%- assign tsize = tagged_docs.size -%}
+      {%- for i in (0..tsize) -%}
+        {%- for j in (i..tsize) -%}
+          {%- assign d1 = tagged_docs[i] -%}
+          {%- assign d2 = tagged_docs[j] -%}
+          {%- if d1 and d2 and d1.url != d2.url -%}
+            {%- assign pair1 = d1.url | append: "|" | append: d2.url -%}
+            {%- assign pair2 = d2.url | append: "|" | append: d1.url -%}
+            {%- unless processed_pairs contains pair1 or processed_pairs contains pair2 -%}
+              { "from": {{ d1.url | jsonify }}, "to": {{ d2.url | jsonify }} },
+              {%- assign processed_pairs = processed_pairs | push: pair1 -%}
+            {%- endunless -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endfor -%}
+    {%- endfor -%}
+    {}
+  ]
+}

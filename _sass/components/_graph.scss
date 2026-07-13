@@ -1,0 +1,140 @@
+#knowledge-graph-container {
+  --pad:40px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin:0 auto;
+  border-radius: var(--radius);
+  padding:var(--pad);
+  width:84%;
+  height:78vh;
+  max-width:1200px;
+  background:
+    radial-gradient(1px 1px at 12% 18%, rgba(231,213,249,.16), transparent 60%),
+    radial-gradient(1px 1px at 78% 32%, rgba(231,213,249,.10), transparent 60%),
+    radial-gradient(1px 1px at 45% 72%, rgba(231,213,249,.14), transparent 60%),
+    radial-gradient(1px 1px at 88% 84%, rgba(231,213,249,.08), transparent 60%),
+    radial-gradient(1px 1px at 22% 58%, rgba(231,213,249,.12), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border:1px solid var(--glass-border);
+  box-shadow:
+    0 12px 40px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.02),
+    0 0 60px rgba(144, 108, 190,0.01);
+  backdrop-filter: blur(8px) saturate(120%);
+  overflow:hidden;
+}
+
+// Loader (star progress fade in 3 stages)
+.graph-loader {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font: 400 1.4rem/1 var(--mono);
+  color: var(--accent-soft);
+  letter-spacing: .5em;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .3s ease;
+  z-index: 50;
+
+  &.is-loading { opacity: .85; animation: star-progress 1.2s ease-in-out infinite; }
+}
+
+@keyframes star-progress {
+  0%   { content: "·"; opacity: .35; }
+  33%  { opacity: .6; }
+  66%  { opacity: .85; }
+  100% { opacity: .35; }
+}
+
+.graph-canvas-wrapper {
+  flex-grow: 1;
+  width: 100%;
+  height: 100%; /* vis-network needs explicit height */
+}
+/* SVG 연결선 스타일 (viewBox 좌표로 %) */
+.links{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;}
+.link{fill:none;stroke:rgba(144, 108, 190,0.18);stroke-width:0.6;filter:drop-shadow(0 0 6px rgba(144, 108, 190,0.08)); stroke-dasharray:6 6; animation:dash 6s linear infinite;}
+ @keyframes dash{to{stroke-dashoffset:480}}
+
+/* 접근성: 줄임 애니메이션 */
+ @media (prefers-reduced-motion: reduce){
+  .links, .glitch::before, .glitch::after {animation:none}
+  .node:hover .dot{transition:none}
+}.graph-controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  /* margin-top: 20px; */ /* Removed as it's now absolutely positioned */
+  flex-shrink: 0;
+  height: 50px;
+  background-color: rgba(35, 38, 51, 0.8);
+  border-radius: var(--radius);
+  padding: 10px 20px;
+  box-shadow: var(--shadow);
+  align-items: center;
+  z-index: 100; /* Ensure controls are above the graph */
+
+  position: absolute; /* Position controls over the graph */
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 1px solid var(--border);
+}
+
+.button-glass {
+  background-color: rgba(144, 108, 190, 0.1);
+  border: 1px solid var(--accent-cyan);
+  border-radius: 5px;
+  color: var(--accent-cyan);
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-shadow: 0 0 5px var(--accent-cyan);
+
+  &:hover {
+    background-color: var(--accent-cyan);
+    color: var(--bg);
+    box-shadow: 0 0 15px var(--accent-cyan);
+    text-shadow: none;
+  }
+}
+
+.graph-overlay {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
+  z-index: 9999; /* Ensure it's on top of everything */
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+
+
+.close-overlay-button {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--fg-muted);
+  cursor: pointer;
+  z-index: 10000; /* Ensure it's above the graph and controls */
+
+  &:hover {
+    color: var(--accent-cyan);
+  }
+}
+
+.graph-canvas-wrapper {
+  flex-grow: 1;
+  width: 100%;
+  height: 100%; /* vis-network needs explicit height */
+}
