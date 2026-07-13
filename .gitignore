@@ -1,0 +1,23 @@
+# Jekyll build output
+_site/
+
+# Jekyll caches
+.jekyll-cache/
+.jekyll-metadata
+
+# Sass caches
+.sass-cache/
+
+# macOS files
+.DS_Store
+
+# OMC (oh-my-claudecode) state
+.omc/
+
+# Editor
+.vscode/
+.idea/
+
+# Bundler vendor
+vendor/
+.bundle/
