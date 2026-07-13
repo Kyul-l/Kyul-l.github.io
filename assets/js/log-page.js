@@ -95,6 +95,7 @@
     var catEl = lb.querySelector('.log-lightbox__cat');
     var titleEl = lb.querySelector('.log-lightbox__title');
     var whisperEl = lb.querySelector('.log-lightbox__whisper');
+    var bodyEl = lb.querySelector('.log-lightbox__body');
     var tagsEl = lb.querySelector('.log-lightbox__tags');
     var moreEl = lb.querySelector('.log-lightbox__more');
     var lastTrigger = null;
@@ -121,6 +122,14 @@
         titleEl.textContent = d.title || '';
         whisperEl.textContent = d.fragment || '';
         whisperEl.style.display = d.fragment ? '' : 'none';
+
+        // Body — the full entry text, plain (CSS handles wrapping + scroll).
+        // Empty body = placeholder-only stub; hide the block in that case.
+        var bodyText = (d.body || '').trim();
+        if (bodyEl) {
+            bodyEl.textContent = bodyText;
+            bodyEl.style.display = bodyText ? '' : 'none';
+        }
 
         // Tags — comma or middle-dot separated
         tagsEl.innerHTML = '';

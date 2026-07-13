@@ -175,32 +175,66 @@
 }
 
 // ═══════════════════════════════════════════════════════════
-// Photo Masonry — VSCO / Pinterest / Camera Roll vibe
-// Photo is the protagonist. Text supports.
+// Photo Masonry — polaroid tiles on a shelf
+// Small frames, cream mount, quiet tilt on hover.
 // ═══════════════════════════════════════════════════════════
 .log-masonry {
-    columns: 3;
-    column-gap: 1.5rem;
+    columns: 4;
+    column-gap: 1.75rem;
 
-    @media (max-width: 900px) { columns: 2; }
-    @media (max-width: 560px) { columns: 1; }
+    @media (max-width: 1200px) { columns: 3; }
+    @media (max-width: 900px)  { columns: 2; }
+    @media (max-width: 560px)  { columns: 1; }
 }
 
 .log-photo {
     display: block;
     break-inside: avoid;
-    margin: 0 0 1.75rem;
+    margin: 0 auto 2rem;
+    max-width: 220px;
+    padding: 10px 10px 6px;
+    background: var(--card);
+    border: 1px solid var(--border-soft);
+    border-radius: 2px;
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, .18),
+        0 8px 20px rgba(0, 0, 0, .25);
     text-decoration: none;
     color: inherit;
     opacity: 0;
     transform: translateY(8px);
     transition:
         opacity .55s ease var(--photo-delay, 0ms),
-        transform .55s ease var(--photo-delay, 0ms);
+        transform .35s cubic-bezier(.2, .6, .2, 1),
+        box-shadow .35s ease;
 
     &.is-in {
         opacity: 1;
         transform: translateY(0);
+    }
+
+    &:hover {
+        transform: translateY(-3px) rotate(-.6deg);
+        box-shadow:
+            0 2px 4px rgba(0, 0, 0, .22),
+            0 14px 32px rgba(0, 0, 0, .32);
+    }
+
+    &:nth-child(even):hover {
+        transform: translateY(-3px) rotate(.6deg);
+    }
+}
+
+[data-theme="light"] .log-photo {
+    background: var(--kp-marble);
+    box-shadow:
+        0 1px 2px rgba(31, 28, 44, .08),
+        0 8px 20px rgba(31, 28, 44, .12);
+
+    &:hover {
+        box-shadow:
+            0 2px 4px rgba(31, 28, 44, .12),
+            0 14px 32px rgba(31, 28, 44, .18);
     }
 }
 
@@ -208,9 +242,9 @@
     aspect-ratio: 4 / 3;
     overflow: hidden;
     position: relative;
-    background: var(--card);
+    background: var(--card-deep);
     margin: 0;
-    border-radius: var(--radius-sm);
+    border-radius: 1px;
 
     img {
         width: 100%;
@@ -257,28 +291,30 @@
     z-index: 2;
 }
 
-// Caption — small text below photo
+// Caption — sits inside the polaroid mount, directly under the photo
 .log-photo__caption {
-    padding: .65rem .2rem 0;
+    padding: .55rem .1rem 0;
+    text-align: center;
 }
 
 .log-photo__title {
-    font: 500 1rem/1.3 var(--serif);
+    font: 500 .82rem/1.25 var(--serif);
     color: var(--fg-main);
-    margin: 0 0 .25rem;
+    margin: 0 0 .2rem;
     letter-spacing: -.002em;
     transition: color .25s ease;
 }
 
 .log-photo__meta {
-    font: 500 .65rem/1 var(--mono);
-    letter-spacing: .18em;
+    font: 500 .55rem/1 var(--mono);
+    letter-spacing: .16em;
     color: var(--fg-muted);
     text-transform: uppercase;
     margin: 0;
     display: inline-flex;
     align-items: center;
-    gap: .45em;
+    gap: .4em;
+    justify-content: center;
 }
 
 .log-photo__sep { opacity: .5; }
@@ -364,11 +400,15 @@
 
 .log-lightbox__card {
     position: relative;
-    background: var(--card);
+    display: flex;
+    background: rgba(20, 17, 28, .82);
+    backdrop-filter: blur(20px) saturate(1.1);
+    -webkit-backdrop-filter: blur(20px) saturate(1.1);
     border: 1px solid rgba(185, 163, 214, .18);
     border-radius: var(--radius-md);
-    width: min(440px, 100%);
-    max-height: min(90vh, 720px);
+    width: min(880px, 100%);
+    max-height: min(85vh, 640px);
+    overflow: hidden;
     box-shadow:
         0 20px 60px rgba(0, 0, 0, .55),
         0 0 0 1px rgba(185, 163, 214, .08);
@@ -387,6 +427,7 @@
 }
 
 [data-theme="light"] .log-lightbox__card {
+    background: rgba(253, 251, 246, .92);
     border-color: rgba(107, 79, 149, .2);
     color: var(--fg-main);
 }
@@ -415,11 +456,13 @@
     }
 }
 
-// Internal scroll container
-.log-lightbox__scroll {
-    padding: 1.4rem 1.4rem 1.5rem;
+// Right column — text side of the side-by-side card
+.log-lightbox__text {
+    flex: 0 0 40%;
+    display: flex;
+    flex-direction: column;
+    padding: 1.75rem 1.75rem 1.5rem;
     overflow-y: auto;
-    max-height: min(90vh, 720px);
     scrollbar-width: thin;
     scrollbar-color: rgba(185, 163, 214, .25) transparent;
 
@@ -429,6 +472,17 @@
         background: rgba(185, 163, 214, .2);
         border-radius: var(--radius-pill);
     }
+}
+
+// Body slot — full entry text below the whisper. Scrolls with the text column.
+.log-lightbox__body {
+    font: 400 .92rem/1.7 var(--serif);
+    color: var(--fg-main);
+    opacity: .82;
+    margin: 0 0 1.25rem;
+    white-space: pre-wrap;
+
+    &:empty { display: none; }
 }
 
 // Category tints (drive placeholder + accent inside card)
@@ -453,12 +507,12 @@
 .log-lightbox__cat { color: var(--lb-accent, var(--accent)); }
 
 .log-lightbox__media {
-    margin: 0 0 1.25rem;
+    flex: 0 0 60%;
+    margin: 0;
     position: relative;
     background: var(--card-deep);
-    aspect-ratio: 4 / 5;
     overflow: hidden;
-    border-radius: var(--radius-sm);
+    align-self: stretch;
 
     img {
         width: 100%;
@@ -533,6 +587,22 @@
     &:hover {
         color: var(--lb-accent, var(--accent));
         letter-spacing: .2em;
+    }
+}
+
+// ── Stack the lightbox card on narrow viewports ──────────────
+@media (max-width: 700px) {
+    .log-lightbox__card {
+        flex-direction: column;
+        width: min(440px, 100%);
+    }
+    .log-lightbox__media {
+        flex: 0 0 auto;
+        aspect-ratio: 4 / 3;
+    }
+    .log-lightbox__text {
+        flex: 1 1 auto;
+        padding: 1.25rem 1.35rem 1.35rem;
     }
 }
 
