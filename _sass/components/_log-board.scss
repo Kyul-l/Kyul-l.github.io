@@ -653,9 +653,9 @@
         border-radius: var(--radius-pill);
     }
 }
-.log-lightbox--text     .log-lightbox__text { flex: 1 1 auto; padding: 3.5rem 3rem 3rem; }
-.log-lightbox--polaroid .log-lightbox__text { flex: 0 0 auto; padding: 1.25rem .5rem .35rem; }
-.log-lightbox--split    .log-lightbox__text { flex: 0 0 45%; padding: 3rem 2.5rem 2.5rem; }
+.log-lightbox--text     .log-lightbox__text { flex: 1 1 auto; min-width: 0; padding: 3.5rem 3rem 3rem; }
+.log-lightbox--polaroid .log-lightbox__text { flex: 0 0 auto; min-width: 0; padding: 1.25rem .5rem .35rem; }
+.log-lightbox--split    .log-lightbox__text { flex: 0 0 45%; max-width: 45%; min-width: 0; padding: 3rem 2.5rem 2.5rem; }
 
 // Polaroid caption tightens the hierarchy — memo, not article
 .log-lightbox--polaroid .log-lightbox__meta { margin: 0 0 .5rem; }
