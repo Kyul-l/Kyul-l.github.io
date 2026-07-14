@@ -131,19 +131,6 @@
     flex-direction: column;
     gap: 0;
     min-width: 0;
-
-    // Page number — top-left corner, subtle
-    &::before {
-        content: '01';
-        position: absolute;
-        top: .9rem;
-        right: 1rem;
-        font: 400 .68rem/1 var(--mono);
-        color: var(--fg-dim);
-        letter-spacing: .1em;
-        opacity: .45;
-        pointer-events: none;
-    }
 }
 
 // ── Right page ────────────────────────────────────────────────
@@ -155,19 +142,6 @@
     flex-direction: column;
     gap: 0;
     min-width: 0;
-
-    // Page number — top-right corner, subtle
-    &::before {
-        content: '02';
-        position: absolute;
-        top: .9rem;
-        left: 1rem;
-        font: 400 .68rem/1 var(--mono);
-        color: var(--fg-dim);
-        letter-spacing: .1em;
-        opacity: .45;
-        pointer-events: none;
-    }
 }
 
 // ── Spread page header (Contents / Latest entry) ──────────────
