@@ -603,7 +603,7 @@
 .log-lightbox__media {
     margin: 0;
     position: relative;
-    background: var(--kp-deep);
+    background: var(--card-deep);  // theme-aware: dark in dark, cream in light
     overflow: hidden;
 
     img {
