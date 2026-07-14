@@ -14,13 +14,35 @@
         return null;
     }
 
+    var yearEl = document.querySelector('.log-header__year');
+    var seasonLegendEls = Array.prototype.slice.call(document.querySelectorAll('.log-header__season'));
+
+    function seasonFor(monthNum) {
+        if (monthNum === 12 || monthNum <= 2) return '겨울';
+        if (monthNum <= 5) return '봄';
+        if (monthNum <= 8) return '여름';
+        return '가을';
+    }
+
+    function syncHeaderLegend(target) {
+        if (!yearEl && !seasonLegendEls.length) return;
+        var y = target.dataset.year;
+        var m = parseInt(target.dataset.month, 10);
+        if (yearEl && y) yearEl.textContent = y + '년';
+        var seasonKr = seasonFor(m);
+        seasonLegendEls.forEach(function (el) {
+            if (el.textContent.trim() === seasonKr) el.classList.add('is-current');
+            else el.classList.remove('is-current');
+        });
+    }
+
     function show(key) {
         var target = findSection(key);
         if (!target) return;
         sections.forEach(function (s) {
             s.dataset.current = s === target ? 'true' : 'false';
         });
-        target.querySelectorAll('.log-month__season, .log-month__month').forEach(function (el) {
+        target.querySelectorAll('.log-month__month, .log-month__sub').forEach(function (el) {
             el.classList.remove('is-fading');
         });
         if (window.location.hash !== '#m-' + key) {
@@ -31,6 +53,7 @@
         requestAnimationFrame(function () {
             photos.forEach(function (p) { p.classList.add('is-in'); });
         });
+        syncHeaderLegend(target);
     }
 
     function navigate(currentSection, dir) {
@@ -39,10 +62,10 @@
         if (targetIdx < 0 || targetIdx >= sections.length) return;
         var target = sections[targetIdx];
 
-        var currentSeason = currentSection.querySelector('.log-month__season');
         var currentMonth = currentSection.querySelector('.log-month__month');
-        if (currentSeason) currentSeason.classList.add('is-fading');
+        var currentSub = currentSection.querySelector('.log-month__sub');
         if (currentMonth) currentMonth.classList.add('is-fading');
+        if (currentSub) currentSub.classList.add('is-fading');
 
         setTimeout(function () {
             show(target.dataset.key);
@@ -74,6 +97,7 @@
             requestAnimationFrame(function () {
                 photos.forEach(function (p) { p.classList.add('is-in'); });
             });
+            syncHeaderLegend(current);
         }
     }
 

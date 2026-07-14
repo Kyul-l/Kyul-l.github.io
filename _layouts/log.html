@@ -5,42 +5,87 @@ layout: page
 
 <article class="log-board">
 
-  <header class="log-header">
-    <h1 class="log-header__title"><span aria-hidden="true">◇</span> Log</h1>
-    <p class="log-header__lead">A season-bound roll of moments.</p>
-  </header>
-
   {%- assign all_posts = site.posts | sort: 'date' | reverse -%}
   {%- assign posts_by_month = all_posts | group_by_exp: 'p', 'p.date | date: "%Y-%m"' -%}
 
-  {%- assign years_str = '' -%}
-  {%- for post in all_posts -%}
-    {%- assign py = post.date | date: '%Y' -%}
-    {%- unless years_str contains py -%}
-      {%- assign years_str = years_str | append: py | append: ',' -%}
-    {%- endunless -%}
-  {%- endfor -%}
-  {%- assign years = years_str | split: ',' | uniq | sort -%}
-
-  {%- assign newest_key = '' -%}
+  {%- comment -%} Range: min(earliest post year, current-1) → max(latest post year, current+1). {%- endcomment -%}
+  {%- assign current_year = site.time | date: '%Y' | plus: 0 -%}
+  {%- assign current_month = site.time | date: '%-m' | plus: 0 -%}
+  {%- assign year_prev = current_year | minus: 1 -%}
+  {%- assign year_next = current_year | plus: 1 -%}
   {%- if all_posts.size > 0 -%}
-    {%- assign newest_key = all_posts[0].date | date: '%Y-%m' -%}
+    {%- assign earliest_post = all_posts | last -%}
+    {%- assign latest_post = all_posts | first -%}
+    {%- assign earliest_year = earliest_post.date | date: '%Y' | plus: 0 -%}
+    {%- assign latest_year = latest_post.date | date: '%Y' | plus: 0 -%}
+  {%- else -%}
+    {%- assign earliest_year = current_year -%}
+    {%- assign latest_year = current_year -%}
+  {%- endif -%}
+  {%- if earliest_year < year_prev -%}
+    {%- assign min_year = earliest_year -%}
+  {%- else -%}
+    {%- assign min_year = year_prev -%}
+  {%- endif -%}
+  {%- if latest_year > year_next -%}
+    {%- assign max_year = latest_year -%}
+  {%- else -%}
+    {%- assign max_year = year_next -%}
+  {%- endif -%}
+
+  {%- comment -%} Default section = current year+month if in range, else latest post month, else min year Jan. {%- endcomment -%}
+  {%- assign default_key = '' -%}
+  {%- assign current_m_padded = current_month | prepend: '00' | slice: -2, 2 -%}
+  {%- assign current_key = current_year | append: '-' | append: current_m_padded -%}
+  {%- if current_year >= min_year and current_year <= max_year -%}
+    {%- assign default_key = current_key -%}
+  {%- elsif all_posts.size > 0 -%}
+    {%- assign default_key = all_posts[0].date | date: '%Y-%m' -%}
+  {%- else -%}
+    {%- assign default_key = min_year | append: '-01' -%}
   {%- endif -%}
 
   {%- assign month_names = 'January,February,March,April,May,June,July,August,September,October,November,December' | split: ',' -%}
 
+  {%- comment -%} Determine current season from current_month for the header legend. {%- endcomment -%}
+  {%- if current_month == 12 or current_month <= 2 -%}{%- assign current_season_kr = '겨울' -%}
+  {%- elsif current_month <= 5 -%}{%- assign current_season_kr = '봄' -%}
+  {%- elsif current_month <= 8 -%}{%- assign current_season_kr = '여름' -%}
+  {%- else -%}{%- assign current_season_kr = '가을' -%}
+  {%- endif -%}
+
+  <header class="log-header">
+    <div class="log-header__left">
+      <h1 class="log-header__title"><span aria-hidden="true">◇</span> Log</h1>
+      <p class="log-header__lead">A season-bound roll of moments.</p>
+    </div>
+    <div class="log-header__seasons" aria-label="Season legend">
+      <span class="log-header__year">{{ current_year }}년</span>
+      <span class="log-header__sep" aria-hidden="true">·</span>
+      <span class="log-header__season{% if current_season_kr == '봄' %} is-current{% endif %}">봄</span>
+      <span class="log-header__season{% if current_season_kr == '여름' %} is-current{% endif %}">여름</span>
+      <span class="log-header__season{% if current_season_kr == '가을' %} is-current{% endif %}">가을</span>
+      <span class="log-header__season{% if current_season_kr == '겨울' %} is-current{% endif %}">겨울</span>
+    </div>
+  </header>
+
   <div class="log-months">
-    {%- for year in years -%}
+    {%- for y in (min_year..max_year) -%}
       {%- for i in (0..11) -%}
         {%- assign m_num_int = i | plus: 1 -%}
         {%- assign m_num_padded = m_num_int | prepend: '00' | slice: -2, 2 -%}
         {%- assign m_name = month_names[i] -%}
-        {%- assign key = year | append: '-' | append: m_num_padded -%}
+        {%- assign m_name_upper = m_name | upcase -%}
+        {%- assign key = y | append: '-' | append: m_num_padded -%}
 
-        {%- if m_num_int == 12 or m_num_int == 1 or m_num_int == 2 -%}{%- assign sn = 'Winter' -%}
-        {%- elsif m_num_int == 3 or m_num_int == 4 or m_num_int == 5 -%}{%- assign sn = 'Spring' -%}
-        {%- elsif m_num_int == 6 or m_num_int == 7 or m_num_int == 8 -%}{%- assign sn = 'Summer' -%}
-        {%- else -%}{%- assign sn = 'Autumn' -%}
+        {%- if m_num_int == 12 or m_num_int == 1 or m_num_int == 2 -%}
+          {%- assign sn = 'Winter' -%}{%- assign sn_kr = '겨울' -%}
+        {%- elsif m_num_int == 3 or m_num_int == 4 or m_num_int == 5 -%}
+          {%- assign sn = 'Spring' -%}{%- assign sn_kr = '봄' -%}
+        {%- elsif m_num_int == 6 or m_num_int == 7 or m_num_int == 8 -%}
+          {%- assign sn = 'Summer' -%}{%- assign sn_kr = '여름' -%}
+        {%- else -%}
+          {%- assign sn = 'Autumn' -%}{%- assign sn_kr = '가을' -%}
         {%- endif -%}
 
         {%- assign m_posts_size = 0 -%}
@@ -52,17 +97,17 @@ layout: page
           {%- endif -%}
         {%- endfor -%}
 
-        {%- if m_posts_size > 0 -%}
-        <section class="log-month" data-key="{{ key }}" data-season="{{ sn | downcase }}"{% if key == newest_key %} data-current="true"{% endif %}>
+        <section class="log-month" data-key="{{ key }}" data-season="{{ sn | downcase }}" data-year="{{ y }}" data-month="{{ m_num_int }}"{% if key == default_key %} data-current="true"{% endif %}>
           <div class="log-month__pager">
             <button type="button" class="log-month__btn log-month__btn--prev" data-nav="prev" aria-label="Previous month"><span aria-hidden="true">‹</span> prev month</button>
             <div class="log-month__label">
-              <span class="log-month__season">{{ sn }}</span>
-              <span class="log-month__month">{{ year }} <span class="log-month__sep">·</span> {{ m_name }}</span>
+              <span class="log-month__month">{{ m_name_upper }}</span>
+              <span class="log-month__sub">{{ y }} <span class="log-month__sep">·</span> {{ sn_kr }}</span>
             </div>
             <button type="button" class="log-month__btn log-month__btn--next" data-nav="next" aria-label="Next month">next month <span aria-hidden="true">›</span></button>
           </div>
 
+          {%- if m_posts_size > 0 -%}
           <div class="log-masonry">
             {%- for post in m_posts -%}
               {%- assign ttype = post.type | default: 'moment' -%}
@@ -107,8 +152,10 @@ layout: page
               </a>
             {%- endfor -%}
           </div>
+          {%- else -%}
+          <p class="log-month__empty">nothing was written this month.</p>
+          {%- endif -%}
         </section>
-        {%- endif -%}
 
       {%- endfor -%}
     {%- endfor -%}

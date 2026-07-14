@@ -16,11 +16,21 @@
     gap: 2rem;
 }
 
-// ── Header — matches .wiki-header / .studies-header exactly ─
+// ── Header — title on the left, season legend on the right ──
 .log-header {
     position: relative;
     z-index: 1;
     margin: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.log-header__left {
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 .log-header__title {
@@ -43,6 +53,54 @@
 
 [data-theme="light"] .log-header__lead {
     color: var(--fg-muted);
+}
+
+// Season legend — year + 봄/여름/가을/겨울, current highlighted
+.log-header__seasons {
+    display: inline-flex;
+    align-items: baseline;
+    gap: .75em;
+    padding-top: .55rem;
+    font-family: var(--sans);
+    font-size: .82rem;
+    letter-spacing: .03em;
+    color: var(--fg-dim);
+    flex-shrink: 0;
+}
+
+.log-header__year {
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .12em;
+    color: var(--fg-muted);
+    opacity: .8;
+}
+
+.log-header__sep {
+    opacity: .35;
+}
+
+.log-header__season {
+    color: var(--fg-dim);
+    opacity: .55;
+    transition: color .25s ease, opacity .25s ease;
+
+    &.is-current {
+        color: var(--accent);
+        opacity: 1;
+        font-weight: 600;
+    }
+}
+
+[data-theme="light"] .log-header__season.is-current {
+    color: var(--kp-purple-d);
+}
+
+@media (max-width: 720px) {
+    .log-header__seasons {
+        padding-top: 0;
+        font-size: .78rem;
+    }
 }
 
 // ── Months wrapper: all months rendered, only current visible ─
@@ -112,14 +170,15 @@
     text-align: center;
 }
 
-.log-month__season {
+// Big month name (e.g. JULY) with a quiet season-tinted underline
+.log-month__month {
     font: 400 italic 2rem/1 var(--serif);
     color: var(--fg-main);
     letter-spacing: -.005em;
+    text-transform: none;
     transition: opacity .35s ease, transform .35s ease;
     position: relative;
 
-    // Subtle underline glow on the season word
     &::after {
         content: '';
         position: absolute;
@@ -141,7 +200,8 @@
     }
 }
 
-.log-month__month {
+// Subtitle — year · Korean season
+.log-month__sub {
     font: 500 .68rem/1 var(--mono);
     letter-spacing: .18em;
     color: var(--fg-muted);
@@ -160,18 +220,28 @@
     margin: 0 .25em;
 }
 
-// Season-specific accent tints on the underline
-.log-month[data-season="winter"] .log-month__season::after {
+// Season-specific accent tints on the month underline
+.log-month[data-season="winter"] .log-month__month::after {
     background: linear-gradient(to right, transparent, rgba(168, 180, 200, .55), transparent);
 }
-.log-month[data-season="spring"] .log-month__season::after {
+.log-month[data-season="spring"] .log-month__month::after {
     background: linear-gradient(to right, transparent, rgba(208, 168, 192, .55), transparent);
 }
-.log-month[data-season="summer"] .log-month__season::after {
+.log-month[data-season="summer"] .log-month__month::after {
     background: linear-gradient(to right, transparent, rgba(232, 201, 138, .55), transparent);
 }
-.log-month[data-season="autumn"] .log-month__season::after {
+.log-month[data-season="autumn"] .log-month__month::after {
     background: linear-gradient(to right, transparent, rgba(198, 154, 128, .55), transparent);
+}
+
+// Empty month placeholder — quiet italic line where the grid would be
+.log-month__empty {
+    margin: 3rem 0 4rem;
+    text-align: center;
+    color: var(--fg-muted);
+    font: 400 italic 1rem/1.5 var(--serif);
+    opacity: .5;
+    letter-spacing: .01em;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -352,6 +422,48 @@
         opacity: 1;
         margin-top: .5rem;
     }
+}
+
+// ── Text-only variant ────────────────────────────────────────
+// Log entries with no photo — collapse the media well and let the
+// title + fragment carry the tile (see Fragment card on home for tone).
+.log-photo:not(.log-photo--has-image) {
+    padding: 1rem 1.1rem 1rem;
+
+    .log-photo__media { display: none; }
+
+    .log-photo__caption {
+        padding: 0;
+        text-align: left;
+    }
+
+    .log-photo__title {
+        font: 600 italic 1rem/1.3 var(--serif);
+        margin: 0 0 .45rem;
+        text-align: left;
+    }
+
+    // Show whisper always (not just on hover) — the fragment IS the tile
+    .log-photo__whisper {
+        max-height: none;
+        opacity: 1;
+        margin: 0 0 .7rem;
+        overflow: visible;
+        display: block;
+    }
+
+    .log-photo__meta {
+        justify-content: flex-start;
+        padding-top: .55rem;
+        border-top: 1px dashed var(--border-soft);
+        width: 100%;
+    }
+}
+
+.log-photo:not(.log-photo--has-image):hover .log-photo__whisper {
+    max-height: none;
+    opacity: 1;
+    margin: 0 0 .7rem;
 }
 
 // Reduced motion
@@ -622,7 +734,7 @@
 
 // ── Reduced motion for season label ──────────────────────────
 @media (prefers-reduced-motion: reduce) {
-    .log-month__season { transition: none; }
+    .log-month__month { transition: none; }
 }
 
 // ── Responsive pager ─────────────────────────────────────────
@@ -635,7 +747,7 @@
     .log-month__btn--next {
         justify-self: center;
     }
-    .log-month__season { font-size: 1.6rem; }
+    .log-month__month { font-size: 1.6rem; }
 }
 
 // ── Empty state ──────────────────────────────────────────────
