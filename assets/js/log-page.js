@@ -128,10 +128,19 @@
     function open(tile) {
         var d = tile.dataset;
         var hasPhoto = !!d.image;
+        var bodyLen = (d.body || '').trim().length;
 
-        // Category tint + variant (text-only vs photo-dominant)
+        // Variant matrix:
+        //   text     — no photo, any length         (cream single column)
+        //   polaroid — photo + short body (< 240)   (photo dominant, memo caption)
+        //   split    — photo + long body (>= 240)   (photo left, scrollable text right)
+        var variant;
+        if (!hasPhoto) variant = 'text';
+        else if (bodyLen < 240) variant = 'polaroid';
+        else variant = 'split';
+
         lb.className = 'log-lightbox log-lightbox--' + (d.cat || 'moment')
-            + ' ' + (hasPhoto ? 'log-lightbox--photo' : 'log-lightbox--text');
+            + ' log-lightbox--' + variant;
 
         if (hasPhoto) {
             img.src = d.image;

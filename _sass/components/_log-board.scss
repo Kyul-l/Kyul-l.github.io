@@ -537,28 +537,39 @@
     transform: none;
 }
 
-// ── Text variant — cream card, post-page tone ───────────────
+// ── Theme surfaces — one source of truth for all variants ───
+// Dark = kp-surface with parchment text; Light = kp-cream with ink text.
+.log-lightbox__card {
+    background: var(--kp-surface);
+    border: 1px solid rgba(231, 213, 249, .10);
+    color: var(--kp-parchment);
+}
+[data-theme="light"] .log-lightbox__card {
+    background: var(--kp-cream);
+    border-color: rgba(31, 28, 44, .10);
+    color: var(--kp-ink);
+}
+
+// ── Variant: text — single column, no media ─────────────────
 .log-lightbox--text .log-lightbox__card {
     flex-direction: column;
     width: min(640px, 100%);
     max-height: min(85vh, 720px);
-    background: var(--kp-cream);
-    border: 1px solid rgba(31, 28, 44, .10);
-    color: var(--kp-ink);
 }
 
-// ── Photo variant — dark card, side-by-side ─────────────────
-.log-lightbox--photo .log-lightbox__card {
+// ── Variant: polaroid — photo dominant, memo caption below ──
+.log-lightbox--polaroid .log-lightbox__card {
+    flex-direction: column;
+    width: min(520px, 100%);
+    max-height: min(90vh, 820px);
+    padding: 14px 14px 10px;
+}
+
+// ── Variant: split — photo left, scrollable text right ──────
+.log-lightbox--split .log-lightbox__card {
+    flex-direction: row;
     width: min(1120px, 100%);
     max-height: min(88vh, 760px);
-    background: rgba(20, 17, 28, .92);
-    border: 1px solid rgba(185, 163, 214, .12);
-    color: var(--kp-parchment);
-}
-[data-theme="light"] .log-lightbox--photo .log-lightbox__card {
-    background: rgba(253, 251, 246, .96);
-    border-color: rgba(31, 28, 44, .10);
-    color: var(--kp-ink);
 }
 
 // ── Close button — just a quiet × ────────────────────────────
@@ -585,14 +596,12 @@
     &:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; opacity: .9; }
 }
 
-// ── Media (photo variant only) — takes the left column ──────
+// ── Media — used by polaroid + split variants ───────────────
 .log-lightbox__media {
-    flex: 0 0 55%;
     margin: 0;
     position: relative;
     background: var(--kp-deep);
     overflow: hidden;
-    align-self: stretch;
 
     img {
         width: 100%;
@@ -602,6 +611,18 @@
     }
 }
 .log-lightbox--text .log-lightbox__media { display: none; }
+
+// Polaroid: media sits at the top of the card, tall aspect
+.log-lightbox--polaroid .log-lightbox__media {
+    aspect-ratio: 4 / 5;
+    border-radius: 3px;
+}
+
+// Split: media becomes the left column, stretched to full height
+.log-lightbox--split .log-lightbox__media {
+    flex: 0 0 55%;
+    align-self: stretch;
+}
 
 .log-lightbox__flag {
     position: absolute;
@@ -613,9 +634,8 @@
     z-index: 2;
 }
 
-// ── Text side — inside the card, generous padding + scroll ──
+// ── Text side ───────────────────────────────────────────────
 .log-lightbox__text {
-    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -629,8 +649,22 @@
         border-radius: var(--radius-pill);
     }
 }
-.log-lightbox--text  .log-lightbox__text { padding: 3.5rem 3rem 3rem; }
-.log-lightbox--photo .log-lightbox__text { padding: 3rem 2.5rem 2.5rem; flex: 0 0 45%; }
+.log-lightbox--text     .log-lightbox__text { flex: 1 1 auto; padding: 3.5rem 3rem 3rem; }
+.log-lightbox--polaroid .log-lightbox__text { flex: 0 0 auto; padding: 1.25rem .5rem .35rem; }
+.log-lightbox--split    .log-lightbox__text { flex: 0 0 45%; padding: 3rem 2.5rem 2.5rem; }
+
+// Polaroid caption tightens the hierarchy — memo, not article
+.log-lightbox--polaroid .log-lightbox__meta { margin: 0 0 .5rem; }
+.log-lightbox--polaroid .log-lightbox__title {
+    font-size: 1.5rem;
+    font-style: italic;
+    font-weight: 600;
+    margin: 0 0 .4rem;
+}
+.log-lightbox--polaroid .log-lightbox__whisper { margin: 0 0 .6rem; font-size: .95rem; }
+.log-lightbox--polaroid .log-lightbox__rule    { margin: 0 0 .6rem; }
+.log-lightbox--polaroid .log-lightbox__body    { font-size: .95rem; line-height: 1.65; margin: 0 0 .8rem; }
+.log-lightbox--polaroid .log-lightbox__tags    { margin-bottom: .25rem; }
 
 // ── Typography hierarchy (shared, variant-tuned) ────────────
 .log-lightbox__meta {
@@ -708,17 +742,17 @@
 }
 
 
-// ── Stack the photo variant on narrow viewports ─────────────
+// ── Stack the split variant on narrow viewports ─────────────
 @media (max-width: 780px) {
-    .log-lightbox--photo .log-lightbox__card {
+    .log-lightbox--split .log-lightbox__card {
         flex-direction: column;
         width: min(520px, 100%);
     }
-    .log-lightbox--photo .log-lightbox__media {
+    .log-lightbox--split .log-lightbox__media {
         flex: 0 0 auto;
         aspect-ratio: 4 / 3;
     }
-    .log-lightbox--photo .log-lightbox__text {
+    .log-lightbox--split .log-lightbox__text {
         flex: 1 1 auto;
         padding: 2rem 1.75rem 1.75rem;
     }
@@ -727,6 +761,7 @@
 @media (max-width: 480px) {
     .log-lightbox { padding: 1rem; }
     .log-lightbox--text .log-lightbox__text { padding: 2.5rem 1.75rem 2rem; }
+    .log-lightbox--polaroid .log-lightbox__card { width: min(360px, 100%); }
 }
 
 @media (prefers-reduced-motion: reduce) {
