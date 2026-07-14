@@ -1,5 +1,3 @@
-// Guestbook — visitors leave a small mark (canvas + optional text).
-// Firestore-backed. Real-time list, hidden owner login for delete.
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import {
@@ -31,7 +29,6 @@ if (!cfg || !cfg.apiKey) {
 
         let isOwner = false;
 
-        // ── Owner login (hidden): ⌥ + shift + G  ────────────────
         document.addEventListener('keydown', (e) => {
             if (e.altKey && e.shiftKey && (e.key === 'G' || e.key === 'g')) {
                 e.preventDefault();
@@ -49,7 +46,6 @@ if (!cfg || !cfg.apiKey) {
             document.documentElement.dataset.gbOwner = isOwner ? 'true' : 'false';
         });
 
-        // ── Renderer ────────────────────────────────────────────
         function render(entries) {
             listEl.innerHTML = '';
             if (!entries.length) {
@@ -105,7 +101,6 @@ if (!cfg || !cfg.apiKey) {
             });
         }
 
-        // ── Real-time subscription ─────────────────────────────
         const q = query(gbRef, orderBy('ts', 'desc'), limit(50));
         onSnapshot(q, (snap) => {
             const rows = [];
@@ -120,7 +115,6 @@ if (!cfg || !cfg.apiKey) {
             listEl.appendChild(el);
         });
 
-        // ── Canvas drawing ─────────────────────────────────────
         const ctx = canvas.getContext('2d');
         const strokes = [];
         let drawing = false;
@@ -193,17 +187,30 @@ if (!cfg || !cfg.apiKey) {
             });
         });
 
-        // ── Modal open / close ─────────────────────────────────
+        function focusables(root) {
+            return Array.from(root.querySelectorAll('a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+        }
+        function onTrapKey(e) {
+            if (e.key !== 'Tab') return;
+            const items = focusables(modal);
+            if (!items.length) return;
+            const first = items[0];
+            const last  = items[items.length - 1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
         function openModal() {
             modal.hidden = false;
             modal.setAttribute('aria-hidden', 'false');
             requestAnimationFrame(() => modal.classList.add('is-open'));
             document.body.style.overflow = 'hidden';
+            modal.addEventListener('keydown', onTrapKey);
             setTimeout(() => textEl.focus(), 100);
         }
         function closeModal() {
             modal.classList.remove('is-open');
             modal.setAttribute('aria-hidden', 'true');
+            modal.removeEventListener('keydown', onTrapKey);
             setTimeout(() => { modal.hidden = true; document.body.style.overflow = ''; }, 250);
         }
         function reset() { strokes.length = 0; redraw(); textEl.value = ''; nameEl.value = ''; }
@@ -214,13 +221,15 @@ if (!cfg || !cfg.apiKey) {
             if (e.key === 'Escape' && !modal.hidden) closeModal();
         });
 
-        // ── Submit ─────────────────────────────────────────────
         submitEl.addEventListener('click', async () => {
             const text = textEl.value.trim();
             const hasDrawing = strokes.length > 0;
             if (!text && !hasDrawing) { textEl.focus(); return; }
 
-            const image = hasDrawing ? canvas.toDataURL('image/png') : '';
+            let image = hasDrawing ? canvas.toDataURL('image/webp', 0.7) : '';
+            if (image.length > 200000) image = canvas.toDataURL('image/webp', 0.4);
+            if (image.length > 200000) { alert('drawing too heavy — simplify a bit?'); return; }
+
             submitEl.disabled = true;
             const prevLabel = submitEl.textContent;
             submitEl.textContent = 'saving…';

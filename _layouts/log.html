@@ -8,7 +8,7 @@ layout: page
   {%- assign all_posts = site.posts | sort: 'date' | reverse -%}
   {%- assign posts_by_month = all_posts | group_by_exp: 'p', 'p.date | date: "%Y-%m"' -%}
 
-  {%- comment -%} Range: min(earliest post year, current-1) → max(latest post year, current+1). {%- endcomment -%}
+  
   {%- assign current_year = site.time | date: '%Y' | plus: 0 -%}
   {%- assign current_month = site.time | date: '%-m' | plus: 0 -%}
   {%- assign year_prev = current_year | minus: 1 -%}
@@ -33,7 +33,7 @@ layout: page
     {%- assign max_year = year_next -%}
   {%- endif -%}
 
-  {%- comment -%} Default section = current year+month if in range, else latest post month, else min year Jan. {%- endcomment -%}
+  
   {%- assign default_key = '' -%}
   {%- assign current_m_padded = current_month | prepend: '00' | slice: -2, 2 -%}
   {%- assign current_key = current_year | append: '-' | append: current_m_padded -%}
@@ -47,7 +47,7 @@ layout: page
 
   {%- assign month_names = 'January,February,March,April,May,June,July,August,September,October,November,December' | split: ',' -%}
 
-  {%- comment -%} Determine current season from current_month for the header legend. {%- endcomment -%}
+  
   {%- if current_month == 12 or current_month <= 2 -%}{%- assign current_season_kr = '겨울' -%}
   {%- elsif current_month <= 5 -%}{%- assign current_season_kr = '봄' -%}
   {%- elsif current_month <= 8 -%}{%- assign current_season_kr = '여름' -%}
@@ -115,11 +115,7 @@ layout: page
               {%- assign has_image = false -%}
               {%- if post.photo and post.photo != '' -%}{%- assign has_image = true -%}{%- endif -%}
 
-              {%- comment -%}
-                Tags in front-matter can be a YAML string ("warm · sweet · ceramic")
-                which Jekyll auto-splits on whitespace into ["warm", "·", "sweet", …].
-                Strip the lone "·" separators here so downstream JS gets a clean list.
-              {%- endcomment -%}
+              
               {%- assign _clean_tags = '' -%}
               {%- if post.tags -%}
                 {%- for _t in post.tags -%}
@@ -145,7 +141,7 @@ layout: page
                  data-feat="{% if tsize == 'feat' %}1{% endif %}">
                 <figure class="log-photo__media">
                   {%- if has_image -%}
-                    <img src="{{ post.photo | relative_url }}" alt="{{ post.title }}" loading="lazy">
+                    <img src="{{ post.photo | relative_url }}" alt="{{ post.title | escape }}" loading="lazy">
                   {%- else -%}
                     <span class="log-photo__placeholder" aria-hidden="true"></span>
                   {%- endif -%}
@@ -154,14 +150,14 @@ layout: page
                   {%- endif -%}
                 </figure>
                 <figcaption class="log-photo__caption">
-                  <h3 class="log-photo__title">{{ post.title }}</h3>
+                  <h3 class="log-photo__title">{{ post.title | escape }}</h3>
                   <p class="log-photo__meta">
                     <span class="log-photo__date">{{ post.date | date: '%b %-d' }}</span>
                     <span class="log-photo__sep">·</span>
                     <span class="log-photo__cat">{{ ttype }}</span>
                   </p>
                   {%- if post.fragment and post.fragment != '' -%}
-                    <p class="log-photo__whisper">{{ post.fragment }}</p>
+                    <p class="log-photo__whisper">{{ post.fragment | escape }}</p>
                   {%- endif -%}
                 </figcaption>
               </a>
@@ -182,7 +178,6 @@ layout: page
 
 </article>
 
-<!-- Lightbox: two variants — text-only (post-page tone) / photo (polaroid-dominant) -->
 <div class="log-lightbox" role="dialog" aria-modal="true" aria-hidden="true" hidden>
   <div class="log-lightbox__backdrop" data-close></div>
   <article class="log-lightbox__card" aria-label="Log entry detail">

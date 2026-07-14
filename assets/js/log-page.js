@@ -107,7 +107,6 @@
     });
 })();
 
-// ── Lightbox: click tile → variant card (text-only / photo) ─
 (function () {
     var lb = document.querySelector('.log-lightbox');
     if (!lb) return;
@@ -130,10 +129,6 @@
         var hasPhoto = !!d.image;
         var bodyLen = (d.body || '').trim().length;
 
-        // Variant matrix:
-        //   text     — no photo, any length         (cream single column)
-        //   polaroid — photo + short body (< 240)   (photo dominant, memo caption)
-        //   split    — photo + long body (>= 240)   (photo left, scrollable text right)
         var variant;
         if (!hasPhoto) variant = 'text';
         else if (bodyLen < 240) variant = 'polaroid';
@@ -159,7 +154,6 @@
         whisperEl.textContent = d.fragment || '';
         whisperEl.style.display = d.fragment ? '' : 'none';
 
-        // Body — full entry text below the whisper. Empty = hide with the rule.
         var bodyText = (d.body || '').trim();
         if (bodyEl) {
             bodyEl.textContent = bodyText;
@@ -167,7 +161,6 @@
         }
         if (ruleEl) ruleEl.style.display = bodyText ? '' : 'none';
 
-        // Tags — Liquid emits a "|" delimited list (cleaned of separators).
         tagsEl.innerHTML = '';
         (d.tags || '').split('|')
             .map(function (t) { return t.trim(); })
@@ -181,16 +174,31 @@
 
         lb.hidden = false;
         lb.setAttribute('aria-hidden', 'false');
-        // Force reflow then activate for animation
         void card.offsetWidth;
         lb.classList.add('is-open');
         document.body.style.overflow = 'hidden';
+        lb.addEventListener('keydown', onTrapKey);
+        var closeBtn = lb.querySelector('.log-lightbox__close');
+        if (closeBtn) setTimeout(function () { try { closeBtn.focus(); } catch (e) {} }, 60);
         lastTrigger = tile;
+    }
+
+    function onTrapKey(e) {
+        if (e.key !== 'Tab') return;
+        var items = Array.prototype.slice.call(
+            lb.querySelectorAll('a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])')
+        );
+        if (!items.length) return;
+        var first = items[0];
+        var last  = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     }
 
     function close() {
         lb.classList.remove('is-open');
         lb.setAttribute('aria-hidden', 'true');
+        lb.removeEventListener('keydown', onTrapKey);
         setTimeout(function () {
             lb.hidden = true;
             document.body.style.overflow = '';
