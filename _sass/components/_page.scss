@@ -6,7 +6,6 @@
   }
 }
 
-// ── Page header + sigil (about, blog) ────────────────────────
 .page-header {
   text-align: center;
   margin: 0 auto 2.25rem;
@@ -33,7 +32,6 @@
   user-select: none;
 }
 
-// README-style banner — compact one-line divider for section heads (blog)
 .page-banner {
   font: 500 1.05rem/1.4 var(--mono);
   color: var(--accent-soft);
@@ -46,7 +44,6 @@
   user-select: none;
 }
 
-// ── 404 page (담백 · constellation glyph) ────────────────────
 .page-404 {
   max-width: 560px;
   margin: 6rem auto;

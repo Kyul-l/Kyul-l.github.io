@@ -17,14 +17,14 @@ section: studies
   <div class="studies-spread" role="main" aria-label="Studies index">
     {% include panel-ornament.html preset='recent' %}
 
-    <!-- ── LEFT: Contents ──────────────────────────────────── -->
+    
     <div class="studies-spread__left">
       <p class="studies-spread__heading">Contents</p>
       <hr class="studies-spread__rule" aria-hidden="true">
 
       {% assign all_studies = site.studies | sort: 'date' | reverse %}
 
-      <!-- Series groups -->
+      
       {% assign series_names = all_studies | map: 'series' | compact | uniq %}
 
       <ul class="studies-series-list" aria-label="Series">
@@ -54,7 +54,7 @@ section: studies
               </span>
             </a>
 
-            <!-- Nested episode list (collapsed by default) -->
+            
             <ul class="studies-episodes" id="episodes-{{ series_key }}" hidden aria-label="{{ series_name }} episodes">
               {% for entry in series_entries %}
                 <li class="studies-episode" style="--i: {{ forloop.index0 }}">
@@ -69,7 +69,7 @@ section: studies
 
         {% endfor %}
 
-        <!-- Singles -->
+        
         {% assign singles = all_studies | where_exp: 'item', 'item.series == blank' %}
         {% if singles.size > 0 %}
           <li>
@@ -95,22 +95,21 @@ section: studies
 
       </ul>
 
-    </div><!-- /.studies-spread__left -->
+    </div>
 
-    <!-- ── SPINE ───────────────────────────────────────────── -->
+    
     <div class="studies-spine" aria-hidden="true">
       <span class="studies-spine__dot"></span>
       <span class="studies-spine__dot"></span>
       <span class="studies-spine__dot"></span>
     </div>
 
-    <!-- ── RIGHT: Latest entry preview ───────────────────────── -->
+    
     <div class="studies-spread__right">
       <p class="studies-spread__heading">Excerpt</p>
       <hr class="studies-spread__rule" aria-hidden="true">
 
-      <!-- Preview slot — populated/replaced by JS.
-           SSOT: "The first paragraph IS the preview." (see project_blog_writing_style.md) -->
+      
       <div class="studies-preview" aria-live="polite" aria-label="Entry preview">
         {% assign latest = all_studies | first %}
         {% if latest %}
@@ -131,15 +130,14 @@ section: studies
             <h3 class="studies-preview__title">No entries yet.</h3>
           </div>
         {% endif %}
-      </div><!-- /.studies-preview -->
+      </div>
 
-    </div><!-- /.studies-spread__right -->
+    </div>
 
-  </div><!-- /.studies-spread -->
+  </div>
 
-</div><!-- /.studies-page -->
+</div>
 
-<!-- ── Populate JS data store from Liquid ────────────────────── -->
 <script>
 window.__STUDIES_SERIES__ = [
   {% assign all_studies_js = site.studies | sort: 'date' | reverse %}

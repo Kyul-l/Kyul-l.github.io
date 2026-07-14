@@ -1,10 +1,4 @@
-// ─────────────────────────────────────────────────────────────
-// Flourish system — hairline line-art vocabulary
-// Reusable grammar for decorative curves that adapt to context.
-// Not a static asset — a design system.
-// ─────────────────────────────────────────────────────────────
 
-// Design tokens
 :root {
   --flourish-color:         var(--accent);
   --flourish-color-sparkle: var(--accent);
@@ -17,7 +11,6 @@
   --flourish-opacity:       .65;
 }
 
-// Base — every flourish inherits these
 .flourish {
   display: block;
   color: var(--flourish-color);
@@ -31,11 +24,6 @@
   }
 }
 
-// ── Variants ──
-// Each variant defines its available-space contract.
-// SVG uses vector-effect: non-scaling-stroke so hairline stays 1px.
-
-// short — divider replacement, small card accent
 .flourish--short {
   width: 100%;
   max-width: 240px;
@@ -43,7 +31,6 @@
   margin: .5rem auto;
 }
 
-// long — mid-length ornament (post/entry footer, section transition)
 .flourish--long {
   width: 100%;
   max-width: 640px;
@@ -51,7 +38,6 @@
   margin: .75rem auto;
 }
 
-// sweep — expressive wide curve for hero moments (About hero, home ambient)
 .flourish--sweep {
   width: 100%;
   max-width: 100%;
@@ -59,8 +45,6 @@
   display: block;
 }
 
-// corner — quarter arc that flows along a container corner
-// default position: top-left. Modifier classes flip for other corners.
 .flourish--corner {
   position: absolute;
   top: 6px;
@@ -74,7 +58,6 @@
   &.is-br { top: auto;  bottom: 6px; left: auto; right: 6px; transform: scale(-1, -1); }
 }
 
-// trail — long thin flourish for footer (fades to dot)
 .flourish--trail {
   width: 100%;
   max-width: 420px;

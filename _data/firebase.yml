@@ -1,4 +1,3 @@
-# Firebase web config — safe to commit publicly (Firestore rules gate access).
 apiKey: "AIzaSyDceEW2lpwpNSraQnjrXuFT6Aiy8nI8d3M"
 authDomain: "guestbook-cdee0.firebaseapp.com"
 projectId: "guestbook-cdee0"

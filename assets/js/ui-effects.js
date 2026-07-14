@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isLight = () => root.getAttribute('data-theme') === 'light';
 
-  // Parallax tilt — skipped on touch / reduced motion / light theme
   if (scene && !isTouch && !reducedMotion) {
     let raf = 0;
     let target = { x: 0, y: 0 };
@@ -45,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
     status.textContent = 'LINK: SECURE';
   }
 
-  // terminal.js toggles inline `display`; mirror to `.is-visible` for slide-in animation.
   if (suggestions) {
     const obs = new MutationObserver(() => {
       const visible = suggestions.style.display && suggestions.style.display !== 'none';

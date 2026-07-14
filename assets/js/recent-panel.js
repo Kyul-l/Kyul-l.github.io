@@ -1,5 +1,3 @@
-// assets/js/recent-panel.js — RecentPanel
-// Static list of recent entries with per-collection sigil coloring.
 
 const SIGIL_CLASS = {
   wiki:    'feed-entry__sigil--wiki',

@@ -1,10 +1,4 @@
-// ─────────────────────────────────────────────────────────────
-// Log · Pin Board
-// Size = meaning. Near-monochrome. Month pager, season emphasized.
-// Width matches Wiki (1120px). Season word morphs on nav.
-// ─────────────────────────────────────────────────────────────
 
-// Page wrapper — shared rhythm across Wiki / Studies / Log
 .log-board {
     max-width: 1120px;
     margin: 0 auto;
@@ -16,7 +10,6 @@
     gap: 2rem;
 }
 
-// ── Header — title on the left, season legend on the right ──
 .log-header {
     position: relative;
     z-index: 1;
@@ -55,7 +48,6 @@
     color: var(--fg-muted);
 }
 
-// Season legend — year + 봄/여름/가을/겨울, current highlighted
 .log-header__seasons {
     display: inline-flex;
     align-items: baseline;
@@ -103,14 +95,12 @@
     }
 }
 
-// ── Months wrapper: all months rendered, only current visible ─
 .log-months {
     display: flex;
     flex-direction: column;
     gap: 2rem;
 }
 
-// ── Month section (each month has its own pager + grid) ──────
 .log-month {
     margin: 0;
     scroll-margin-top: 5rem;
@@ -161,7 +151,6 @@
     &--next { justify-self: end; }
 }
 
-// Season centered and emphasized; month subordinate below
 .log-month__label {
     display: flex;
     flex-direction: column;
@@ -170,7 +159,6 @@
     text-align: center;
 }
 
-// Big month name (e.g. JULY) with a quiet season-tinted underline
 .log-month__month {
     font: 400 italic 2rem/1 var(--serif);
     color: var(--fg-main);
@@ -200,7 +188,6 @@
     }
 }
 
-// Subtitle — year · Korean season
 .log-month__sub {
     font: 500 .68rem/1 var(--mono);
     letter-spacing: .18em;
@@ -220,7 +207,6 @@
     margin: 0 .25em;
 }
 
-// Season-specific accent tints on the month underline
 .log-month[data-season="winter"] .log-month__month::after {
     background: linear-gradient(to right, transparent, rgba(168, 180, 200, .55), transparent);
 }
@@ -234,7 +220,6 @@
     background: linear-gradient(to right, transparent, rgba(198, 154, 128, .55), transparent);
 }
 
-// Empty month placeholder — quiet italic line where the grid would be
 .log-month__empty {
     margin: 3rem 0 4rem;
     text-align: center;
@@ -244,10 +229,6 @@
     letter-spacing: .01em;
 }
 
-// ═══════════════════════════════════════════════════════════
-// Photo Masonry — polaroid tiles on a shelf
-// Small frames, cream mount, quiet tilt on hover.
-// ═══════════════════════════════════════════════════════════
 .log-masonry {
     columns: 4;
     column-gap: 1.75rem;
@@ -326,13 +307,11 @@
     }
 }
 
-// Aspect ratios drive masonry height variation
 .log-photo--sm    .log-photo__media { aspect-ratio: 1 / 1; }
 .log-photo--md    .log-photo__media { aspect-ratio: 3 / 4; }
 .log-photo--photo .log-photo__media { aspect-ratio: 4 / 5; }
 .log-photo--feat  .log-photo__media { aspect-ratio: 4 / 5; }
 
-// Category placeholder — subtle tinted gradient when no photo
 .log-photo__placeholder {
     position: absolute;
     inset: 0;
@@ -349,7 +328,6 @@
 .log-photo--object  { --tint: rgba(196, 176, 152, .3); --tint2: rgba(196, 176, 152, .12); }
 .log-photo--signal  { --tint: rgba(156, 192, 186, .3); --tint2: rgba(156, 192, 186, .12); }
 
-// Featured mark — tiny ✦ overlay at top-right
 .log-photo__flag {
     position: absolute;
     top: .55rem;
@@ -361,7 +339,6 @@
     z-index: 2;
 }
 
-// Caption — sits inside the polaroid mount, directly under the photo
 .log-photo__caption {
     padding: .55rem .1rem 0;
     text-align: center;
@@ -400,12 +377,10 @@
     transition: max-height .35s ease, opacity .3s ease, margin .35s ease;
 }
 
-// Featured entry — slightly bigger title
 .log-photo--feat .log-photo__title {
     font: 600 italic 1.2rem/1.3 var(--serif);
 }
 
-// Hover — photo animates, title tints, whisper reveals
 .log-photo:hover {
     .log-photo__media img,
     .log-photo__placeholder {
@@ -424,9 +399,6 @@
     }
 }
 
-// ── Text-only variant ────────────────────────────────────────
-// Log entries with no photo — collapse the media well and let the
-// title + fragment carry the tile (see Fragment card on home for tone).
 .log-photo:not(.log-photo--has-image) {
     padding: 1rem 1.1rem 1rem;
 
@@ -443,7 +415,6 @@
         text-align: left;
     }
 
-    // Show whisper always (not just on hover) — the fragment IS the tile
     .log-photo__whisper {
         max-height: none;
         opacity: 1;
@@ -466,7 +437,6 @@
     margin: 0 0 .7rem;
 }
 
-// Reduced motion
 @media (prefers-reduced-motion: reduce) {
     .log-photo {
         opacity: 1;
@@ -480,12 +450,6 @@
     }
 }
 
-// ═══════════════════════════════════════════════════════════
-// Lightbox — two variants
-//   --text   : cream card, single-column, post-page tone
-//   --photo  : dark card, 55/45 side-by-side with the photo left
-// Backdrop is quiet (paper-on-desk feel, not a heavy modal).
-// ═══════════════════════════════════════════════════════════
 .log-lightbox {
     position: fixed;
     inset: 0;
@@ -511,14 +475,12 @@
 
 .log-lightbox.is-open .log-lightbox__backdrop { opacity: 1; }
 
-// Category tint accents (shared across variants)
 .log-lightbox--moment  { --lb-accent: var(--kp-tint-moment); }
 .log-lightbox--food    { --lb-accent: var(--kp-tint-food); }
 .log-lightbox--thought { --lb-accent: var(--kp-tint-thought); }
 .log-lightbox--object  { --lb-accent: var(--kp-tint-object); }
 .log-lightbox--signal  { --lb-accent: var(--kp-tint-signal); }
 
-// ── Card shell (baseline; variants override width + layout) ─
 .log-lightbox__card {
     position: relative;
     display: flex;
@@ -527,7 +489,6 @@
     opacity: 0;
     transform: translateY(12px) scale(.985);
     transition: opacity .3s ease, transform .35s cubic-bezier(.2, .8, .3, 1);
-    // Paper-on-desk shadow — soft, not floating high
     box-shadow:
         0 1px 2px rgba(0, 0, 0, .18),
         0 14px 40px rgba(0, 0, 0, .28);
@@ -537,8 +498,6 @@
     transform: none;
 }
 
-// ── Theme surfaces — one source of truth for all variants ───
-// Dark = kp-surface with parchment text; Light = kp-cream with ink text.
 .log-lightbox__card {
     background: var(--kp-surface);
     border: 1px solid rgba(231, 213, 249, .10);
@@ -550,14 +509,12 @@
     color: var(--kp-ink);
 }
 
-// ── Variant: text — single column, no media ─────────────────
 .log-lightbox--text .log-lightbox__card {
     flex-direction: column;
     width: min(640px, 100%);
     max-height: min(85vh, 720px);
 }
 
-// ── Variant: polaroid — photo dominant, memo caption below ──
 .log-lightbox--polaroid .log-lightbox__card {
     flex-direction: column;
     width: min(520px, 100%);
@@ -565,9 +522,6 @@
     padding: 14px 14px 10px;
 }
 
-// ── Variant: split — photo left, scrollable text right ──────
-// Grid layout (not flex) so the columns strictly obey the 40/60 ratio and
-// long text lines wrap inside the text column instead of overflowing.
 .log-lightbox--split .log-lightbox__card {
     display: grid;
     grid-template-columns: 40% 60%;
@@ -575,7 +529,6 @@
     max-height: min(88vh, 760px);
 }
 
-// ── Close button — just a quiet × ────────────────────────────
 .log-lightbox__close {
     position: absolute;
     top: 14px;
@@ -599,11 +552,10 @@
     &:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; opacity: .9; }
 }
 
-// ── Media — used by polaroid + split variants ───────────────
 .log-lightbox__media {
     margin: 0;
     position: relative;
-    background: var(--card-deep);  // theme-aware: dark in dark, cream in light
+    background: var(--card-deep);
     overflow: hidden;
 
     img {
@@ -614,7 +566,6 @@
 }
 .log-lightbox--text .log-lightbox__media { display: none; }
 
-// Polaroid: media sits at the top of the card, tall aspect, cover crop is fine
 .log-lightbox--polaroid .log-lightbox__media {
     aspect-ratio: 4 / 5;
     border-radius: 3px;
@@ -622,8 +573,6 @@
     img { object-fit: cover; }
 }
 
-// Split: photo keeps its natural ratio inside the column (contain + letterbox).
-// This way tall/short/wide photos all display without an awkward crop.
 .log-lightbox--split .log-lightbox__media {
     min-width: 0;
     align-self: stretch;
@@ -646,13 +595,12 @@
     z-index: 2;
 }
 
-// ── Text side ───────────────────────────────────────────────
 .log-lightbox__text {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
     overflow-x: hidden;
-    min-width: 0;                 // allow flex child to shrink below content width
+    min-width: 0;
     overflow-wrap: break-word;
     word-wrap: break-word;
     scrollbar-width: thin;
@@ -669,7 +617,6 @@
 .log-lightbox--polaroid .log-lightbox__text { flex: 0 0 auto; min-width: 0; padding: 1.25rem .5rem .35rem; }
 .log-lightbox--split    .log-lightbox__text { min-width: 0; padding: 3rem 2.5rem 2.5rem; }
 
-// Polaroid caption tightens the hierarchy — memo, not article
 .log-lightbox--polaroid .log-lightbox__meta { margin: 0 0 .5rem; }
 .log-lightbox--polaroid .log-lightbox__title {
     font-size: 1.5rem;
@@ -682,7 +629,6 @@
 .log-lightbox--polaroid .log-lightbox__body    { font-size: .95rem; line-height: 1.65; margin: 0 0 .8rem; }
 .log-lightbox--polaroid .log-lightbox__tags    { margin-bottom: .25rem; }
 
-// ── Typography hierarchy (shared, variant-tuned) ────────────
 .log-lightbox__meta {
     font: 500 11px/1 var(--mono);
     letter-spacing: .22em;
@@ -734,7 +680,6 @@
     p:last-child { margin-bottom: 0; }
 }
 
-// Tags — tight mono pills, no square-bracket noise
 .log-lightbox__tags {
     list-style: none;
     padding: 0;
@@ -759,8 +704,6 @@
     &:hover { opacity: .9; }
 }
 
-
-// ── Stack the split variant on narrow viewports ─────────────
 @media (max-width: 780px) {
     .log-lightbox--split .log-lightbox__card {
         grid-template-columns: 1fr;
@@ -790,12 +733,10 @@
     .log-lightbox.is-open .log-lightbox__card { transform: none; }
 }
 
-// ── Reduced motion for season label ──────────────────────────
 @media (prefers-reduced-motion: reduce) {
     .log-month__month { transition: none; }
 }
 
-// ── Responsive pager ─────────────────────────────────────────
 @media (max-width: 600px) {
     .log-month__pager {
         grid-template-columns: 1fr;
@@ -808,7 +749,6 @@
     .log-month__month { font-size: 1.6rem; }
 }
 
-// ── Empty state ──────────────────────────────────────────────
 .log-empty {
     text-align: center;
     padding: 4rem 0;

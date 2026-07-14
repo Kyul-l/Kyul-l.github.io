@@ -1,15 +1,9 @@
-// ─────────────────────────────────────────────────────────────
-// Wiki · Cloud Focus (T3 — still containers)
-// No glow. Subtle motion only. Constellation backdrop static.
-// ─────────────────────────────────────────────────────────────
 
-// ── Pulse keyframe (livedot only — kept for future use) ───────
 @keyframes wiki-pulse {
   0%, 100% { opacity: 1; }
   50%       { opacity: .35; }
 }
 
-// ── Page wrapper — shared rhythm across Wiki / Studies / Log ─────
 .wiki-page {
   max-width: 1120px;
   margin: 0 auto;
@@ -21,7 +15,6 @@
   gap: 2rem;
 }
 
-// Empty state (no folders yet)
 .wiki-empty {
   margin: 4rem auto;
   padding: 3rem 2rem;
@@ -47,15 +40,10 @@
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Dictionary layout (A-Z index + grouped entries)
-// ─────────────────────────────────────────────────────────────
-
 .wiki-page--dict {
   gap: 2rem;
 }
 
-// Header row: title/lead on left, A-Z inline on right
 .wiki-header {
   display: flex;
   align-items: flex-start;
@@ -68,7 +56,6 @@
   flex: 0 0 auto;
 }
 
-// A-Z index — one line, inline next to title
 .wiki-index {
   display: flex;
   flex-wrap: nowrap;
@@ -105,7 +92,6 @@
     opacity: .85;
     font-weight: 600;
 
-    // Subscript dot — signals "letter has entries" at a glance
     &::before {
       content: '';
       position: absolute;
@@ -125,7 +111,6 @@
     }
   }
 
-  // Currently displayed letter — accent + subtle glow underline
   &.is-current {
     color: var(--accent);
     opacity: 1;
@@ -161,7 +146,6 @@
   color: var(--kp-purple-d);
 }
 
-// Dictionary body — grouped letter sections
 .wiki-dict {
   display: flex;
   flex-direction: column;
@@ -183,7 +167,6 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-// Empty state (letter has no entries)
 .wiki-dict__empty {
   padding: 3.5rem 1rem;
   text-align: center;
@@ -218,7 +201,6 @@
   color: var(--kp-purple-d);
 }
 
-// Retain .wiki-dict__rule for backward compat but hide it (border-bottom on head does the work)
 .wiki-dict__rule {
   display: none;
 }
@@ -236,8 +218,6 @@
   padding: 0;
 }
 
-// Entry link — always-on shimmer border (leading ✦ + bottom hairline)
-// Quiet row — mirrors RECENT panel's inset border tone.
 .wiki-dict__link {
   display: flex;
   align-items: center;
@@ -251,7 +231,6 @@
   position: relative;
   transition: border-color .25s ease, background .25s ease, color .2s ease;
 
-  // Leading sigil — small ✦ that sits inside the left edge
   &::before {
     content: '✦';
     position: absolute;
@@ -293,7 +272,6 @@
   }
 }
 
-
 .wiki-dict__title {
   font: 400 .95rem/1.4 var(--sans);
   flex: 1;
@@ -313,8 +291,6 @@
   opacity: .75;
 }
 
-// ── Constellation backdrop ────────────────────────────────────
-// Static scattered dots via radial-gradient; no JS required.
 .wiki-constellation {
   position: fixed;
   inset: 0;
@@ -351,7 +327,6 @@
   background-repeat: repeat;
 }
 
-// ── Page header ───────────────────────────────────────────────
 .wiki-header {
   position: relative;
   z-index: 1;

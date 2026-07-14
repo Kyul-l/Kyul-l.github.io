@@ -18,7 +18,7 @@ section: wiki
   {% assign letters = letters_str | split: ',' | uniq %}
   {% assign alphabet = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z" | split: "," %}
 
-  {%- comment -%} Default letter: always A (natural entry point) {%- endcomment -%}
+  
   {% assign default_letter = 'A' %}
 
   <header class="wiki-header">

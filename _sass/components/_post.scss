@@ -1,9 +1,4 @@
-// ─────────────────────────────────────────────────────────────
-// Blog · post list + single post
-// Readability-first; subtle motion only
-// ─────────────────────────────────────────────────────────────
 
-// ── Tag chips (shared by card list + single post) ────────────
 .chip {
   display: inline-block;
   font: 500 0.76rem/1 var(--mono);
@@ -24,7 +19,6 @@
   }
 }
 
-// ── Post list (cards — Image #18 inspired) ───────────────────
 .post-list {
   max-width: 820px;
   margin: 0 auto;
@@ -41,7 +35,7 @@
   overflow: hidden;
   transition: transform .2s ease, box-shadow .25s ease, border-color .25s ease;
 
-  /* Left accent strip — section sigil color */
+  
   &::before {
     content: "";
     position: absolute;
@@ -108,14 +102,12 @@
   }
 }
 
-// ── Single post page ─────────────────────────────────────────
 .post {
   max-width: 780px;
   margin: 0 auto;
   padding: 3rem 1.5rem 4.5rem;
   position: relative;
 
-  // Collection-aware back link — sits above the title, quiet mono.
   .post-backlink {
     display: inline-block;
     font: 500 .78rem/1 var(--mono);
@@ -129,8 +121,6 @@
     &:hover { color: var(--accent); }
   }
 
-  // Post header — editorial double hairline (full-width both lines).
-  // Widened gap so the pair doesn't read as a rendering artifact.
   .post-header {
     margin: 0 0 3rem;
     padding-bottom: 1.75rem;
@@ -192,11 +182,6 @@
     }
     h1 { font-size: 2rem; }
 
-    // ── Heading hierarchy — typography only ──────────────────
-    // No underlines, no ornaments. Sparkle divider (markdown `---`) is the
-    // only decorative rule in the article body — reserved for real section
-    // shifts. Headings use pure font hierarchy: size, weight, color.
-
     h2 {
       font-size: 1.6rem;
     }
@@ -212,7 +197,6 @@
       margin-top: 2.2rem;
     }
 
-    // Bold text — plain by default; glow reserved for emphasis inside callouts.
     strong, b {
       color: var(--fg-main);
       font-weight: 700;
@@ -223,7 +207,6 @@
       text-shadow: 0 0 6px rgba(144, 108, 190, .35);
     }
 
-    // First heading after the header shouldn't push down twice.
     > h1:first-child, > h2:first-child, > h3:first-child { margin-top: 0; }
 
     p, ul, ol { margin: 0 0 1.65rem; }
@@ -251,8 +234,6 @@
       box-shadow: var(--shadow);
     }
 
-    // Callout (blockquote) — sparkles sit ON the border line, not inside.
-    // The site background fills behind the star so it "sits on" the border edge.
     blockquote {
       margin: 1.75rem 0;
       padding: 1.15rem 1.35rem;
@@ -293,7 +274,6 @@
       p:last-child { margin-bottom: 0; }
     }
 
-    // Inline code — theme-aware. Dark = pill (bg + border); Light = soft highlight
     code:not(pre code) {
       font: 0.92em var(--mono);
       padding: .12em .42em;
@@ -303,8 +283,6 @@
       color: var(--code-fg);
     }
 
-    // Code block wrapper — non-scrolling parent that hosts the language pill.
-    // The <pre> inside handles horizontal scroll; the pill stays pinned.
     .code-wrap {
       position: relative;
       margin: 1.5rem 0;
@@ -343,8 +321,6 @@
       code { background: none; border: 0; padding: 0; }
     }
 
-    // Mid-article horizontal rule — sparkle divider (ceremonial break).
-    // Distinct from the solid heading underline: this signals a bigger section shift.
     hr {
       border: 0;
       height: auto;
@@ -369,7 +345,6 @@
       text-shadow: 0 0 10px rgba(107, 79, 149, .35);
     }
 
-    // Table — Minimal (borderless rows, subtle underline only)
     table {
       width: 100%;
       border-collapse: collapse;
@@ -394,14 +369,12 @@
       tr:last-child td { border-bottom: 0; }
     }
 
-    // Light mode: inline code becomes a soft highlight (no border).
     [data-theme="light"] & code:not(pre code) {
       background: rgba(144, 108, 190, .12);
       border: none;
       color: var(--kp-purple-d);
     }
 
-    // Internal-note links (backlinks) — dashed hairline underline
     a[href^="wiki/"],
     a[href^="studies/"],
     a[href^="/wiki/"],
@@ -420,7 +393,6 @@
   }
 }
 
-// Wiki entry — same quiet border chrome as RECENT / FRAGMENT panels
 .post--wiki {
   padding: 3rem 2.75rem 3.5rem;
   margin: 1.5rem auto 3rem;
@@ -435,7 +407,6 @@
   .post-content { position: relative; z-index: 1; }
 }
 
-// ── Pagination ───────────────────────────────────────────────
 .pagination {
   display: flex;
   justify-content: space-between;
@@ -475,7 +446,6 @@
   }
 }
 
-// ── Animations ───────────────────────────────────────────────
 @keyframes fade-up {
   to { opacity: 1; transform: translateY(0); }
 }

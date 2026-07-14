@@ -1,4 +1,3 @@
-// assets/js/terminal.js
 import { switchTheme } from './theme.js';
 import { drawGraph } from './graph.js';
 
@@ -50,7 +49,6 @@ class Terminal {
   }
 
   async showWelcomeMessage() {
-    // Compose dynamic values
     const counts = window.__PAGE_COUNTS__ || { wiki: 0, studies: 0, log: 0 };
     const fmt = (d) => {
       const y = d.getFullYear();
@@ -68,23 +66,14 @@ class Terminal {
       : `✨ first opened · ${now}`;
     const countsLine = `wiki ${counts.wiki} · studies ${counts.studies} · log ${counts.log}`;
 
-    // 3-part rhythm:
-    //   ceremony  → art + main sentence (tight pair, 1 blank)
-    //   [big pause · 2 blanks]
-    //   meta      → last opened + counts (grouped, no blank between; counts indented)
-    //   [big pause · 2 blanks]
-    //   invitation → /help (solo)
     const welcomeLines = [
       { text: '·  ✦  ·', classes: ['line-art'], speed: 60, pause: 220 },
       { text: ' ', classes: [], speed: 0, pause: 120 },
       { text: 'the notebook is open.', classes: ['line-welcome'], speed: 42, pause: 480 },
-      // big pause: 2 blank lines
       { text: ' ', classes: [], speed: 0, pause: 120 },
       { text: ' ', classes: [], speed: 0, pause: 160 },
       { text: openedLine, classes: ['line-system'], speed: 24, pause: 200 },
-      // grouped meta: no blank between opened + counts
       { text: '   ' + countsLine, classes: ['line-system'], speed: 22, pause: 480 },
-      // big pause: 2 blank lines
       { text: ' ', classes: [], speed: 0, pause: 120 },
       { text: ' ', classes: [], speed: 0, pause: 160 },
       { text: 'type /help to look around.', classes: ['line-system'], speed: 22, pause: 160 },
@@ -119,24 +108,8 @@ class Terminal {
     });
   }
 
-  /* DYNAMIC: typeLine disabled for hush mode — kept for reference/restore */
-  // typeLine(line, speed, classes = []) {
-  //   return new Promise(resolve => {
-  //     let i = 0;
-  //     const outputLine = this.createNewLine(classes);
-  //     const interval = setInterval(() => {
-  //       if (i < line.length) {
-  //         outputLine.textContent += line.charAt(i);
-  //         i++;
-  //       } else {
-  //         clearInterval(interval);
-  //         resolve();
-  //       }
-  //     }, speed);
-  //   });
-  // }
+  
   typeLine(line, speed, classes = []) {
-    // no-op fallback in case any call remains — instant render
     this.printLine(line, false, classes);
     return Promise.resolve();
   }
@@ -224,7 +197,7 @@ class Terminal {
     items.forEach((item, index) => {
       if (index === this.suggestionIndex) {
         item.classList.add('selected');
-        this.input.value = item.dataset.command; // Update input with selected command
+        this.input.value = item.dataset.command;
       } else {
         item.classList.remove('selected');
       }
@@ -292,8 +265,8 @@ class Terminal {
         this.updateStatus('LOADING MAP...');
         
         requestAnimationFrame(() => {
-          requestAnimationFrame(() => { // Double rAF to ensure layout is calculated
-            drawGraph('knowledge-graph-container'); // Pass the container ID
+          requestAnimationFrame(() => {
+            drawGraph('knowledge-graph-container');
             this.updateStatus('MAP LOADED');
           });
         });
@@ -315,7 +288,7 @@ class Terminal {
         this.updateStatus('ERROR');
     }
     this.scrollToBottom();
-    this.updateStatus('OPERATIONAL'); // Reset to operational after command
+    this.updateStatus('OPERATIONAL');
   }
 
   handleHelp() {
@@ -345,7 +318,7 @@ class Terminal {
     if (results.length > 0) {
       let resultLines = `Searching for '${keyword}'... ${results.length} posts found.\n\n`;
       results.forEach(post => {
-        const postDate = new Date(post.date).toLocaleDateString('en-CA'); // YYYY-MM-DD
+        const postDate = new Date(post.date).toLocaleDateString('en-CA');
         resultLines += `[${postDate}] <a href="${post.url}">${post.title}</a>\n`;
         if (post.tags && post.tags.length > 0) {
           resultLines += `> Tags: #${post.tags.join(' #')}\n\n`;
@@ -417,5 +390,4 @@ class Terminal {
   }
 }
 
-// Initialize the terminal
 new Terminal();

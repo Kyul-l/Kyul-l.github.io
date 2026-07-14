@@ -1,8 +1,4 @@
-{%- comment -%}
-  Panel sparkle cluster — inline marks on inset border.
-  Usage: {% include panel-ornament.html preset='terminal' %}
-         {% include panel-ornament.html preset='recent' %}
-{%- endcomment -%}
+
 {%- assign preset = include.preset | default: 'terminal' -%}
 <div class="panel-ornament panel-ornament--{{ preset }}" aria-hidden="true">
   {%- if preset == 'terminal' -%}

@@ -1,13 +1,4 @@
-// ─────────────────────────────────────────────────────────────
-// _signal.scss · Shared panel chrome + home-stage layout
-// Provides: .panel-chrome, .home-stage, .home-col--*, .feed-panel--recent
-// Log-stream pane styles removed; repurposed for 70/30 home layout.
-// ─────────────────────────────────────────────────────────────
 
-// ─────────────────────────────────────────────────────────────
-// Panel ornament (shared "sparkle border" — mirrors log-card ornament)
-// Applied to terminal + recent panels. Log card has its own via JS.
-// ─────────────────────────────────────────────────────────────
 .panel-ornament {
   position: absolute;
   inset: 0;
@@ -25,8 +16,6 @@
   }
 }
 
-// Individual editorial marks (sparkles, dots, butterflies) placed ON the inset border.
-// Position helpers snap each mark's CENTER onto the border line (at 8px inset).
 .pm {
   position: absolute;
   color: rgba(144, 108, 190, .58);
@@ -34,7 +23,6 @@
   user-select: none;
   font-family: var(--sans);
 
-  // Snap-to-line helpers — for star/dot glyphs so they sit ON the inset border.
   &.on-top    { top: 8px;    transform: translate(-50%, -50%); }
   &.on-bottom { bottom: 8px; transform: translate(-50%, 50%); }
   &.on-left   { left: 8px;   transform: translate(-50%, -50%); }
@@ -45,12 +33,9 @@
   .panel-ornament::before { border-color: rgba(107, 79, 149, .22); }
   .pm                     { color: rgba(107, 79, 149, .55); }
 
-  // Constellation background reads too heavy on cream — tone it down.
   .wiki-constellation { opacity: .14; }
 }
 
-// Panel label — subtle keyword (TERMINAL / RECENT).
-// Reads as quiet identifier, not a decorative badge.
 .panel-label {
   position: absolute;
   top: 20px;
@@ -79,7 +64,6 @@
   color: var(--kp-purple-d);
 }
 
-// ── Shared panel chrome (used by terminal + recent panel) ─────
 .panel-chrome {
   display: flex;
   align-items: center;
@@ -106,29 +90,14 @@
   border-radius: 50%;
   background: var(--kp-purple);
   flex-shrink: 0;
-  // Static: no pulse animation
   box-shadow: 0 0 4px rgba(144, 108, 190, .35);
 }
 
-/* DYNAMIC: panel-dot-pulse disabled for hush mode */
-// .panel-dot--pulse {
-//   background: var(--kp-purple);
-//   box-shadow: 0 0 6px rgba(144, 108, 190, .55);
-//   animation: panel-dot-pulse 2s ease-in-out infinite;
-// }
-//
-// @keyframes panel-dot-pulse {
-//   0%, 100% { opacity: 1;   box-shadow: 0 0 6px rgba(144, 108, 190, .55); }
-//   50%       { opacity: .6; box-shadow: 0 0 10px rgba(144, 108, 190, .25); }
-// }
-
-// Static fallback for .panel-dot--pulse (dot present, no animation)
 .panel-dot--pulse {
   background: var(--kp-purple);
   box-shadow: 0 0 4px rgba(144, 108, 190, .35);
 }
 
-// ── Home stage: 70/30 flex row ────────────────────────────────
 .home-stage {
   display: flex;
   flex-direction: row;
@@ -139,7 +108,6 @@
   min-height: 600px;
 }
 
-// ── Left column: terminal (70%) ───────────────────────────────
 .home-col--terminal {
   flex: 0 0 70%;
   min-width: 0;
@@ -147,7 +115,6 @@
   flex-direction: column;
 }
 
-// ── Right column: recent (30%) ───────────────────────────────
 .home-col--right {
   flex: 1;
   min-width: 0;
@@ -156,7 +123,6 @@
   gap: 16px;
 }
 
-// ── Recent panel (upper block of right column) ────────────────
 .feed-panel--recent {
   flex: 1 1 60%;
   min-height: 0;
@@ -172,7 +138,6 @@
   position: relative;
 }
 
-// ── Guestbook panel (lower block — visitors leave a mark) ────
 .feed-panel--guestbook {
   flex: 0 1 auto;
   min-height: 180px;
@@ -230,7 +195,6 @@
   }
 }
 
-// Owner-only delete button — only visible when authed
 .guestbook-entry__del {
   position: absolute;
   top: 4px;
@@ -278,7 +242,6 @@ html:not([data-gb-owner="true"]) .guestbook-entry__del { display: none; }
   opacity: .65;
 }
 
-// Add-a-mark trigger — pinned at the bottom of the panel
 .guestbook-add {
   flex: 0 0 auto;
   margin: .5rem 1rem 1rem;
@@ -311,9 +274,6 @@ html:not([data-gb-owner="true"]) .guestbook-entry__del { display: none; }
   opacity: .8;
 }
 
-// ─────────────────────────────────────────────────────────────
-// Compose modal — small canvas + text + optional name
-// ─────────────────────────────────────────────────────────────
 .gb-modal {
   position: fixed;
   inset: 0;
@@ -483,39 +443,9 @@ html:not([data-gb-owner="true"]) .guestbook-entry__del { display: none; }
 }
 
 .feed-panel--recent {
-  // ── Particle/grid background layer (static — no drift animation)
-  /* DYNAMIC: recent bg-drift disabled for hush mode */
-  // &::before {
-  //   content: '';
-  //   position: absolute;
-  //   inset: 0;
-  //   z-index: 0;
-  //   pointer-events: none;
-  //   background-image: radial-gradient(circle, rgba(144, 108, 190, .18) 1px, transparent 1px);
-  //   background-size: 16px 16px;
-  //   animation: feed-dot-drift 60s linear infinite;
-  //   opacity: .45;
-  // }
+  
 }
 
-/* DYNAMIC: feed-dot-drift + feed-entry-rotate-in + feed-entry-fade-out disabled */
-// @keyframes feed-dot-drift {
-//   0%   { background-position: 0 0; }
-//   100% { background-position: 0 320px; }
-// }
-//
-// @keyframes feed-entry-rotate-in {
-//   from { opacity: 0; transform: translateY(-8px); }
-//   to   { opacity: 1; transform: translateY(0); }
-// }
-//
-// @keyframes feed-entry-fade-out {
-//   from { opacity: 1; }
-//   to   { opacity: .3; }
-// }
-
-// Recent list — top padding clears the .panel-label ("RECENT")
-// Left/right generous so entries don't hug the sparkle border.
 .feed-recent-list {
   list-style: none;
   margin: 0;
@@ -532,38 +462,20 @@ html:not([data-gb-owner="true"]) .guestbook-entry__del { display: none; }
   &::-webkit-scrollbar-thumb { background: rgba(144, 108, 190, .20); border-radius: 2px; }
 }
 
-// Individual recent entry — parent list carries the outer padding
 .feed-entry {
   display: flex;
   flex-direction: column;
   gap: 3px;
   padding: .75rem 0;
   opacity: 0;
-  // DYNAMIC: hover lift + transition disabled for hush mode
-  // transition: transform 200ms ease, color 200ms ease;
 
   &.is-visible {
     opacity: 1;
   }
 
-  // DYNAMIC: hover lift disabled for hush mode
-  // &:hover {
-  //   transform: translateY(-2px);
-  //   .feed-entry__title { color: var(--accent); }
-  // }
-
-  // Static hover: color change only, no lift
   &:hover {
     .feed-entry__title { color: var(--accent); }
   }
-
-  // DYNAMIC: auto-rotate animations disabled for hush mode
-  // &.is-new {
-  //   animation: feed-entry-rotate-in 400ms ease forwards;
-  // }
-  // &.is-fading {
-  //   animation: feed-entry-fade-out 400ms ease forwards;
-  // }
 
   a {
     text-decoration: none;
@@ -597,8 +509,6 @@ html:not([data-gb-owner="true"]) .guestbook-entry__del { display: none; }
   text-overflow: ellipsis;
   white-space: nowrap;
   opacity: .82;
-  // DYNAMIC: color transition disabled
-  // transition: color .15s ease;
 }
 
 .feed-entry__meta {
@@ -609,19 +519,10 @@ html:not([data-gb-owner="true"]) .guestbook-entry__del { display: none; }
   opacity: .45;
 }
 
-/* DYNAMIC: feed-entry-in stagger disabled */
-// @keyframes feed-entry-in {
-//   from { opacity: 0; transform: translateY(-6px); }
-//   to   { opacity: 1; transform: translateY(0); }
-// }
-
 .feed-entry.is-animating {
-  // DYNAMIC: animation disabled — instant visible
-  // animation: feed-entry-in .32s ease forwards;
   opacity: 1;
 }
 
-// ── Light theme ───────────────────────────────────────────────
 [data-theme="light"] {
   .panel-dot--pulse {
     background: var(--kp-purple);
@@ -638,7 +539,6 @@ html:not([data-gb-owner="true"]) .guestbook-entry__del { display: none; }
   }
 }
 
-// ── Reduced motion ────────────────────────────────────────────
 @media (prefers-reduced-motion: reduce) {
   .panel-dot--pulse {
     animation: none;
@@ -660,7 +560,6 @@ html:not([data-gb-owner="true"]) .guestbook-entry__del { display: none; }
   }
 }
 
-// ── Mobile: stack right column below terminal ─────────────────
 @media (max-width: 768px) {
   .home-stage {
     flex-direction: column;
@@ -683,7 +582,6 @@ html:not([data-gb-owner="true"]) .guestbook-entry__del { display: none; }
   }
 }
 
-// ── Narrow: hide recent panel ─────────────────────────────────
 @media (max-width: 480px) {
   .feed-panel--recent {
     display: none;

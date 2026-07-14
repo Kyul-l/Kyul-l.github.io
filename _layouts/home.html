@@ -3,7 +3,7 @@ layout: default
 ---
 <div class="home-stage">
 
-  <!-- ── LEFT 70%: terminal ───────────────────────────────── -->
+  
   <div class="home-col--terminal">
     <div class="mac-terminal-wrapper scene">
       <div class="mac-terminal-glow-container">
@@ -26,22 +26,22 @@ layout: default
             </div>
           </div>
 
-        </div><!-- /.mac-terminal -->
-      </div><!-- /.mac-terminal-glow-container -->
-    </div><!-- /.mac-terminal-wrapper -->
-  </div><!-- /.home-col--terminal -->
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <!-- ── RIGHT 30%: recent + guestbook ──────────────────── -->
+  
   <div class="home-col--right">
 
-    <!-- TOP: recent panel -->
+    
     <div class="feed-panel--recent">
       {% include panel-ornament.html preset='recent' %}
       <div class="panel-label" aria-hidden="true"><span class="panel-label__sigil">✦</span>RECENT</div>
       <ul id="recent-body" class="feed-recent-list" aria-label="Recent entries"></ul>
     </div>
 
-    <!-- BOTTOM: guestbook — visitors leave a mark -->
+    
     <section class="feed-panel--guestbook" aria-label="Guestbook">
       {% include panel-ornament.html preset='recent' %}
       <div class="panel-label" aria-hidden="true"><span class="panel-label__sigil">✦</span>GUESTBOOK</div>
@@ -52,9 +52,9 @@ layout: default
       </button>
     </section>
 
-  </div><!-- /.home-col--right -->
+  </div>
 
-</div><!-- /.home-stage -->
+</div>
 
 <noscript>
   <div class="noscript-warning">
@@ -89,11 +89,9 @@ layout: default
     {%- endfor -%}
   ];
 
-
   window.__FIREBASE_CONFIG__ = {{ site.data.firebase | jsonify }};
 </script>
 
-<!-- Guestbook composer — canvas + text on a small note -->
 <div class="gb-modal" id="gb-modal" role="dialog" aria-modal="true" aria-hidden="true" hidden>
   <div class="gb-modal__backdrop" data-gb-close></div>
   <div class="gb-modal__card" role="document">
