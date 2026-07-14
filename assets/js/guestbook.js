@@ -5,7 +5,7 @@ import {
     onSnapshot, query, orderBy, limit, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import {
-    getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+    getAuth, GoogleAuthProvider, signInWithPopup, signInAnonymously, signOut, onAuthStateChanged
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
 const cfg = window.__FIREBASE_CONFIG__;
@@ -44,6 +44,7 @@ if (!cfg || !cfg.apiKey) {
         onAuthStateChanged(auth, (user) => {
             isOwner = !!(user && user.email === cfg.ownerEmail);
             document.documentElement.dataset.gbOwner = isOwner ? 'true' : 'false';
+            if (!user) signInAnonymously(auth).catch(() => {});
         });
 
         function render(entries) {
