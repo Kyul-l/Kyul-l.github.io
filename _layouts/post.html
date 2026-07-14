@@ -7,7 +7,8 @@ layout: page
   {%- when 'studies' -%}{%- assign _back_url = '/studies/' -%}{%- assign _back_label = 'Studies' -%}
   {%- else -%}{%- assign _back_url = '/log/' -%}{%- assign _back_label = 'Log' -%}
 {%- endcase -%}
-<article class="post">
+<article class="post{% if page.collection == 'wiki' %} post--wiki{% endif %}">
+  {% if page.collection == 'wiki' %}{% include panel-ornament.html preset='recent' %}{% endif %}
   <a class="post-backlink" href="{{ _back_url | relative_url }}">← Back to {{ _back_label }}</a>
   <header class="post-header">
     <h1 class="post-title">{{ page.title }}</h1>

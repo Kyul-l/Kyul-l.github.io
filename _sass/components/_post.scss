@@ -113,6 +113,7 @@
   max-width: 780px;
   margin: 0 auto;
   padding: 3rem 1.5rem 4.5rem;
+  position: relative;
 
   // Collection-aware back link — sits above the title, quiet mono.
   .post-backlink {
@@ -417,6 +418,21 @@
       }
     }
   }
+}
+
+// Wiki entry — same quiet border chrome as RECENT / FRAGMENT panels
+.post--wiki {
+  padding: 3rem 2.75rem 3.5rem;
+  margin: 1.5rem auto 3rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+
+  .post-backlink { position: relative; z-index: 1; }
+  .post-header,
+  .post-content { position: relative; z-index: 1; }
 }
 
 // ── Pagination ───────────────────────────────────────────────
