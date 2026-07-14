@@ -56,10 +56,11 @@ export async function drawGraph(containerId) {
     },
     edges: {
       width: 1,
+      // Edges hidden by default — surfaced only when a node is clicked.
       color: {
-        color: 'rgba(144, 108, 190, 0.22)',
-        highlight: 'rgba(144, 108, 190, 0.55)',
-        hover: 'rgba(144, 108, 190, 0.45)'
+        color: 'rgba(0, 0, 0, 0)',
+        highlight: 'rgba(144, 108, 190, 0.75)',
+        hover: 'rgba(0, 0, 0, 0)'
       },
       smooth: { type: 'continuous', roundness: 0.35 },
       shadow: false
@@ -107,20 +108,54 @@ export async function drawGraph(containerId) {
   const showLoader = () => loader && loader.classList.add('is-loading');
   const hideLoader = () => loader && loader.classList.remove('is-loading');
 
-  // Focus effect — hovered node and its connections highlighted, others fade
-  network.on('hoverNode', function (params) {
-    const connected = new Set(network.getConnectedNodes(params.node));
-    connected.add(params.node);
+  // Edge visibility — hidden by default. A click on a node reveals only that
+  // node's connections; clicking the canvas hides them again.
+  const EDGE_ON  = 'rgba(144, 108, 190, 0.6)';
+  const EDGE_OFF = 'rgba(0, 0, 0, 0)';
+
+  function fadeConnectedNodes(centerId) {
+    const connected = new Set(network.getConnectedNodes(centerId));
+    connected.add(centerId);
     const updates = nodes.get().map(n => ({
       id: n.id,
-      opacity: connected.has(n.id) ? 1 : 0.18,
+      opacity: connected.has(n.id) ? 1 : 0.22
     }));
     nodes.update(updates);
+  }
+
+  function resetNodeOpacity() {
+    nodes.update(nodes.get().map(n => ({ id: n.id, opacity: 1 })));
+  }
+
+  function showEdgesFor(nodeId) {
+    const connectedEdgeIds = new Set(network.getConnectedEdges(nodeId));
+    edges.update(edges.get().map(e => ({
+      id: e.id,
+      color: connectedEdgeIds.has(e.id) ? EDGE_ON : EDGE_OFF
+    })));
+  }
+
+  function hideAllEdges() {
+    edges.update(edges.get().map(e => ({ id: e.id, color: EDGE_OFF })));
+  }
+
+  network.on('selectNode', function (params) {
+    if (!params.nodes.length) return;
+    const id = params.nodes[0];
+    showEdgesFor(id);
+    fadeConnectedNodes(id);
   });
 
-  network.on('blurNode', function () {
-    const updates = nodes.get().map(n => ({ id: n.id, opacity: 1 }));
-    nodes.update(updates);
+  network.on('deselectNode', function () {
+    hideAllEdges();
+    resetNodeOpacity();
+  });
+
+  network.on('click', function (params) {
+    if (params.nodes.length === 0) {
+      hideAllEdges();
+      resetNodeOpacity();
+    }
   });
 
   window.addEventListener('resize', () => {
