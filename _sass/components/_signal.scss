@@ -214,6 +214,7 @@
 }
 
 .guestbook-entry {
+  position: relative;
   padding: .55rem .7rem .5rem;
   background: var(--card, rgba(255, 255, 255, .02));
   border: 1px solid var(--border-soft);
@@ -228,6 +229,27 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, .28);
   }
 }
+
+// Owner-only delete button — only visible when authed
+.guestbook-entry__del {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: var(--fg-muted);
+  cursor: pointer;
+  font: 300 18px/1 var(--sans);
+  opacity: 0;
+  transition: opacity .2s ease, color .2s ease;
+
+  &:hover { color: var(--accent); }
+}
+html:not([data-gb-owner="true"]) .guestbook-entry__del { display: none; }
+.guestbook-entry:hover .guestbook-entry__del { opacity: .8; }
 
 .guestbook-entry__img {
   display: block;

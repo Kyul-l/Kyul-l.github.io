@@ -1,195 +1,245 @@
 // Guestbook — visitors leave a small mark (canvas + optional text).
-// Phase 1: localStorage-only, so UX can be validated before Firestore.
-// Storage schema: [{ id, name, text, image, ts }]  (image = data URL, may be '')
+// Firestore-backed. Real-time list, hidden owner login for delete.
 
-const KEY = 'kyul-guestbook-v1';
-const listEl   = document.getElementById('guestbook-list');
-const addBtn   = document.getElementById('guestbook-add');
-const modal    = document.getElementById('gb-modal');
-const canvas   = document.getElementById('gb-canvas');
-const textEl   = document.getElementById('gb-text');
-const nameEl   = document.getElementById('gb-name');
-const submitEl = document.getElementById('gb-submit');
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import {
+    getFirestore, collection, addDoc, deleteDoc, doc,
+    onSnapshot, query, orderBy, limit, serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import {
+    getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 
-if (listEl && addBtn && modal && canvas && textEl && nameEl && submitEl) {
-    // ── Storage helpers ──────────────────────────────────────
-    function load() {
-        try { return JSON.parse(localStorage.getItem(KEY)) || []; }
-        catch (e) { return []; }
-    }
-    function save(entries) {
-        localStorage.setItem(KEY, JSON.stringify(entries));
-    }
-    function makeId() {
-        return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-    }
+const cfg = window.__FIREBASE_CONFIG__;
+if (!cfg || !cfg.apiKey) {
+    console.warn('[guestbook] no firebase config — skipping.');
+} else {
+    const listEl   = document.getElementById('guestbook-list');
+    const addBtn   = document.getElementById('guestbook-add');
+    const modal    = document.getElementById('gb-modal');
+    const canvas   = document.getElementById('gb-canvas');
+    const textEl   = document.getElementById('gb-text');
+    const nameEl   = document.getElementById('gb-name');
+    const submitEl = document.getElementById('gb-submit');
 
-    // ── Renderer ─────────────────────────────────────────────
-    function render() {
-        const entries = load().sort((a, b) => b.ts - a.ts);
-        listEl.innerHTML = '';
-        if (!entries.length) {
-            const empty = document.createElement('li');
-            empty.className = 'guestbook-empty';
-            empty.textContent = 'nothing yet — be the first to leave a mark.';
-            listEl.appendChild(empty);
-            return;
+    if (listEl && addBtn && modal && canvas && textEl && nameEl && submitEl) {
+
+        const app = initializeApp(cfg);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const gbRef = collection(db, 'guestbook');
+
+        let isOwner = false;
+
+        // ── Owner login (hidden): ⌥ + shift + G  ────────────────
+        document.addEventListener('keydown', (e) => {
+            if (e.altKey && e.shiftKey && (e.key === 'G' || e.key === 'g')) {
+                e.preventDefault();
+                if (auth.currentUser) {
+                    signOut(auth);
+                } else {
+                    signInWithPopup(auth, new GoogleAuthProvider()).catch((err) => {
+                        console.warn('[guestbook] sign-in failed:', err.message);
+                    });
+                }
+            }
+        });
+        onAuthStateChanged(auth, (user) => {
+            isOwner = !!(user && user.email === cfg.ownerEmail);
+            document.documentElement.dataset.gbOwner = isOwner ? 'true' : 'false';
+        });
+
+        // ── Renderer ────────────────────────────────────────────
+        function render(entries) {
+            listEl.innerHTML = '';
+            if (!entries.length) {
+                const empty = document.createElement('li');
+                empty.className = 'guestbook-empty';
+                empty.textContent = 'nothing yet — be the first to leave a mark.';
+                listEl.appendChild(empty);
+                return;
+            }
+            entries.forEach((e) => {
+                const li = document.createElement('li');
+                li.className = 'guestbook-entry';
+                li.style.setProperty('--tilt', ((Math.random() * 2 - 1) * 1.4).toFixed(2) + 'deg');
+
+                if (e.image) {
+                    const img = document.createElement('img');
+                    img.className = 'guestbook-entry__img';
+                    img.src = e.image;
+                    img.alt = '';
+                    li.appendChild(img);
+                }
+                if (e.text) {
+                    const t = document.createElement('p');
+                    t.className = 'guestbook-entry__text';
+                    t.textContent = e.text;
+                    li.appendChild(t);
+                }
+                const meta = document.createElement('p');
+                meta.className = 'guestbook-entry__meta';
+                const who = e.name ? e.name : 'a quiet one';
+                const when = e.ts && e.ts.toDate
+                    ? e.ts.toDate().toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+                    : '';
+                meta.textContent = when ? `${who} · ${when}` : who;
+                li.appendChild(meta);
+
+                if (isOwner && e.__id) {
+                    const del = document.createElement('button');
+                    del.type = 'button';
+                    del.className = 'guestbook-entry__del';
+                    del.title = 'Delete';
+                    del.setAttribute('aria-label', 'Delete this mark');
+                    del.textContent = '×';
+                    del.addEventListener('click', async () => {
+                        if (!confirm('Delete this mark?')) return;
+                        try { await deleteDoc(doc(db, 'guestbook', e.__id)); }
+                        catch (err) { alert('Delete failed: ' + err.message); }
+                    });
+                    li.appendChild(del);
+                }
+
+                listEl.appendChild(li);
+            });
         }
-        entries.slice(0, 30).forEach((e) => {
-            const li = document.createElement('li');
-            li.className = 'guestbook-entry';
-            li.style.setProperty('--tilt', ((Math.random() * 2 - 1) * 1.4).toFixed(2) + 'deg');
 
-            if (e.image) {
-                const img = document.createElement('img');
-                img.className = 'guestbook-entry__img';
-                img.src = e.image;
-                img.alt = '';
-                li.appendChild(img);
-            }
-            if (e.text) {
-                const t = document.createElement('p');
-                t.className = 'guestbook-entry__text';
-                t.textContent = e.text;
-                li.appendChild(t);
-            }
-            const meta = document.createElement('p');
-            meta.className = 'guestbook-entry__meta';
-            const who = e.name ? e.name : 'a quiet one';
-            const when = new Date(e.ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-            meta.textContent = who + ' · ' + when;
-            li.appendChild(meta);
-
-            listEl.appendChild(li);
+        // ── Real-time subscription ─────────────────────────────
+        const q = query(gbRef, orderBy('ts', 'desc'), limit(50));
+        onSnapshot(q, (snap) => {
+            const rows = [];
+            snap.forEach((docSnap) => rows.push(Object.assign({ __id: docSnap.id }, docSnap.data())));
+            render(rows);
+        }, (err) => {
+            console.warn('[guestbook] snapshot error:', err.message);
+            listEl.innerHTML = '';
+            const el = document.createElement('li');
+            el.className = 'guestbook-empty';
+            el.textContent = "couldn't reach the guestbook — try again later.";
+            listEl.appendChild(el);
         });
-    }
 
-    // ── Canvas drawing ───────────────────────────────────────
-    const ctx = canvas.getContext('2d');
-    const strokes = [];   // history for undo — each stroke is an array of {x,y}
-    let drawing = false;
-    let current = null;
+        // ── Canvas drawing ─────────────────────────────────────
+        const ctx = canvas.getContext('2d');
+        const strokes = [];
+        let drawing = false;
+        let current = null;
 
-    function paintBg() {
-        // Faint parchment ruled feel — one horizontal line at 2/3 height
-        ctx.fillStyle = '#f6f0e0';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = 'rgba(31, 28, 44, .08)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(0, Math.floor(canvas.height * 0.66) + .5);
-        ctx.lineTo(canvas.width, Math.floor(canvas.height * 0.66) + .5);
-        ctx.stroke();
-    }
-    function redraw() {
-        paintBg();
-        ctx.strokeStyle = '#1f1c2c';
-        ctx.lineWidth = 1.6;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        strokes.forEach((s) => {
-            if (s.length < 2) return;
+        function paintBg() {
+            ctx.fillStyle = '#f6f0e0';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = 'rgba(31, 28, 44, .08)';
+            ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.moveTo(s[0].x, s[0].y);
-            for (let i = 1; i < s.length; i++) ctx.lineTo(s[i].x, s[i].y);
+            ctx.moveTo(0, Math.floor(canvas.height * 0.66) + .5);
+            ctx.lineTo(canvas.width, Math.floor(canvas.height * 0.66) + .5);
             ctx.stroke();
+        }
+        function redraw() {
+            paintBg();
+            ctx.strokeStyle = '#1f1c2c';
+            ctx.lineWidth = 1.6;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            strokes.forEach((s) => {
+                if (s.length < 2) return;
+                ctx.beginPath();
+                ctx.moveTo(s[0].x, s[0].y);
+                for (let i = 1; i < s.length; i++) ctx.lineTo(s[i].x, s[i].y);
+                ctx.stroke();
+            });
+        }
+        function pointFrom(e) {
+            const r = canvas.getBoundingClientRect();
+            const t = e.touches && e.touches[0];
+            const cx = (t ? t.clientX : e.clientX) - r.left;
+            const cy = (t ? t.clientY : e.clientY) - r.top;
+            return { x: cx * (canvas.width / r.width), y: cy * (canvas.height / r.height) };
+        }
+        function start(e) { e.preventDefault(); drawing = true; current = [pointFrom(e)]; }
+        function move(e) {
+            if (!drawing) return;
+            e.preventDefault();
+            current.push(pointFrom(e));
+            redraw();
+            ctx.strokeStyle = '#1f1c2c';
+            ctx.beginPath();
+            ctx.moveTo(current[0].x, current[0].y);
+            for (let i = 1; i < current.length; i++) ctx.lineTo(current[i].x, current[i].y);
+            ctx.stroke();
+        }
+        function end() {
+            if (!drawing) return;
+            drawing = false;
+            if (current && current.length > 1) strokes.push(current);
+            current = null;
+            redraw();
+        }
+
+        canvas.addEventListener('mousedown', start);
+        canvas.addEventListener('mousemove', move);
+        canvas.addEventListener('mouseup', end);
+        canvas.addEventListener('mouseleave', end);
+        canvas.addEventListener('touchstart', start, { passive: false });
+        canvas.addEventListener('touchmove', move, { passive: false });
+        canvas.addEventListener('touchend', end);
+
+        document.querySelectorAll('[data-gb-tool]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const tool = btn.dataset.gbTool;
+                if (tool === 'clear') { strokes.length = 0; redraw(); }
+                else if (tool === 'undo') { strokes.pop(); redraw(); }
+            });
         });
-    }
-    function pointFrom(e) {
-        const r = canvas.getBoundingClientRect();
-        const t = e.touches && e.touches[0];
-        const cx = (t ? t.clientX : e.clientX) - r.left;
-        const cy = (t ? t.clientY : e.clientY) - r.top;
-        return { x: cx * (canvas.width / r.width), y: cy * (canvas.height / r.height) };
-    }
-    function start(e) {
-        e.preventDefault();
-        drawing = true;
-        current = [pointFrom(e)];
-    }
-    function move(e) {
-        if (!drawing) return;
-        e.preventDefault();
-        current.push(pointFrom(e));
-        redraw();
-        ctx.strokeStyle = '#1f1c2c';
-        ctx.beginPath();
-        ctx.moveTo(current[0].x, current[0].y);
-        for (let i = 1; i < current.length; i++) ctx.lineTo(current[i].x, current[i].y);
-        ctx.stroke();
-    }
-    function end() {
-        if (!drawing) return;
-        drawing = false;
-        if (current && current.length > 1) strokes.push(current);
-        current = null;
-        redraw();
-    }
 
-    canvas.addEventListener('mousedown', start);
-    canvas.addEventListener('mousemove', move);
-    canvas.addEventListener('mouseup', end);
-    canvas.addEventListener('mouseleave', end);
-    canvas.addEventListener('touchstart', start, { passive: false });
-    canvas.addEventListener('touchmove', move, { passive: false });
-    canvas.addEventListener('touchend', end);
+        // ── Modal open / close ─────────────────────────────────
+        function openModal() {
+            modal.hidden = false;
+            modal.setAttribute('aria-hidden', 'false');
+            requestAnimationFrame(() => modal.classList.add('is-open'));
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => textEl.focus(), 100);
+        }
+        function closeModal() {
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+            setTimeout(() => { modal.hidden = true; document.body.style.overflow = ''; }, 250);
+        }
+        function reset() { strokes.length = 0; redraw(); textEl.value = ''; nameEl.value = ''; }
 
-    document.querySelectorAll('[data-gb-tool]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            const tool = btn.dataset.gbTool;
-            if (tool === 'clear') { strokes.length = 0; redraw(); }
-            else if (tool === 'undo') { strokes.pop(); redraw(); }
+        addBtn.addEventListener('click', () => { reset(); openModal(); });
+        modal.querySelectorAll('[data-gb-close]').forEach((el) => el.addEventListener('click', closeModal));
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.hidden) closeModal();
         });
-    });
 
-    // ── Modal open / close ──────────────────────────────────
-    function openModal() {
-        modal.hidden = false;
-        modal.setAttribute('aria-hidden', 'false');
-        requestAnimationFrame(() => modal.classList.add('is-open'));
-        document.body.style.overflow = 'hidden';
-        setTimeout(() => textEl.focus(), 100);
+        // ── Submit ─────────────────────────────────────────────
+        submitEl.addEventListener('click', async () => {
+            const text = textEl.value.trim();
+            const hasDrawing = strokes.length > 0;
+            if (!text && !hasDrawing) { textEl.focus(); return; }
+
+            const image = hasDrawing ? canvas.toDataURL('image/png') : '';
+            submitEl.disabled = true;
+            const prevLabel = submitEl.textContent;
+            submitEl.textContent = 'saving…';
+            try {
+                await addDoc(gbRef, {
+                    name: nameEl.value.trim().slice(0, 24),
+                    text: text.slice(0, 240),
+                    image,
+                    ts: serverTimestamp()
+                });
+                closeModal();
+            } catch (err) {
+                alert('Could not save: ' + err.message);
+            } finally {
+                submitEl.disabled = false;
+                submitEl.textContent = prevLabel;
+            }
+        });
+
+        paintBg();
     }
-    function closeModal() {
-        modal.classList.remove('is-open');
-        modal.setAttribute('aria-hidden', 'true');
-        setTimeout(() => { modal.hidden = true; document.body.style.overflow = ''; }, 250);
-    }
-    function reset() {
-        strokes.length = 0;
-        redraw();
-        textEl.value = '';
-        nameEl.value = '';
-    }
-
-    addBtn.addEventListener('click', () => { reset(); openModal(); });
-    modal.querySelectorAll('[data-gb-close]').forEach((el) => el.addEventListener('click', closeModal));
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !modal.hidden) closeModal();
-    });
-
-    // ── Submit ──────────────────────────────────────────────
-    submitEl.addEventListener('click', () => {
-        const text = textEl.value.trim();
-        const hasDrawing = strokes.length > 0;
-        if (!text && !hasDrawing) { textEl.focus(); return; }
-
-        const image = hasDrawing ? canvas.toDataURL('image/png') : '';
-        const entry = {
-            id: makeId(),
-            name: nameEl.value.trim().slice(0, 24),
-            text: text.slice(0, 240),
-            image,
-            ts: Date.now()
-        };
-        const entries = load();
-        entries.push(entry);
-        save(entries);
-        closeModal();
-        render();
-    });
-
-    // Initial paint
-    paintBg();
-    render();
 }
