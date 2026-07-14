@@ -566,8 +566,11 @@
 }
 
 // ── Variant: split — photo left, scrollable text right ──────
+// Grid layout (not flex) so the columns strictly obey the 40/60 ratio and
+// long text lines wrap inside the text column instead of overflowing.
 .log-lightbox--split .log-lightbox__card {
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 40% 60%;
     width: min(1120px, 100%);
     max-height: min(88vh, 760px);
 }
@@ -618,10 +621,11 @@
     border-radius: 3px;
 }
 
-// Split: media becomes the left column, stretched to full height
+// Split: media occupies the first grid column, stretched to full height
 .log-lightbox--split .log-lightbox__media {
-    flex: 0 0 55%;
+    min-width: 0;
     align-self: stretch;
+    height: 100%;
 }
 
 .log-lightbox__flag {
@@ -655,7 +659,7 @@
 }
 .log-lightbox--text     .log-lightbox__text { flex: 1 1 auto; min-width: 0; padding: 3.5rem 3rem 3rem; }
 .log-lightbox--polaroid .log-lightbox__text { flex: 0 0 auto; min-width: 0; padding: 1.25rem .5rem .35rem; }
-.log-lightbox--split    .log-lightbox__text { flex: 0 0 45%; max-width: 45%; min-width: 0; padding: 3rem 2.5rem 2.5rem; }
+.log-lightbox--split    .log-lightbox__text { min-width: 0; padding: 3rem 2.5rem 2.5rem; }
 
 // Polaroid caption tightens the hierarchy — memo, not article
 .log-lightbox--polaroid .log-lightbox__meta { margin: 0 0 .5rem; }
@@ -751,15 +755,14 @@
 // ── Stack the split variant on narrow viewports ─────────────
 @media (max-width: 780px) {
     .log-lightbox--split .log-lightbox__card {
-        flex-direction: column;
+        grid-template-columns: 1fr;
         width: min(520px, 100%);
     }
     .log-lightbox--split .log-lightbox__media {
-        flex: 0 0 auto;
         aspect-ratio: 4 / 3;
+        height: auto;
     }
     .log-lightbox--split .log-lightbox__text {
-        flex: 1 1 auto;
         padding: 2rem 1.75rem 1.75rem;
     }
 }
