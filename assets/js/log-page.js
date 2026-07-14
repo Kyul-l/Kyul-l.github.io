@@ -107,63 +107,68 @@
     });
 })();
 
-// ── Lightbox: click photo → flip-card modal ─────────────
+// ── Lightbox: click tile → variant card (text-only / photo) ─
 (function () {
     var lb = document.querySelector('.log-lightbox');
     if (!lb) return;
     var card = lb.querySelector('.log-lightbox__card');
-    var placeholder = lb.querySelector('.log-lightbox__placeholder');
+    var mediaFig = lb.querySelector('.log-lightbox__media');
     var img = lb.querySelector('.log-lightbox__media img');
     var flag = lb.querySelector('.log-lightbox__flag');
     var dateEl = lb.querySelector('.log-lightbox__date');
     var catEl = lb.querySelector('.log-lightbox__cat');
+    var sepEl = lb.querySelector('.log-lightbox__sep');
     var titleEl = lb.querySelector('.log-lightbox__title');
     var whisperEl = lb.querySelector('.log-lightbox__whisper');
+    var ruleEl = lb.querySelector('.log-lightbox__rule');
     var bodyEl = lb.querySelector('.log-lightbox__body');
     var tagsEl = lb.querySelector('.log-lightbox__tags');
     var lastTrigger = null;
 
     function open(tile) {
         var d = tile.dataset;
-        // Category class → color tint drives placeholder + accent
-        lb.className = 'log-lightbox log-lightbox--' + (d.cat || 'moment');
+        var hasPhoto = !!d.image;
 
-        if (d.image) {
+        // Category tint + variant (text-only vs photo-dominant)
+        lb.className = 'log-lightbox log-lightbox--' + (d.cat || 'moment')
+            + ' ' + (hasPhoto ? 'log-lightbox--photo' : 'log-lightbox--text');
+
+        if (hasPhoto) {
             img.src = d.image;
             img.alt = d.title || '';
-            img.style.display = '';
-            placeholder.style.display = 'none';
+            mediaFig.hidden = false;
         } else {
-            img.style.display = 'none';
             img.removeAttribute('src');
-            placeholder.style.display = '';
+            mediaFig.hidden = true;
         }
 
-        flag.style.display = d.feat === '1' ? '' : 'none';
+        if (flag) flag.style.display = d.feat === '1' ? '' : 'none';
         dateEl.textContent = d.date || '';
-        catEl.textContent = d.cat || '';
+        catEl.textContent = (d.cat || '').toUpperCase();
+        if (sepEl) sepEl.style.display = (d.cat && d.date) ? '' : 'none';
         titleEl.textContent = d.title || '';
         whisperEl.textContent = d.fragment || '';
         whisperEl.style.display = d.fragment ? '' : 'none';
 
-        // Body — the full entry text, plain (CSS handles wrapping + scroll).
-        // Empty body = placeholder-only stub; hide the block in that case.
+        // Body — full entry text below the whisper. Empty = hide with the rule.
         var bodyText = (d.body || '').trim();
         if (bodyEl) {
             bodyEl.textContent = bodyText;
             bodyEl.style.display = bodyText ? '' : 'none';
         }
+        if (ruleEl) ruleEl.style.display = bodyText ? '' : 'none';
 
-        // Tags — comma or middle-dot separated
+        // Tags — Liquid emits a "|" delimited list (cleaned of separators).
         tagsEl.innerHTML = '';
-        var raw = (d.tags || '').replace(/&middot;|·/g, ',');
-        raw.split(',').map(function (t) { return t.trim(); }).filter(Boolean).forEach(function (t) {
-            var el = document.createElement('span');
-            el.className = 'log-lightbox__tag';
-            el.textContent = t;
-            tagsEl.appendChild(el);
-        });
-
+        (d.tags || '').split('|')
+            .map(function (t) { return t.trim(); })
+            .filter(Boolean)
+            .forEach(function (t) {
+                var el = document.createElement('li');
+                el.className = 'log-lightbox__tag';
+                el.textContent = t;
+                tagsEl.appendChild(el);
+            });
 
         lb.hidden = false;
         lb.setAttribute('aria-hidden', 'false');

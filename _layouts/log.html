@@ -115,15 +115,30 @@ layout: page
               {%- assign has_image = false -%}
               {%- if post.photo and post.photo != '' -%}{%- assign has_image = true -%}{%- endif -%}
 
+              {%- comment -%}
+                Tags in front-matter can be a YAML string ("warm · sweet · ceramic")
+                which Jekyll auto-splits on whitespace into ["warm", "·", "sweet", …].
+                Strip the lone "·" separators here so downstream JS gets a clean list.
+              {%- endcomment -%}
+              {%- assign _clean_tags = '' -%}
+              {%- if post.tags -%}
+                {%- for _t in post.tags -%}
+                  {%- assign _tt = _t | strip -%}
+                  {%- if _tt != '' and _tt != '·' and _tt != '/' -%}
+                    {%- assign _clean_tags = _clean_tags | append: _tt | append: '|' -%}
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endif -%}
+
               <a class="log-photo log-photo--{{ ttype }} log-photo--{{ tsize }}{% if has_image %} log-photo--has-image{% endif %}"
                  href="{{ post.url | relative_url }}"
                  role="button"
                  aria-haspopup="dialog"
                  style="--photo-delay:{{ forloop.index0 | times: 50 }}ms"
                  data-title="{{ post.title | escape }}"
-                 data-date="{{ post.date | date: '%-m.%-d' }}"
+                 data-date="{{ post.date | date: '%b %-d, %Y' | upcase }}"
                  data-cat="{{ ttype }}"
-                 data-tags="{{ post.tags | escape }}"
+                 data-tags="{{ _clean_tags | escape }}"
                  data-fragment="{{ post.fragment | escape }}"
                  data-body="{{ post.content | strip_html | strip | escape }}"
                  data-image="{% if has_image %}{{ post.photo | relative_url }}{% endif %}"
@@ -167,28 +182,28 @@ layout: page
 
 </article>
 
-<!-- Lightbox: photo on one side, text on the other -->
+<!-- Lightbox: two variants — text-only (post-page tone) / photo (polaroid-dominant) -->
 <div class="log-lightbox" role="dialog" aria-modal="true" aria-hidden="true" hidden>
   <div class="log-lightbox__backdrop" data-close></div>
   <article class="log-lightbox__card" aria-label="Log entry detail">
-    <button type="button" class="log-lightbox__close" aria-label="Close" data-close>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
-    </button>
-    <figure class="log-lightbox__media">
-      <span class="log-lightbox__placeholder" aria-hidden="true"></span>
-      <img alt="" style="display:none">
+    <button type="button" class="log-lightbox__close" aria-label="Close" data-close>×</button>
+
+    <figure class="log-lightbox__media" hidden>
+      <img alt="">
       <span class="log-lightbox__flag" aria-hidden="true">✦</span>
     </figure>
+
     <div class="log-lightbox__text">
       <p class="log-lightbox__meta">
         <span class="log-lightbox__cat"></span>
-        <span class="log-lightbox__sep">·</span>
+        <span class="log-lightbox__sep" aria-hidden="true">·</span>
         <span class="log-lightbox__date"></span>
       </p>
       <h2 class="log-lightbox__title"></h2>
       <p class="log-lightbox__whisper"></p>
+      <hr class="log-lightbox__rule" aria-hidden="true">
       <div class="log-lightbox__body"></div>
-      <div class="log-lightbox__tags" aria-label="Tags"></div>
+      <ul class="log-lightbox__tags" aria-label="Tags"></ul>
     </div>
   </article>
 </div>
