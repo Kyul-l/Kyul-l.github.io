@@ -121,7 +121,6 @@
     var whisperEl = lb.querySelector('.log-lightbox__whisper');
     var bodyEl = lb.querySelector('.log-lightbox__body');
     var tagsEl = lb.querySelector('.log-lightbox__tags');
-    var moreEl = lb.querySelector('.log-lightbox__more');
     var lastTrigger = null;
 
     function open(tile) {
@@ -165,17 +164,6 @@
             tagsEl.appendChild(el);
         });
 
-        // Open-entry link — escape hatch to the full post
-        if (moreEl) {
-            var href = tile.getAttribute('href') || '';
-            if (href) {
-                moreEl.setAttribute('href', href);
-                moreEl.style.display = '';
-            } else {
-                moreEl.removeAttribute('href');
-                moreEl.style.display = 'none';
-            }
-        }
 
         lb.hidden = false;
         lb.setAttribute('aria-hidden', 'false');
