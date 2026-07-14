@@ -237,19 +237,19 @@
 }
 
 // Entry link — always-on shimmer border (leading ✦ + bottom hairline)
-// Matches home panel aesthetic; brightens on hover.
+// Quiet row — mirrors RECENT panel's inset border tone.
 .wiki-dict__link {
   display: flex;
   align-items: center;
   gap: 1rem;
   padding: .8rem 1.1rem .8rem 1.7rem;
-  border: 1px solid var(--border-soft);
-  background: var(--well);
+  border: 1px solid rgba(144, 108, 190, .20);
+  background: transparent;
   border-radius: var(--radius-sm);
   text-decoration: none;
   color: var(--fg-main);
   position: relative;
-  transition: border-color .25s ease, background .25s ease, box-shadow .25s ease, color .2s ease;
+  transition: border-color .25s ease, background .25s ease, color .2s ease;
 
   // Leading sigil — small ✦ that sits inside the left edge
   &::before {
@@ -259,42 +259,21 @@
     top: 50%;
     transform: translateY(-50%);
     font: 500 .72rem/1 var(--serif);
-    color: var(--accent-soft);
-    opacity: .55;
-    text-shadow: var(--glow-violet-weak);
-    transition: opacity .25s ease, transform .25s ease, color .25s ease;
+    color: rgba(144, 108, 190, .58);
+    opacity: .8;
+    transition: opacity .25s ease, color .25s ease;
     pointer-events: none;
   }
 
-  // Bottom hairline — soft always-on shimmer; brightens on hover
-  &::after {
-    content: '';
-    position: absolute;
-    left: 8%;
-    right: 8%;
-    bottom: -1px;
-    height: 1px;
-    background: linear-gradient(
-      to right,
-      transparent 0%,
-      rgba(185, 163, 214, .35) 50%,
-      transparent 100%
-    );
-    opacity: .5;
-    transition: opacity .3s ease;
-  }
-
   &:hover {
-    border-color: rgba(185, 163, 214, .45);
-    box-shadow: 0 0 0 1px rgba(185, 163, 214, .25), var(--glow-weak);
+    border-color: rgba(144, 108, 190, .35);
+    background: rgba(144, 108, 190, .05);
     color: var(--accent);
 
     &::before {
       opacity: 1;
       color: var(--accent);
-      transform: translateY(-50%) scale(1.1);
     }
-    &::after { opacity: 1; }
   }
 
   &:focus-visible {
@@ -303,35 +282,17 @@
   }
 }
 
-// Four corner sparkles — quiet ambient; brighten on hover
-.wiki-dict__spark {
-  position: absolute;
-  font: 500 9px/1 var(--serif);
-  color: var(--kp-lavender);
-  opacity: 0;
-  text-shadow: var(--glow-violet-weak);
-  transition: opacity .3s ease, transform .3s ease;
-  pointer-events: none;
-
-  &--tl { top: -4px;    left: 6px;   transform: translate(-50%, -50%); }
-  &--tr { top: -4px;    right: 6px;  transform: translate(50%, -50%); }
-  &--bl { bottom: -4px; left: 6px;   transform: translate(-50%, 50%); }
-  &--br { bottom: -4px; right: 6px;  transform: translate(50%, 50%); }
-}
-
-.wiki-dict__link:hover .wiki-dict__spark {
-  opacity: .55;
-}
-
-[data-theme="light"] .wiki-dict__spark {
-  color: var(--kp-purple-d);
-}
-
 [data-theme="light"] .wiki-dict__link {
+  border-color: rgba(107, 79, 149, .22);
+
+  &::before { color: rgba(107, 79, 149, .55); }
+
   &:hover {
-    box-shadow: 0 0 0 1px rgba(107, 79, 149, .3);
+    border-color: rgba(107, 79, 149, .40);
+    background: rgba(107, 79, 149, .05);
   }
 }
+
 
 .wiki-dict__title {
   font: 400 .95rem/1.4 var(--sans);
