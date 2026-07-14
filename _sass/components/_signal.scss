@@ -189,10 +189,10 @@
   transition: border-color .25s ease, box-shadow .25s ease;
 
   &:hover {
-    border-color: rgba(185, 163, 214, .35);
-    box-shadow: var(--shadow), var(--glow-weak);
+    border-color: rgba(185, 163, 214, .25);
+    box-shadow: var(--shadow);
 
-    .fragment-title { color: var(--accent); }
+    .fragment-title { color: var(--accent-soft); }
   }
 }
 
@@ -226,16 +226,17 @@
 
 .fragment-title {
   margin: 0;
-  font: 600 1.05rem/1.3 var(--serif);
+  font: 700 1.35rem/1.25 var(--serif);
   color: var(--fg-main);
-  letter-spacing: -.005em;
+  letter-spacing: -.01em;
   transition: color .25s ease;
 }
 
 .fragment-excerpt {
   margin: 0;
-  font: 400 italic .82rem/1.55 var(--serif);
-  color: var(--fg-muted);
+  font: 400 italic .92rem/1.55 var(--serif);
+  color: var(--fg-main);
+  opacity: .7;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
