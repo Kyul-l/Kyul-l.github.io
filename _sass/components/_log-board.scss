@@ -639,6 +639,10 @@
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;                 // allow flex child to shrink below content width
+    overflow-wrap: break-word;
+    word-wrap: break-word;
     scrollbar-width: thin;
     scrollbar-color: rgba(144, 108, 190, .30) transparent;
 
@@ -709,6 +713,8 @@
     opacity: .82;
     margin: 0 0 2rem;
     white-space: pre-wrap;
+    overflow-wrap: break-word;
+    word-break: break-word;
 
     &:empty { display: none; }
 
