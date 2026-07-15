@@ -1,0 +1,28 @@
+---
+layout: page
+---
+{%- assign _col = page.collection | default: 'posts' -%}
+{%- case _col -%}
+  {%- when 'wiki' -%}{%- assign _back_url = '/wiki/' -%}{%- assign _back_label = 'Wiki' -%}
+  {%- when 'studies' -%}{%- assign _back_url = '/studies/' -%}{%- assign _back_label = 'Studies' -%}
+  {%- else -%}{%- assign _back_url = '/log/' -%}{%- assign _back_label = 'Log' -%}
+{%- endcase -%}
+<article class="post{% if page.collection == 'wiki' %} post--wiki{% endif %}">
+  {% if page.collection == 'wiki' %}{% include panel-ornament.html preset='recent' %}{% endif %}
+  <a class="post-backlink" href="{{ _back_url | relative_url }}">← Back to {{ _back_label }}</a>
+  <header class="post-header">
+    <h1 class="post-title">{{ page.title }}</h1>
+    {% if page.date %}<p class="post-meta">{{ page.date | date: "%B %-d, %Y" }}</p>{% endif %}
+    {% if page.tags.size > 0 %}
+      <ul class="post-tags">
+        {% for tag in page.tags %}<li class="chip">{{ tag }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+  </header>
+
+  <div class="post-content">
+    {{ content }}
+  </div>
+</article>
+
+{% include related-posts.html %}

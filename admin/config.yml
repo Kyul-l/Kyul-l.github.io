@@ -1,0 +1,91 @@
+backend:
+  name: github
+  repo: Kyul-l/Kyul-l.github.io
+  branch: main
+  # OAuth: set up a proxy (e.g. Vercel deploy of netlify-cms-github-oauth-provider)
+  # and add its URL here as `base_url:`. Until then use local_backend below.
+
+# Local dev — run: npx decap-server
+# Then admin panel at http://127.0.0.1:4000/admin/ commits to your local repo.
+local_backend: true
+
+media_folder: "assets/uploads"
+public_folder: "/assets/uploads"
+
+publish_mode: simple
+
+site_url: https://kyul-l.github.io
+display_url: https://kyul-l.github.io
+logo_url: https://kyul-l.github.io/assets/images/kyul-mascot.png
+
+collections:
+  # ── ◇ Wiki ──────────────────────────────────────────
+  - name: "wiki"
+    label: "◇ Wiki"
+    label_singular: "Wiki entry"
+    folder: "_wiki"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    format: "frontmatter"
+    fields:
+      - { label: "Title",    name: "title",    widget: "string" }
+      - {
+          label: "Category (folder)",
+          name: "category",
+          widget: "string",
+          hint: "Free-form folder name. Reuse the same value across entries to group them."
+        }
+      - { label: "Body",     name: "body",     widget: "markdown" }
+
+  # ── ◇ Studies ───────────────────────────────────────
+  - name: "studies"
+    label: "◇ Studies"
+    label_singular: "Studies entry"
+    folder: "_studies"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    format: "frontmatter"
+    fields:
+      - { label: "Title",       name: "title",       widget: "string" }
+      - { label: "Date",        name: "date",        widget: "datetime", required: false }
+      - { label: "Series",      name: "series",      widget: "string",   required: false, hint: "Leave blank for a single." }
+      - { label: "Part",        name: "part",        widget: "number",   required: false, value_type: "int", min: 1 }
+      - { label: "Total parts", name: "total",       widget: "number",   required: false, value_type: "int", min: 1 }
+      - { label: "Hypothesis",  name: "hypothesis",  widget: "text",     required: false }
+      - { label: "Finding",     name: "finding",     widget: "text",     required: false }
+      - { label: "Reflection",  name: "reflection",  widget: "text",     required: false }
+      - { label: "Body",        name: "body",        widget: "markdown" }
+
+  # ── ◇ Log ───────────────────────────────────────────
+  - name: "log"
+    label: "◇ Log"
+    label_singular: "Log entry"
+    folder: "_posts"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    extension: "md"
+    format: "frontmatter"
+    fields:
+      - { label: "Title",      name: "title",      widget: "string" }
+      - { label: "Date",       name: "date",       widget: "datetime" }
+      - {
+          label: "Type",
+          name: "type",
+          widget: "select",
+          options: ["moment", "food", "thought", "object", "signal"],
+          default: "moment"
+        }
+      - { label: "Collection", name: "collection", widget: "string", required: false, hint: "Group cards (e.g., 'Summer Night')." }
+      - { label: "Period",     name: "period",     widget: "string", required: false, hint: "e.g., 'Week 4 / June'" }
+      - { label: "Fragment",   name: "fragment",   widget: "text",   required: false, hint: "One-line flavor text." }
+      - { label: "Tags",       name: "tags",       widget: "string", required: false, hint: "space or ·-separated." }
+      - {
+          label: "Rarity",
+          name: "rarity",
+          widget: "select",
+          options: ["common", "uncommon", "rare", "legendary"],
+          default: "common"
+        }
+      - { label: "Body", name: "body", widget: "markdown" }

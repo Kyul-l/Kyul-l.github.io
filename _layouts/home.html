@@ -1,0 +1,117 @@
+---
+layout: default
+---
+<div class="home-stage">
+
+  
+  <div class="home-col--terminal">
+    <div class="mac-terminal-wrapper scene">
+      <div class="mac-terminal-glow-container">
+        <div class="mac-terminal">
+          <div class="bloom"></div>
+
+          {% include panel-ornament.html preset='terminal' %}
+          <div class="panel-label" aria-hidden="true"><span class="panel-label__sigil">✦</span>TERMINAL</div>
+
+          <div class="body" id="terminal-window" role="region" aria-live="polite">
+            <div id="terminal-output"></div>
+          </div>
+
+          <div class="prompt-wrapper">
+            <div id="autocomplete-suggestions" class="autocomplete-suggestions"></div>
+            <div class="terminal-input-line">
+              <span class="prompt">>&nbsp;</span>
+              <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Command input">
+              <div class="footer-line" id="terminal-status">STATUS · OK</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="home-col--right">
+
+    
+    <div class="feed-panel--recent">
+      {% include panel-ornament.html preset='recent' %}
+      <div class="panel-label" aria-hidden="true"><span class="panel-label__sigil">✦</span>RECENT</div>
+      <ul id="recent-body" class="feed-recent-list" aria-label="Recent entries"></ul>
+    </div>
+
+    
+    <section class="feed-panel--guestbook" aria-label="Guestbook">
+      {% include panel-ornament.html preset='recent' %}
+      <div class="panel-label" aria-hidden="true"><span class="panel-label__sigil">✦</span>GUESTBOOK</div>
+      <ul id="guestbook-list" class="guestbook-list" aria-label="Visitor marks"></ul>
+      <button type="button" id="guestbook-add" class="guestbook-add" aria-label="Leave a mark">
+        <span class="guestbook-add__mark" aria-hidden="true">+</span>
+        <span class="guestbook-add__label">leave a mark</span>
+      </button>
+    </section>
+
+  </div>
+
+</div>
+
+<noscript>
+  <div class="noscript-warning">
+    <p>This website's terminal interface requires JavaScript to function. Please enable it to use the terminal.</p>
+  </div>
+</noscript>
+
+<script>
+  window.__TERMINAL_COMMANDS__ = {{ site.data.commands | jsonify }};
+
+  window.__PAGE_COUNTS__ = {
+    wiki:    {{ site.wiki.size }},
+    studies: {{ site.studies.size }},
+    log:     {{ site.posts.size }}
+  };
+
+  {%- assign all_docs = site.wiki | concat: site.studies | concat: site.posts -%}
+  {%- assign sorted_docs = all_docs | sort: 'date' | reverse -%}
+
+  window.__RECENT_FEED__ = [
+    {%- for doc in sorted_docs limit:15 -%}
+    {%- if doc.collection == 'wiki' -%}{%- assign _section = 'wiki' -%}
+    {%- elsif doc.collection == 'studies' -%}{%- assign _section = 'studies' -%}
+    {%- else -%}{%- assign _section = 'log' -%}{%- endif -%}
+    {
+      "sigil": "◇",
+      "title": {{ doc.title | jsonify }},
+      "section": {{ _section | jsonify }},
+      "time": {{ doc.date | date: '%H:%M' | jsonify }},
+      "url": {{ doc.url | relative_url | jsonify }}
+    }{% unless forloop.last %},{% endunless %}
+    {%- endfor -%}
+  ];
+
+  window.__FIREBASE_CONFIG__ = {{ site.data.firebase | jsonify }};
+</script>
+
+<div class="gb-modal" id="gb-modal" role="dialog" aria-modal="true" aria-hidden="true" hidden>
+  <div class="gb-modal__backdrop" data-gb-close></div>
+  <div class="gb-modal__card" role="document">
+    <button type="button" class="gb-modal__close" data-gb-close aria-label="Close">×</button>
+    <p class="gb-modal__label" aria-hidden="true"><span class="panel-label__sigil">✦</span>LEAVE A MARK</p>
+    <div class="gb-modal__stage">
+      <canvas id="gb-canvas" width="480" height="260" aria-label="Draw"></canvas>
+      <div class="gb-modal__tools" role="toolbar" aria-label="Drawing tools">
+        <button type="button" class="gb-tool" data-gb-tool="undo"  aria-label="Undo stroke">↺</button>
+        <button type="button" class="gb-tool" data-gb-tool="clear" aria-label="Clear canvas">clear</button>
+      </div>
+    </div>
+    <textarea id="gb-text" class="gb-modal__text" rows="2" placeholder="a line, a whisper, whatever" maxlength="240"></textarea>
+    <div class="gb-modal__foot">
+      <input type="text" id="gb-name" class="gb-modal__name" placeholder="name (optional)" maxlength="24">
+      <button type="button" id="gb-submit" class="gb-modal__submit">done</button>
+    </div>
+  </div>
+</div>
+
+<script defer src="{{ '/assets/js/ui-effects.js' | relative_url }}"></script>
+<script type="module" src="{{ '/assets/js/recent-panel.js' | relative_url }}"></script>
+<script type="module" src="{{ '/assets/js/guestbook.js' | relative_url }}"></script>

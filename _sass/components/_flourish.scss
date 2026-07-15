@@ -1,0 +1,67 @@
+
+:root {
+  --flourish-color:         var(--accent);
+  --flourish-color-sparkle: var(--accent);
+  --flourish-opacity:       .7;
+}
+
+[data-theme="light"] {
+  --flourish-color:         var(--kp-purple-d);
+  --flourish-color-sparkle: var(--kp-purple-d);
+  --flourish-opacity:       .65;
+}
+
+.flourish {
+  display: block;
+  color: var(--flourish-color);
+  opacity: var(--flourish-opacity);
+  overflow: visible;
+  pointer-events: none;
+  user-select: none;
+
+  [data-flourish-sparkle] {
+    color: var(--flourish-color-sparkle);
+  }
+}
+
+.flourish--short {
+  width: 100%;
+  max-width: 240px;
+  height: auto;
+  margin: .5rem auto;
+}
+
+.flourish--long {
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  margin: .75rem auto;
+}
+
+.flourish--sweep {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.flourish--corner {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 52px;
+  height: 52px;
+  z-index: 2;
+
+  &.is-tr { left: auto; right: 6px; transform: scaleX(-1); }
+  &.is-bl { top: auto;  bottom: 6px; transform: scaleY(-1); }
+  &.is-br { top: auto;  bottom: 6px; left: auto; right: 6px; transform: scale(-1, -1); }
+}
+
+.flourish--trail {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  margin: 0 auto;
+  opacity: calc(var(--flourish-opacity) * .85);
+}

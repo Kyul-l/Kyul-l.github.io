@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://unpkg.com https://apis.google.com https://www.google.com https://www.recaptcha.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.googleapis.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://firestore.googleapis.com https://securetoken.googleapis.com https://firebaseinstallations.googleapis.com https://firebaseappcheck.googleapis.com; frame-src https://accounts.google.com https://guestbook-cdee0.firebaseapp.com https://www.google.com https://www.recaptcha.net; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+
+  <title>{% if page.title %}{{ page.title | escape }} • {% endif %}{{ site.title | escape }}</title>
+  <meta name="description" content="{{ page.excerpt | default: site.description | strip_html | normalize_whitespace | truncate: 160 | escape }}">
+
+  
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ page.url | absolute_url }}">
+  <meta property="og:title" content="{% if page.title %}{{ page.title | escape }}{% else %}{{ site.title | escape }}{% endif %}">
+  <meta property="og:description" content="{{ page.excerpt | default: site.description | strip_html | normalize_whitespace | truncate: 160 | escape }}">
+
+  
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="{{ page.url | absolute_url }}">
+  <meta property="twitter:title" content="{% if page.title %}{{ page.title | escape }}{% else %}{{ site.title | escape }}{% endif %}">
+  <meta property="twitter:description" content="{{ page.excerpt | default: site.description | strip_html | normalize_whitespace | truncate: 160 | escape }}">
+
+  <link rel="stylesheet" href="{{ "/assets/css/main.css" | relative_url }}">
+  <link rel="canonical" href="{{ page.url | replace:'index.html','' | absolute_url }}">
+  <link rel="icon" type="image/png" href="{{ '/assets/images/favicon.png' | relative_url }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ '/assets/images/apple-touch-icon.png' | relative_url }}">
+
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Source+Code+Pro&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/vis-network@10.0.1/styles/vis-network.min.css" integrity="sha384-usRrNnELfTQSKMgwEqO3TqR184Z9lVu0ePAyEtrMaaIeGXV61U42OzKYxJ6GkIPK" crossorigin="anonymous">
+
+  
+  <script>
+    (function() {
+      var theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body class="{% if page.layout == 'home' %}layout-home{% endif %}">
+  <a class="skip-to-content" href="#main-content">콘텐츠로 건너뛰기</a>
+
+  <div class="container">
+    <header class="site-header">
+      <a class="site-title" href="{{ "/" | relative_url }}">
+        <img class="site-mascot" src="{{ '/assets/images/kyul-mascot.png' | relative_url }}" alt="" width="36" height="36" aria-hidden="true">
+        <span class="site-title__text">Kyul's Archive</span>
+      </a>
+      <div class="site-header-right">
+          {%- assign _section = page.section | default: page.collection -%}
+          {%- if page.url contains '/wiki' -%}{%- assign _section = 'wiki' -%}{%- endif -%}
+          {%- if page.url contains '/studies' -%}{%- assign _section = 'studies' -%}{%- endif -%}
+          {%- if page.url contains '/log' -%}{%- assign _section = 'log' -%}{%- endif -%}
+          {%- if page.collection == 'posts' -%}{%- assign _section = 'log' -%}{%- endif -%}
+          <nav class="site-nav">
+            <a class="nav-wiki"    href="{{ "/wiki/"    | relative_url }}"{% if _section == 'wiki' %} aria-current="page"{% endif %}><span class="nav-sigil">◇</span>Wiki</a>
+            <a class="nav-studies" href="{{ "/studies/" | relative_url }}"{% if _section == 'studies' %} aria-current="page"{% endif %}><span class="nav-sigil">◇</span>Studies</a>
+            <a class="nav-log"     href="{{ "/log/"     | relative_url }}"{% if _section == 'log' %} aria-current="page"{% endif %}><span class="nav-sigil">◇</span>Log</a>
+          </nav>
+          <span class="nav-divider" aria-hidden="true"></span>
+          <a class="github-link" href="https://github.com/Kyul-l" target="_blank" rel="noopener" aria-label="GitHub · Kyul-l" title="GitHub">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12.5c0-6.63-5.37-12-12-12z"/></svg>
+          </a>
+          <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+          {% if jekyll.environment != "production" %}
+          <a id="write-link" class="write-toggle" href="{{ '/admin/' | relative_url }}" aria-label="Write a new entry" title="Write">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </a>
+          {% endif %}
+      </div>    </header>
+
+    <main id="main-content" class="site-main">
+      {{ content }}
+    </main>
+
+    <footer class="site-footer" aria-hidden="true"></footer>
+
+  </div>
+
+  
+  <script type="module" src="{{ '/assets/js/theme.js' | relative_url }}"></script>
+  <script type="module" src="{{ '/assets/js/graph.js' | relative_url }}"></script>
+  {% if page.layout == 'home' %}
+    <script type="module" src="{{ '/assets/js/terminal.js' | relative_url }}"></script>
+  {% endif %}
+  <script defer src="{{ '/assets/js/post-lang-pill.js' | relative_url }}"></script>
+  <script defer src="https://unpkg.com/vis-network@10.0.1/standalone/umd/vis-network.min.js" integrity="sha384-FuFDVLZeSjg2oVHDgMJbGL/2SUHiIdljuNFbPLQ7UH3M4aDpjibblFOqU3F91apH" crossorigin="anonymous"></script>
+
+  <div id="graph-overlay" class="graph-overlay">
+    <div id="knowledge-graph-container" class="knowledge-graph-container">
+      <span class="close-overlay-button">&times;</span>
+      <div id="graph-loader" class="graph-loader" aria-hidden="true">· ⋆ ✦</div>
+      <div class="graph-canvas-wrapper"></div>
+      <div class="graph-controls">
+        <button id="start-timelapse" class="button button-glass">Start Timelapse</button>
+        <button id="reset-graph" class="button button-glass">Reset Graph</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

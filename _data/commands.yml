@@ -1,0 +1,25 @@
+
+- name: about
+  usage: "/about"
+  description: "Who runs this & what's here."
+  man_page: "Shows a short note about the site and its sections."
+
+- name: search
+  usage: "/search [keyword]"
+  description: "Find posts by keyword."
+  man_page: "Searches post titles, tags, and content for the keyword you provide."
+
+- name: map
+  usage: "/map"
+  description: "Open the knowledge graph."
+  man_page: "Opens an interactive knowledge graph — posts as nodes, shared tags as edges."
+
+- name: help
+  usage: "/help"
+  description: "List available commands."
+  man_page: "Lists every command available in this terminal."
+
+- name: clear
+  usage: "/clear"
+  description: "Wipe the terminal."
+  man_page: "Wipes all output from the terminal screen."
